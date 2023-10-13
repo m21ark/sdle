@@ -42,7 +42,7 @@ function add_list_item() {
     const itemNameElement = event.target.previousElementSibling;
     if (event.target.checked) itemNameElement.classList.add("completed");
     else itemNameElement.classList.remove("completed");
-    update_local_storage();
+    cache_item_changes();
   }
 
   function removeItem(event) {
@@ -50,7 +50,7 @@ function add_list_item() {
     if (!res) return;
     const itemDiv = event.target.parentElement;
     itemsContainer.removeChild(itemDiv);
-    update_local_storage();
+    cache_item_changes();
   }
 
   const itemNameInput = document.getElementById(
@@ -92,14 +92,25 @@ function add_list_item() {
   itemNameInput.value = "";
   itemQuantityInput.value = "";
 
-  update_local_storage();
+  cache_item_changes();
 }
 
-function update_local_storage() {
+function cache_item_changes() {
   const itemsContainer = document.getElementById("items");
   localStorage.setItem("items", itemsContainer.innerHTML);
 
   update_list_count();
+}
+
+function cache_list_changes() {
+  const listContainer = document.getElementById("lists");
+  localStorage.setItem("lists", listContainer.innerHTML);
+
+  if (listContainer.children.length === 0) addNoListMessage();
+  else {
+    const noListMessage = document.querySelector(".no_list_found");
+    if (noListMessage) noListMessage.remove();
+  }
 }
 
 function update_list_count() {
@@ -121,9 +132,9 @@ function add_side_nav_toggle() {
 
 function add_item_popup() {
   const showPopupButton = document.getElementById("floating-add-button");
-  const popup = document.getElementById("popup");
-  const overlay = document.getElementById("overlay");
-  const closePopupButton = document.getElementById("close-popup");
+  const popup = document.getElementById("popup-item");
+  const overlay = document.getElementById("overlay-item");
+  const closePopupButton = document.getElementById("close-popup-item");
   const addItemForm = document.getElementById("add-item-form");
 
   showPopupButton.addEventListener("click", function () {
@@ -144,6 +155,77 @@ function add_item_popup() {
   });
 }
 
+function add_list_popup() {
+  const showPopupButton = document.getElementById("floating-add-button-list");
+  const popup = document.getElementById("popup-list");
+  const overlay = document.getElementById("overlay-list");
+  const closePopupButton = document.getElementById("close-popup-list");
+  const addItemForm = document.getElementById("add-list-form");
+
+  showPopupButton.addEventListener("click", function () {
+    popup.style.display = "block";
+    overlay.style.display = "block";
+  });
+
+  closePopupButton.addEventListener("click", function () {
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  });
+
+  addItemForm.addEventListener("submit", function (e) {
+    e.preventDefault();
+    add_list_to_list();
+
+    popup.style.display = "none";
+    overlay.style.display = "none";
+  });
+}
+
+function add_list_to_list() {
+  const listNameInput = document.getElementById(
+    "list-name"
+  ) as HTMLInputElement;
+  const listName = listNameInput.value.trim();
+
+  // clear the input
+  listNameInput.value = "";
+
+  if (listName === "") {
+    generate_notification("Please enter a name!", "bg-danger");
+    return;
+  }
+
+  const listContainer = document.getElementById("lists");
+
+  const listDiv = document.createElement("div");
+  listDiv.className = "list";
+
+  const listNameElement = document.createElement("span");
+  listNameElement.textContent = listName;
+
+  const deleteButton = document.createElement("button");
+  deleteButton.className = "btn btn-danger delete-button-list";
+  deleteButton.textContent = "X";
+
+  // add event listener to delete button
+  deleteButton.addEventListener("click", function (event) {
+    const res = confirm("Are you sure you want to delete this list?");
+    if (!res) return;
+    const listDiv = (event.target as HTMLElement).parentElement;
+    listContainer.removeChild(listDiv);
+    cache_list_changes();
+  });
+
+  listDiv.appendChild(deleteButton);
+  listDiv.appendChild(listNameElement);
+
+  listContainer.appendChild(listDiv);
+
+  listNameInput.value = "";
+
+  cache_list_changes();
+}
+
 function load_previous_items() {
   const itemsContainer = document.getElementById("items");
   const items = localStorage.getItem("items");
@@ -158,7 +240,7 @@ function load_previous_items() {
       if ((event.target as HTMLInputElement).checked)
         itemNameElement.classList.add("completed");
       else itemNameElement.classList.remove("completed");
-      update_local_storage();
+      cache_item_changes();
     });
   });
 
@@ -169,7 +251,7 @@ function load_previous_items() {
       if (!res) return;
       const itemDiv = (event.target as HTMLElement).parentElement;
       itemsContainer.removeChild(itemDiv);
-      update_local_storage();
+      cache_item_changes();
     });
   });
 
@@ -216,8 +298,42 @@ function add_toggler() {
   abc.addEventListener("click", toggle_view);
 }
 
+function load_previous_lists() {
+  const list_container = document.getElementById("lists");
+  const lists = localStorage.getItem("lists");
+  if (lists) {
+    list_container.innerHTML = lists;
+    console.log("lists found: " + lists);
+
+  } else {
+    addNoListMessage();
+    console.log("no lists found");
+  }
+
+  const deleteButtons = document.querySelectorAll(".delete-button-list");
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      const res = confirm("Are you sure you want to delete this list?");
+      if (!res) return;
+      const listDiv = (event.target as HTMLElement).parentElement;
+      list_container.removeChild(listDiv);
+      cache_list_changes();
+    });
+  });
+}
+
+function addNoListMessage() {
+  const error = document.getElementById("lists-list");
+  const errorP = document.createElement("p");
+  errorP.textContent = "No lists found";
+  errorP.className = "no_list_found";
+  error.appendChild(errorP);
+}
+
+add_list_popup();
 add_toggler();
-load_previous_items();
+load_previous_lists();
+// load_previous_items();
 add_item_popup();
 update_list_count();
 add_share_link_listener();

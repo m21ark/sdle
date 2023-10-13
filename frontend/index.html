@@ -46,10 +46,9 @@
         <button class="btn btn-outline-dark" id="share-button">Share</button>
       </div>
 
-      <div class="overlay" id="overlay"></div>
-
-      <div class="popup" id="popup">
-        <span class="close" id="close-popup">&times;</span>
+      <div class="overlay" id="overlay-item"></div>
+      <div class="popup" id="popup-item">
+        <span class="close" id="close-popup-item">&times;</span>
         <h2>Add Item to the List</h2>
         <form id="add-item-form">
           <label for="item-name">Item Name:</label>
@@ -68,7 +67,7 @@
       </div>
 
       <div id="todo-list" class="container">
-        <div id="items"><!--JS ADDS ITEMS HERE--></div>
+        <div id="items"></div>
       </div>
     </div>
 
@@ -77,8 +76,25 @@
         <h2>Lists</h2>
       </div>
 
-      <div id="list-list" class="container">
-        <div id="lists"><!--JS ADDS LISTS HERE--></div>
+      <div class="overlay" id="overlay-list"></div>
+      <div class="popup" id="popup-list">
+        <span class="close" id="close-popup-list">&times;</span>
+        <h2>Create a new list</h2>
+        <form id="add-list-form">
+          <label for="list-name">List Name:</label>
+          <input
+            type="text"
+            id="list-name"
+            required
+            placeholder="My Shipping List"
+          />
+          <br />
+          <input type="submit" />
+        </form>
+      </div>
+
+      <div id="lists-list" class="container">
+        <div id="lists"></div>
       </div>
     </div>
 

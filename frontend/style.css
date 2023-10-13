@@ -183,6 +183,44 @@ header {
   cursor: pointer;
 }
 
+#add-list-form {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#add-list-form input {
+  padding: 0.5em;
+  font-size: 1.2em;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+#add-list-form input[type="submit"] {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 0.5em;
+  font-size: 1.2em;
+  cursor: pointer;
+
+}
+
+#add-list-form input[type="submit"]:hover {
+  background-color: #0069d9;
+}
+
+input[type="checkbox"] {
+  z-index: 2;
+}
+
+.item input[type="checkbox"] {
+  margin-right: 1em;
+  cursor: pointer;
+  transform: scale(2);
+}
+
 #add-item-form {
   display: flex;
   flex-direction: column;
@@ -211,12 +249,10 @@ header {
   background-color: #0069d9;
 }
 
-input[type="checkbox"] {
-  z-index: 2;
-}
 
-.item input[type="checkbox"] {
-  margin-right: 1em;
-  cursor: pointer;
-  transform: scale(2);
+.no_list_found{
+    text-align: center;
+    font-size: 3em;
+    color: #888;
+    margin-top: 2em;
 }
