@@ -49,11 +49,9 @@ function add_list_item() {
 
   function toggleCompleted(event) {
     const itemNameElement = event.target.previousElementSibling;
-    if (event.target.checked) {
-      itemNameElement.classList.add("completed");
-    } else {
-      itemNameElement.classList.remove("completed");
-    }
+    if (event.target.checked) itemNameElement.classList.add("completed");
+    else itemNameElement.classList.remove("completed");
+    update_local_storage();
   }
 
   function removeItem(event) {
@@ -61,6 +59,7 @@ function add_list_item() {
     if (!res) return;
     const itemDiv = event.target.parentElement;
     itemsContainer.removeChild(itemDiv);
+    update_local_storage();
   }
 
   const itemNameInput = document.getElementById(
@@ -101,7 +100,13 @@ function add_list_item() {
 
   itemNameInput.value = "";
   itemQuantityInput.value = "";
-  console.log("here");
+
+  update_local_storage();
+}
+
+function update_local_storage() {
+  const itemsContainer = document.getElementById("items");
+  localStorage.setItem("items", itemsContainer.innerHTML);
 }
 
 function add_side_nav_toggle() {
@@ -144,6 +149,46 @@ function add_item_popup() {
   });
 }
 
+function load_previous_items() {
+  const itemsContainer = document.getElementById("items");
+  const items = localStorage.getItem("items");
+  if (items) itemsContainer.innerHTML = items;
+
+  const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
+
+  checkboxes.forEach((checkbox) => {
+    checkbox.addEventListener("change", function (event) {
+      const itemNameElement = (event.target as HTMLInputElement)
+        .previousElementSibling;
+      if ((event.target as HTMLInputElement).checked)
+        itemNameElement.classList.add("completed");
+      else itemNameElement.classList.remove("completed");
+      update_local_storage();
+    });
+  });
+
+  const deleteButtons = document.querySelectorAll(".delete-button");
+  deleteButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      const res = confirm("Are you sure you want to delete this item?");
+      if (!res) return;
+      const itemDiv = (event.target as HTMLElement).parentElement;
+      itemsContainer.removeChild(itemDiv);
+      update_local_storage();
+    });
+  });
+
+  // if name is crossed out, check the checkbox
+  const itemNames = document.querySelectorAll(".item span");
+  itemNames.forEach((itemName) => {
+    if (itemName.classList.contains("completed")) {
+      const checkbox = itemName.nextElementSibling as HTMLInputElement;
+      checkbox.checked = true;
+    }
+  });
+}
+
+load_previous_items();
 add_item_popup();
 add_share_link_listener();
 add_side_nav_toggle();
