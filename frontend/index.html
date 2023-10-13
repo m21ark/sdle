@@ -1,11 +1,81 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <title>Hello World</title>
-</head>
-<body>
-    <div id="app"></div>
-    <script src="dist/main.js"></script>
-</body>
-</html>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+    />
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="dist/main.js"></script>
+  </head>
+  <body>
+    <!-- Burger icon to toggle the menu -->
+    <div class="burger-icon" id="burger-icon">&#9776;</div>
 
+    <!-- Menu container -->
+    <div class="menu-container" id="menu-container">
+      <a class="menu-link" href="#">List 1</a>
+      <a class="menu-link" href="#">List 2</a>
+      <a class="menu-link" href="#">List 3</a>
+
+      <a class="menu-link back" href="#">Go back</a>
+      <!-- Add more menu items as needed -->
+    </div>
+
+    <!-- Content, including your header -->
+    <header>Listing Lists LDA.</header>
+
+    <!-- Add the toast notification container -->
+    <div id="notification-toast" class="toast">
+      <div class="toast-header">
+        <strong class="mr-auto text-white">Notification</strong>
+      </div>
+      <div class="toast-body">Link copied to clipboard!</div>
+    </div>
+
+    <main id="app">
+      <div id="list-title">
+        <h2>Grocery Store Todo List</h2>
+        <button class="btn btn-info" id="share-button">Share</button>
+      </div>
+
+      <!-- Popup overlay -->
+      <div class="overlay" id="overlay"></div>
+
+      <!-- Popup form -->
+      <div class="popup" id="popup">
+        <span
+          class="close"
+          id="close-popup"
+          style="font-size: 2.5em; margin-right: 0.2em; margin-top: 0.2em"
+          >&times;</span
+        >
+        <h2>Add Item to the List</h2>
+        <form id="add-item-form">
+          <label for="item-name">Item Name:</label>
+          <input
+            type="text"
+            id="item-name"
+            required
+            placeholder="Potato Chips"
+          />
+          <br />
+          <label for="item-quantity">Quantity:</label>
+          <input type="number" id="item-quantity" required placeholder="3" />
+          <br />
+          <input type="submit" />
+        </form>
+      </div>
+
+      <div id="todo-list" class="container">
+        <div id="items">
+          <!-- Items will be added here dynamically -->
+        </div>
+      </div>
+
+      <button id="floating-add-button"><span>+</span></button>
+    </main>
+  </body>
+</html>
