@@ -27,7 +27,7 @@ function add_share_link_listener() {
   const shareButton = document.getElementById("share-button");
 
   shareButton.addEventListener("click", function () {
-    const uniqueId = "id-" + Math.random().toString(36).substr(2, 9);
+    const uniqueId = "id_" + Math.random().toString(36).substr(2, 9);
     const currentUrl = window.location.href;
     const shareableLink = `${currentUrl}?id=${uniqueId}`;
 
@@ -209,7 +209,12 @@ function add_list_to_list() {
 
   const listNameElement = document.createElement("a");
   listNameElement.textContent = listName;
-  listNameElement.href = `list.html?list=${listName}`;
+  listNameElement.className = "a-list-name";
+  const uniqueId = "id_" + Math.random().toString(36).substr(2, 9);
+  // listNameElement.href = `list.html?list=${uniqueId}`; // to change later
+  listNameElement.href = "#";
+
+  listNameElement.addEventListener("click", toggle_view);
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-danger delete-button delete-button-list";
@@ -273,49 +278,48 @@ function load_previous_items() {
   });
 }
 
-function add_toggler() {
-  function toggle_view() {
-    const div1 = document.getElementById("appList");
-    const div2 = document.getElementById("appListing");
+function toggle_view() {
+  const div1 = document.getElementById("appList");
+  const div2 = document.getElementById("appListing");
 
-    const btn1 = document.getElementById("floating-add-button");
-    const btn2 = document.getElementById("floating-add-button-list");
+  const btn1 = document.getElementById("floating-add-button");
+  const btn2 = document.getElementById("floating-add-button-list");
 
-    const burger = document.getElementById("burger-icon");
+  const burger = document.getElementById("burger-icon");
 
-    if (div1.style.display === "none") {
-      div1.style.display = "block";
-      div2.style.display = "none";
-      btn2.style.display = "none";
-      btn1.style.display = "block";
-      burger.style.display = "block";
-    } else {
-      div1.style.display = "none";
-      div2.style.display = "block";
-      btn1.style.display = "none";
-      btn2.style.display = "block";
-      burger.style.display = "none";
-      nav_toggle();
-    }
+  if (div1.style.display === "none") {
+    div1.style.display = "block";
+    div2.style.display = "none";
+    btn2.style.display = "none";
+    btn1.style.display = "block";
+    burger.style.display = "block";
+  } else {
+    div1.style.display = "none";
+    div2.style.display = "block";
+    btn1.style.display = "none";
+    btn2.style.display = "block";
+    burger.style.display = "none";
+    nav_toggle();
   }
+}
 
+function add_toggler() {
   const toggleButton = document.querySelector(".menu-link.back");
   toggleButton.addEventListener("click", toggle_view);
-
-  const abc = document.querySelector("header");
-  abc.addEventListener("click", toggle_view);
 }
 
 function load_previous_lists() {
   const list_container = document.getElementById("lists");
   const lists = localStorage.getItem("lists");
-  if (lists) {
-    list_container.innerHTML = lists;
-    console.log("lists found: " + lists);
-  } else {
+  if (lists) list_container.innerHTML = lists;
+  else {
     addNoListMessage();
-    console.log("no lists found");
+    return;
   }
+
+  const list_href = document.querySelectorAll(".a-list-name");
+  for (let i = 0; i < list_href.length; i++)
+    list_href[i].addEventListener("click", toggle_view);
 
   const deleteButtons = document.querySelectorAll(".delete-button-list");
   deleteButtons.forEach((button) => {
@@ -340,7 +344,7 @@ function addNoListMessage() {
 add_list_popup();
 add_toggler();
 load_previous_lists();
-// load_previous_items();
+load_previous_items();
 add_item_popup();
 update_item_count();
 update_list_count();

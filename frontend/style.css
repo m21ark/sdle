@@ -1,5 +1,6 @@
 body {
   font-family: Arial, sans-serif;
+  margin: auto;
 }
 
 div#appList {
@@ -279,4 +280,13 @@ input[type="checkbox"] {
   display: flex;
   flex-direction: column;
   margin-top: 2em;
+}
+
+.a-list-name {
+  cursor: pointer;
+}
+
+.a-list-name:hover {
+  color: #0069d9;
+  text-decoration: none;
 }
