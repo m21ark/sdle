@@ -20,7 +20,9 @@
   </head>
 
   <body>
-    <div class="burger-icon" id="burger-icon">&#9776;</div>
+    <div class="burger-icon" id="burger-icon" style="display: none">
+      &#9776;
+    </div>
 
     <div class="menu-container" id="menu-container">
       <a class="menu-link" href="#">List 1</a>
@@ -38,7 +40,7 @@
       <div class="toast-body">Link copied to clipboard!</div>
     </div>
 
-    <main id="app">
+    <div id="appList" style="display: none">
       <div id="list-title">
         <h2>Grocery List <span id="list-item-count"></span></h2>
         <button class="btn btn-outline-dark" id="share-button">Share</button>
@@ -68,8 +70,23 @@
       <div id="todo-list" class="container">
         <div id="items"><!--JS ADDS ITEMS HERE--></div>
       </div>
+    </div>
 
-      <button id="floating-add-button"><span>+</span></button>
-    </main>
+    <div id="appListing">
+      <div id="list-title">
+        <h2>Lists</h2>
+      </div>
+
+      <div id="list-list" class="container">
+        <div id="lists"><!--JS ADDS LISTS HERE--></div>
+      </div>
+    </div>
+
+    <button id="floating-add-button" class="floating-add-button">
+      <span>+</span>
+    </button>
+    <button id="floating-add-button-list" class="floating-add-button">
+      <span>+</span>
+    </button>
   </body>
 </html>

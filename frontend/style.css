@@ -2,7 +2,7 @@ body {
   font-family: Arial, sans-serif;
 }
 
-main {
+div#appList {
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -59,7 +59,7 @@ main {
   z-index: 1000;
 }
 
-#floating-add-button {
+.floating-add-button {
   position: fixed;
   bottom: 20px;
   right: 20px;
@@ -76,11 +76,11 @@ main {
   justify-content: center;
 }
 
-#floating-add-button:hover {
+.floating-add-button:hover {
   background-color: #0069d9;
 }
 
-#floating-add-button > span {
+.floating-add-button > span {
   font-weight: bold;
   font-size: 2em;
 }
