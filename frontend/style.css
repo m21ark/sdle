@@ -20,8 +20,9 @@ main {
   justify-content: space-between;
   align-items: center;
   border: 1px solid #ccc;
-  padding: 10px;
+  padding: 2em;
   margin: 5px 0;
+  border-radius: 7px;
 }
 
 .item .completed {
@@ -38,11 +39,15 @@ main {
   text-align: center;
 }
 
+.item span {
+  font-size: 1.3em;
+  margin-right: 1em;
+}
+
 .item .delete-button:hover {
   background-color: #c00;
 }
 
-/* make it appear on center top */
 #notification-toast {
   position: fixed;
   top: 1em;
@@ -57,14 +62,14 @@ main {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background-color: #007bff; /* Button background color */
-  color: #fff; /* Button text color */
+  background-color: #007bff;
+  color: #fff;
   border: none;
-  border-radius: 50%; /* Create a circular shape */
+  border-radius: 50%;
   width: 70px;
   height: 70px;
   cursor: pointer;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -88,11 +93,10 @@ header {
   font-weight: bold;
 }
 
-/* Style for the menu container */
 .menu-container {
   position: fixed;
   top: 0;
-  left: -250px; /* Initially hidden */
+  left: -250px;
   width: 250px;
   height: 100%;
   background-color: #333;
@@ -102,7 +106,6 @@ header {
   z-index: 1000;
 }
 
-/* Style for the burger icon */
 .burger-icon {
   position: fixed;
   padding-left: 1em;
@@ -113,7 +116,6 @@ header {
   z-index: 1001;
 }
 
-/* Style for the menu links */
 .menu-link {
   display: block;
   color: #fff;
@@ -147,7 +149,6 @@ header {
   padding: 1em;
 }
 
-/* Styles for the overlay background */
 .overlay {
   display: none;
   position: fixed;
@@ -158,7 +159,6 @@ header {
   background: rgba(0, 0, 0, 0.7);
 }
 
-/* Styles for the popup container */
 .popup {
   display: none;
   position: fixed;
@@ -173,7 +173,6 @@ header {
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
-/* Styles for the close button */
 .close {
   position: absolute;
   top: 10px;
@@ -184,7 +183,6 @@ header {
 #add-item-form {
   display: flex;
   flex-direction: column;
-
   height: 100%;
 }
 

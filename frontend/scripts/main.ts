@@ -12,32 +12,23 @@ function generate_notification(text, type) {
   }, 5000);
 }
 
-function add_to_clipboard(shareableLink) {
-  navigator.clipboard
-    .writeText(shareableLink)
-    .then(() => {
-      generate_notification("Copied to clipboard!", "bg-success");
-    })
-    .catch((error) => {
-      console.error("Failed to copy text: ", error);
-    });
-}
-
 function add_share_link_listener() {
-  // Generate a unique ID (you can use a more sophisticated method if needed)
-  function generateUniqueId() {
-    return "id-" + Math.random().toString(36).substr(2, 9);
+  function add_to_clipboard(shareableLink) {
+    navigator.clipboard
+      .writeText(shareableLink)
+      .then(() => {
+        generate_notification("Copied to clipboard!", "bg-success");
+      })
+      .catch((error) => {
+        console.error("Failed to copy text: ", error);
+      });
   }
 
-  // Get the share button and share link elements
   const shareButton = document.getElementById("share-button");
 
-  // Add a click event listener to the share button
   shareButton.addEventListener("click", function () {
-    const uniqueId = generateUniqueId(); // Generate a unique ID
-    const currentUrl = window.location.href; // Get the current URL
-
-    // Create a shareable link by appending the unique ID to the current URL
+    const uniqueId = "id-" + Math.random().toString(36).substr(2, 9);
+    const currentUrl = window.location.href;
     const shareableLink = `${currentUrl}?id=${uniqueId}`;
 
     add_to_clipboard(shareableLink);
@@ -85,7 +76,7 @@ function add_list_item() {
   checkbox.addEventListener("change", toggleCompleted);
 
   const itemNameElement = document.createElement("span");
-  itemNameElement.textContent = `${itemName} (Qnt: ${itemQuantity})`;
+  itemNameElement.textContent = `${itemName} \t|\t (Qnt: ${itemQuantity})`;
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-danger delete-button";
@@ -107,20 +98,23 @@ function add_list_item() {
 function update_local_storage() {
   const itemsContainer = document.getElementById("items");
   localStorage.setItem("items", itemsContainer.innerHTML);
+
+  update_list_count();
+}
+
+function update_list_count() {
+  const itemsContainer = document.getElementById("items");
+  const count = document.querySelector("#list-item-count");
+  count.textContent = `(${itemsContainer.children.length})`;
 }
 
 function add_side_nav_toggle() {
-  // Get the menu container and burger icon elements
   const menuContainer = document.getElementById("menu-container");
   const burgerIcon = document.getElementById("burger-icon");
 
-  // Toggle the menu when the burger icon is clicked
   burgerIcon.addEventListener("click", function () {
-    if (menuContainer.style.left === "0px") {
-      menuContainer.style.left = "-250px"; // Hide the menu
-    } else {
-      menuContainer.style.left = "0px"; // Show the menu
-    }
+    if (menuContainer.style.left === "0px") menuContainer.style.left = "-250px";
+    else menuContainer.style.left = "0px";
   });
 }
 
@@ -190,5 +184,6 @@ function load_previous_items() {
 
 load_previous_items();
 add_item_popup();
+update_list_count();
 add_share_link_listener();
 add_side_nav_toggle();
