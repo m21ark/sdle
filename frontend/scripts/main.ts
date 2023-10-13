@@ -99,12 +99,13 @@ function cache_item_changes() {
   const itemsContainer = document.getElementById("items");
   localStorage.setItem("items", itemsContainer.innerHTML);
 
-  update_list_count();
+  update_item_count();
 }
 
 function cache_list_changes() {
   const listContainer = document.getElementById("lists");
   localStorage.setItem("lists", listContainer.innerHTML);
+  update_list_count();
 
   if (listContainer.children.length === 0) addNoListMessage();
   else {
@@ -113,9 +114,15 @@ function cache_list_changes() {
   }
 }
 
-function update_list_count() {
+function update_item_count() {
   const itemsContainer = document.getElementById("items");
   const count = document.querySelector("#list-item-count");
+  count.textContent = `(${itemsContainer.children.length})`;
+}
+
+function update_list_count() {
+  const itemsContainer = document.getElementById("lists");
+  const count = document.querySelector("#list-list-count");
   count.textContent = `(${itemsContainer.children.length})`;
 }
 
@@ -200,11 +207,12 @@ function add_list_to_list() {
   const listDiv = document.createElement("div");
   listDiv.className = "list";
 
-  const listNameElement = document.createElement("span");
+  const listNameElement = document.createElement("a");
   listNameElement.textContent = listName;
+  listNameElement.href = `list.html?list=${listName}`;
 
   const deleteButton = document.createElement("button");
-  deleteButton.className = "btn btn-danger delete-button-list";
+  deleteButton.className = "btn btn-danger delete-button delete-button-list";
   deleteButton.textContent = "X";
 
   // add event listener to delete button
@@ -304,7 +312,6 @@ function load_previous_lists() {
   if (lists) {
     list_container.innerHTML = lists;
     console.log("lists found: " + lists);
-
   } else {
     addNoListMessage();
     console.log("no lists found");
@@ -335,6 +342,7 @@ add_toggler();
 load_previous_lists();
 // load_previous_items();
 add_item_popup();
+update_item_count();
 update_list_count();
 add_share_link_listener();
 add_side_nav_toggle();

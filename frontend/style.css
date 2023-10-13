@@ -204,7 +204,6 @@ header {
   padding: 0.5em;
   font-size: 1.2em;
   cursor: pointer;
-
 }
 
 #add-list-form input[type="submit"]:hover {
@@ -249,10 +248,35 @@ input[type="checkbox"] {
   background-color: #0069d9;
 }
 
+.no_list_found {
+  text-align: center;
+  font-size: 3em;
+  color: #888;
+  margin-top: 2em;
+}
 
-.no_list_found{
-    text-align: center;
-    font-size: 3em;
-    color: #888;
-    margin-top: 2em;
+.list {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  border: 1px solid #ccc;
+  margin: 5px;
+  border-radius: 5px;
+  background-color: #f8f8f8;
+  margin-top: 1.5em;
+}
+
+.list a {
+  font-size: 2em;
+  color: #333;
+}
+
+.delete-button-list {
+  margin-right: 1.5em;
+}
+
+#lists-list {
+  display: flex;
+  flex-direction: column;
+  margin-top: 2em;
 }
