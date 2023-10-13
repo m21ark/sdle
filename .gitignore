@@ -1,0 +1,9 @@
+# Node.js
+node_modules/
+
+# Visual Studio Code
+.vscode/
+
+# compiled output
+dist/
+
