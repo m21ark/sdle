@@ -95,19 +95,6 @@ header {
   font-weight: bold;
 }
 
-.menu-container {
-  position: fixed;
-  top: 0;
-  left: -250px;
-  width: 250px;
-  height: 100%;
-  background-color: #333;
-  padding: 3em;
-  padding-top: 5em;
-  transition: left 0.3s;
-  z-index: 1000;
-}
-
 .burger-icon {
   position: fixed;
   padding-left: 1em;

@@ -99,6 +99,12 @@ function cache_item_changes() {
   const itemsContainer = document.getElementById("items");
   localStorage.setItem("items", itemsContainer.innerHTML);
 
+  if (itemsContainer.children.length === 0) addNoItemMessage();
+  else {
+    const noItemMessage = document.querySelector(".no_list_found");
+    if (noItemMessage) noItemMessage.remove();
+  }
+
   update_item_count();
 }
 
@@ -124,17 +130,6 @@ function update_list_count() {
   const itemsContainer = document.getElementById("lists");
   const count = document.querySelector("#list-list-count");
   count.textContent = `(${itemsContainer.children.length})`;
-}
-
-function nav_toggle() {
-  const menuContainer = document.getElementById("menu-container");
-  if (menuContainer.style.left === "0px") menuContainer.style.left = "-250px";
-  else menuContainer.style.left = "0px";
-}
-
-function add_side_nav_toggle() {
-  const burgerIcon = document.getElementById("burger-icon");
-  burgerIcon.addEventListener("click", nav_toggle);
 }
 
 function add_item_popup() {
@@ -211,8 +206,7 @@ function add_list_to_list() {
   listNameElement.textContent = listName;
   listNameElement.className = "a-list-name";
   const uniqueId = "id_" + Math.random().toString(36).substr(2, 9);
-  // listNameElement.href = `list.html?list=${uniqueId}`; // to change later
-  listNameElement.href = "#";
+  listNameElement.href = `#?list=${uniqueId}`;
 
   listNameElement.addEventListener("click", toggle_view);
 
@@ -243,6 +237,7 @@ function load_previous_items() {
   const itemsContainer = document.getElementById("items");
   const items = localStorage.getItem("items");
   if (items) itemsContainer.innerHTML = items;
+  else addNoItemMessage();
 
   const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
 
@@ -288,24 +283,20 @@ function toggle_view() {
   const burger = document.getElementById("burger-icon");
 
   if (div1.style.display === "none") {
+    // item list view
     div1.style.display = "block";
     div2.style.display = "none";
     btn2.style.display = "none";
     btn1.style.display = "block";
     burger.style.display = "block";
   } else {
+    // lists view
     div1.style.display = "none";
     div2.style.display = "block";
     btn1.style.display = "none";
     btn2.style.display = "block";
     burger.style.display = "none";
-    nav_toggle();
   }
-}
-
-function add_toggler() {
-  const toggleButton = document.querySelector(".menu-link.back");
-  toggleButton.addEventListener("click", toggle_view);
 }
 
 function load_previous_lists() {
@@ -341,12 +332,26 @@ function addNoListMessage() {
   error.appendChild(errorP);
 }
 
+function addNoItemMessage() {
+  const error = document.getElementById("todo-list");
+  const errorP = document.createElement("p");
+  errorP.textContent = "No items found";
+  errorP.className = "no_list_found";
+  error.appendChild(errorP);
+}
+
+function add_go_back_listener() {
+  const burger = document.getElementById("burger-icon");
+  burger.addEventListener("click", toggle_view);
+}
+
+add_go_back_listener();
+
 add_list_popup();
-add_toggler();
+
 load_previous_lists();
 load_previous_items();
 add_item_popup();
 update_item_count();
 update_list_count();
 add_share_link_listener();
-add_side_nav_toggle();
