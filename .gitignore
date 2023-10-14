@@ -7,3 +7,9 @@ node_modules/
 # compiled output
 dist/
 
+# Python Cache
+__pycache__
+
+# Database
+*.db
+

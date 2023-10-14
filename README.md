@@ -1,10 +1,8 @@
 # SDLE
 
-## How to run
+## How to run frontend
 
 On the first run, or after making changes to the `package.json` file, run the command below to install the dependencies:
-
-Command should be ran inside `backend` and `frontend` directories individually as they are separate.
 
 ```js
 npm install
@@ -22,8 +20,17 @@ To clean (on root directory):
 npm start clean
 ```
 
-To run (on root directory):
+## How to run backend
 
-```js
-npm start start
+The backend just creates the routes needed to access and manipulate the database. You need to create the `database.db` file first by executing:
+
+```sql
+sqlite3 database.db # inside /db
+
+> .read criar.sql
+> .read povoar.sql
+```
+
+```py
+python3 backend.py
 ```
