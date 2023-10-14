@@ -95,11 +95,11 @@ function add_list_item() {
   cache_item_changes();
 }
 
-function cache_item_changes() {
+function cache_item_changes(deletedListParent = false) {
   const itemsContainer = document.getElementById("items");
   const currList = document.getElementById("current-list-name").textContent;
-  if (currList === "") {
-    alert("Please select a list first!");
+  if (currList === "" && !deletedListParent) {
+    generate_notification("Please select a list!", "bg-danger");
     return;
   }
   const cacheLocation = "myitems_" + currList;
@@ -239,7 +239,7 @@ function add_list_to_list() {
     // clear the lists items
     const itemsContainer = document.getElementById("items");
     itemsContainer.innerHTML = "";
-    cache_item_changes();
+    cache_item_changes(true);
   });
 
   listDiv.appendChild(deleteButton);
@@ -260,7 +260,9 @@ function load_previous_items() {
 
   const items = localStorage.getItem(cacheLocation);
   if (items) itemsContainer.innerHTML = items;
-  else addNoItemMessage();
+  else if (document.getElementById("todo-list").children.length < 2) {
+    addNoItemMessage();
+  }
 
   const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
 
@@ -322,6 +324,10 @@ function toggle_view() {
     btn2.style.display = "block";
     burger.style.display = "none";
     document.getElementById("current-list-name").textContent = "";
+
+    // empty items container when switching to lists view to avoid confusion
+    const itemsContainer = document.getElementById("items");
+    itemsContainer.innerHTML = "";
   }
 }
 
@@ -359,7 +365,7 @@ function load_previous_lists() {
       // clear the lists items
       const itemsContainer = document.getElementById("items");
       itemsContainer.innerHTML = "";
-      cache_item_changes();
+      cache_item_changes(true);
     });
   });
 }
@@ -369,7 +375,7 @@ function addNoListMessage() {
   const errorP = document.createElement("p");
   errorP.textContent = "No lists found";
   errorP.className = "no_list_found";
-  //  error.appendChild(errorP); // anoying bug
+  error.appendChild(errorP);
 }
 
 function addNoItemMessage() {
@@ -377,7 +383,7 @@ function addNoItemMessage() {
   const errorP = document.createElement("p");
   errorP.textContent = "No items found";
   errorP.className = "no_list_found";
-  // error.appendChild(errorP);  // anoying bug
+  error.appendChild(errorP);
 }
 
 function add_go_back_listener() {
