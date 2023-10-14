@@ -235,6 +235,11 @@ function add_list_to_list() {
     const listDiv = (event.target as HTMLElement).parentElement;
     listContainer.removeChild(listDiv);
     cache_list_changes();
+
+    // clear the lists items
+    const itemsContainer = document.getElementById("items");
+    itemsContainer.innerHTML = "";
+    cache_item_changes();
   });
 
   listDiv.appendChild(deleteButton);
@@ -289,6 +294,8 @@ function load_previous_items() {
       checkbox.checked = true;
     }
   });
+
+  update_item_count();
 }
 
 function toggle_view() {
@@ -348,6 +355,11 @@ function load_previous_lists() {
       const listDiv = (event.target as HTMLElement).parentElement;
       list_container.removeChild(listDiv);
       cache_list_changes();
+
+      // clear the lists items
+      const itemsContainer = document.getElementById("items");
+      itemsContainer.innerHTML = "";
+      cache_item_changes();
     });
   });
 }
