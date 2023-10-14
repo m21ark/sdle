@@ -8,13 +8,13 @@ On the first run, or after making changes to the `package.json` file, run the co
 npm install
 ```
 
-To compile (on root directory):
+To compile:
 
 ```js
 npm start buid
 ```
 
-To clean (on root directory):
+To clean:
 
 ```js
 npm start clean
