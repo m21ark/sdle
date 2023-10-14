@@ -27,7 +27,7 @@ function add_share_link_listener() {
   const shareButton = document.getElementById("share-button");
 
   shareButton.addEventListener("click", function () {
-    const uniqueId = "id_" + Math.random().toString(36).substr(2, 9);
+    const uniqueId = "my_lists_id" + Math.random().toString(36).substr(2, 9);
     const currentUrl = window.location.href;
     const shareableLink = `${currentUrl}?id=${uniqueId}`;
 
@@ -76,7 +76,7 @@ function add_list_item() {
   checkbox.addEventListener("change", toggleCompleted);
 
   const itemNameElement = document.createElement("span");
-  itemNameElement.textContent = `${itemName} \t|\t (Qnt: ${itemQuantity})`;
+  itemNameElement.textContent = `${itemName} \t (Qnt: ${itemQuantity})`;
 
   const deleteButton = document.createElement("button");
   deleteButton.className = "btn btn-danger delete-button";
@@ -97,7 +97,13 @@ function add_list_item() {
 
 function cache_item_changes() {
   const itemsContainer = document.getElementById("items");
-  localStorage.setItem("items", itemsContainer.innerHTML);
+  const currList = document.getElementById("current-list-name").textContent;
+  if (currList === "") {
+    alert("Please select a list first!");
+    return;
+  }
+  const cacheLocation = "myitems_" + currList;
+  localStorage.setItem(cacheLocation, itemsContainer.innerHTML);
 
   if (itemsContainer.children.length === 0) addNoItemMessage();
   else {
@@ -205,13 +211,21 @@ function add_list_to_list() {
   const listNameElement = document.createElement("a");
   listNameElement.textContent = listName;
   listNameElement.className = "a-list-name";
-  const uniqueId = "id_" + Math.random().toString(36).substr(2, 9);
-  listNameElement.href = `#?list=${uniqueId}`;
+  let listNameId = listName.replace(/\s/g, "*");
+  const uniqueId =
+    "id_" + listNameId + "_" + Math.random().toString(36).substr(2, 9);
+  listNameElement.dataset.id = uniqueId;
+  listNameElement.dataset.name = listName;
 
-  listNameElement.addEventListener("click", toggle_view);
+  listNameElement.addEventListener("click", () => {
+    document.getElementById("current-list-name").textContent = uniqueId;
+    document.getElementById("list-name-title").textContent = listName;
+    toggle_view();
+    load_previous_items();
+  });
 
   const deleteButton = document.createElement("button");
-  deleteButton.className = "btn btn-danger delete-button delete-button-list";
+  deleteButton.className = "btn btn-danger delete-button-list";
   deleteButton.textContent = "X";
 
   // add event listener to delete button
@@ -235,7 +249,11 @@ function add_list_to_list() {
 
 function load_previous_items() {
   const itemsContainer = document.getElementById("items");
-  const items = localStorage.getItem("items");
+  const currList = document.getElementById("current-list-name").textContent;
+  const cacheLocation = "myitems_" + currList;
+  if (currList === "") return;
+
+  const items = localStorage.getItem(cacheLocation);
   if (items) itemsContainer.innerHTML = items;
   else addNoItemMessage();
 
@@ -283,19 +301,20 @@ function toggle_view() {
   const burger = document.getElementById("burger-icon");
 
   if (div1.style.display === "none") {
-    // item list view
+    // enter item list view
     div1.style.display = "block";
     div2.style.display = "none";
     btn2.style.display = "none";
     btn1.style.display = "block";
     burger.style.display = "block";
   } else {
-    // lists view
+    // enter lists view
     div1.style.display = "none";
     div2.style.display = "block";
     btn1.style.display = "none";
     btn2.style.display = "block";
     burger.style.display = "none";
+    document.getElementById("current-list-name").textContent = "";
   }
 }
 
@@ -308,9 +327,18 @@ function load_previous_lists() {
     return;
   }
 
-  const list_href = document.querySelectorAll(".a-list-name");
+  const list_href = document.querySelectorAll(
+    ".a-list-name"
+  ) as NodeListOf<HTMLElement>;
   for (let i = 0; i < list_href.length; i++)
-    list_href[i].addEventListener("click", toggle_view);
+    list_href[i].addEventListener("click", () => {
+      document.getElementById("current-list-name").textContent =
+        list_href[i].dataset.id;
+      document.getElementById("list-name-title").textContent =
+        list_href[i].dataset.name;
+      toggle_view();
+      load_previous_items();
+    });
 
   const deleteButtons = document.querySelectorAll(".delete-button-list");
   deleteButtons.forEach((button) => {
@@ -329,7 +357,7 @@ function addNoListMessage() {
   const errorP = document.createElement("p");
   errorP.textContent = "No lists found";
   errorP.className = "no_list_found";
-  error.appendChild(errorP);
+  //  error.appendChild(errorP); // anoying bug
 }
 
 function addNoItemMessage() {
@@ -337,7 +365,7 @@ function addNoItemMessage() {
   const errorP = document.createElement("p");
   errorP.textContent = "No items found";
   errorP.className = "no_list_found";
-  error.appendChild(errorP);
+  // error.appendChild(errorP);  // anoying bug
 }
 
 function add_go_back_listener() {
@@ -346,11 +374,8 @@ function add_go_back_listener() {
 }
 
 add_go_back_listener();
-
 add_list_popup();
-
 load_previous_lists();
-load_previous_items();
 add_item_popup();
 update_item_count();
 update_list_count();
