@@ -50,25 +50,25 @@ def add_user():
 
 @app.route('/lists', methods=['GET'])
 def get_lists():
-    return jsonify(fetch_all('lists'))
+    return jsonify(fetch_all('todo_lists'))
 
 
 @app.route('/lists/<int:list_id>', methods=['GET'])
 def get_list(list_id):
-    list = fetch_by_id('lists', list_id)
+    list = fetch_by_id('todo_lists', list_id)
     return jsonify(list) if list else ('List not found', 404)
 
 
 @app.route('/lists/<int:list_id>', methods=['PUT'])
 def update_list(list_id):
     data = request.get_json()
-    update_by_id('lists', list_id, data)
+    update_by_id('todo_lists', list_id, data)
     return 'List updated successfully'
 
 
 @app.route('/lists/<int:list_id>', methods=['DELETE'])
 def delete_list(list_id):
-    delete_by_id('lists', list_id)
+    delete_by_id('todo_lists', list_id)
     return 'List deleted successfully'
 
 
@@ -78,7 +78,7 @@ def add_list():
     if 'name' in data:
         conn = connect_db()
         cursor = conn.cursor()
-        cursor.execute('INSERT INTO lists (name) VALUES (?)',
+        cursor.execute('INSERT INTO todo_lists (name) VALUES (?)',
                        (data['name'],))
         conn.commit()
         conn.close()
