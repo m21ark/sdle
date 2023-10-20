@@ -433,7 +433,7 @@ function login_modal() {
     // add the event listener to the submit 
     const usernameValue = usernameInput.value;
     const passwordValue = passwordInput.value;
-    const url = "http://localhost:5000/users";
+    const url = "http://localhost:5000/users"; // TODO: change the endpoint
     const data = {
       username: usernameValue,
       password: passwordValue

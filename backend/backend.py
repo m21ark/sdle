@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify
 from aux_db_functions import *
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS( app )
 
 
 # ===================================================== USER ROUTES =====================================================
