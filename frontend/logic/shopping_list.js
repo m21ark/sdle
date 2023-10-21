@@ -1,14 +1,28 @@
-import {PNCounter} from './crdt.js';
+import { PNCounter } from './crdt.js';
+
+
 
 class ShoppingList {
 
 
-    constructor() {
+    constructor(prod, commits, commitTimeline) {
         this.products = new Map(); // Map product names to PNCounters
         this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
         this.commitTimeline = []; // List of commit hashes in chronological order
+        if (prod != undefined && commits != undefined && commitTimeline != undefined) {
+            this.products = prod; // Map product names to PNCounters
+            this.commits = commits; // Map commit hashes to ShoppingLists ... successfully identifying a merge
+            this.commitTimeline = commitTimeline; // List of commit hashes in chronological order
+        } else {
 
-        // TODO: n é preciso manter todas as versoes do shopping list ... so a ultima com cada um dos nos (server e clients se quisermos fazer peer to peer )
+            this.products = new Map(); // Map product names to PNCounters
+            this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
+            this.commitTimeline = []; // List of commit hashes in chronological order
+
+            // TODO: n é preciso manter todas as versoes do shopping list ... so a ultima com cada um dos nos (server e clients se quisermos fazer peer to peer )
+            this.commits.set("FIRST_COMMIT", new ShoppingList(new Map(), new Map(), []));
+            this.commitTimeline.push("FIRST_COMMIT");
+        }
     }
 
     commitHash() {
@@ -39,7 +53,6 @@ class ShoppingList {
     }
 
     showList() { // TODO; add a name to the list
-        console.log('Shopping list:');
         for (const [productName, quantity] of this.products) {
             console.log(`${productName}: ${quantity.value()}`);
         }
@@ -66,13 +79,11 @@ class ShoppingList {
                 return true;
             } else {
                 const commitedCounter = commitedList.products.get(productName);
-                console.log('commitedCounter', commitedCounter.value());
-                console.log('counter', counter.value());
                 const diff = counter.value() - commitedCounter.value();
                 if (diff !== 0) {
                     return true;
                 }
-                
+
             }
         }
 
@@ -89,8 +100,6 @@ class ShoppingList {
                 newShoppingList.products.set(productName, counter);
             } else {
                 const commitedCounter = commitedList.products.get(productName);
-                console.log('commitedCounter', commitedCounter.value());
-                console.log('counter', counter.value());
                 const diff = counter.value() - commitedCounter.value();
                 if (diff !== 0) {
                     const newCounter = new PNCounter();
@@ -102,7 +111,7 @@ class ShoppingList {
 
                     newShoppingList.products.set(productName, newCounter);
                 }
-                
+
             }
         }
 
@@ -112,7 +121,7 @@ class ShoppingList {
     clone() {
         // Clone the shopping list
         const newShoppingList = new ShoppingList();
-        
+
         let newProducts = new Map();
         for (const [productName, counter] of this.products) {
             newProducts.set(productName, counter.clone());
@@ -126,9 +135,9 @@ class ShoppingList {
     }
 
 
-    commitChanges(commitHash) {
+    commitChanges(commitHash, changes) {
         // Commit changes to the shopping list
-        this.commits.set(commitHash, this.clone());
+        this.commits.set(commitHash, changes.clone());
         // localStorage.setItem('shoppingList', JSON.stringify(Array.from(this.commits)));
         this.commitTimeline.push(commitHash);
         return commitHash; // TODO: commit changes should be in cache and be serialized back .... still need to do the serialization part
@@ -159,18 +168,68 @@ class ShoppingList {
         }
     }
 
+    getAllFollowingCommits(commitHash) {
+        // Return a list of all commits after the given commit hash
+        const index = this.commitTimeline.indexOf(commitHash);
+        return this.commitTimeline.slice(index + 1);
+    }
+
+    mergeListOfCommits(commitHashes) {
+        // Merge a list of commits
+        for (const commitHash of commitHashes) {
+            const changes = this.commits.get(commitHash);
+            this.merge(changes);
+        }
+    }
+
+    getAllChanges(hash) {
+        // Return a list of all changes after the given commit hash
+        console.log(hash)
+        const all_following_commits = this.getAllFollowingCommits(hash);
+        console.log("ALL FOLLOWING COMMITS")
+        console.log(all_following_commits)
+        const changes = new ShoppingList();
+        for (const commitHash of all_following_commits) {
+            const commitChanges = this.commits.get(commitHash);
+            changes.merge(commitChanges);
+        }
+        return changes;
+    }
+
     merge(other) {
         // Merge product counters from another ShoppingList
+
+ 
+        let newChanges = this.changesAfter(this.commitTimeline[this.commitTimeline.length - 1]); // the new changes are the ones after the last commit
+        // check if other has changes after the last commit
+        let otherChanges;
+        if (other.commitTimeline[other.commitTimeline.length - 1] == this.commitTimeline[this.commitTimeline.length - 1]) {
+            otherChanges = other.changesAfter(other.commitTimeline[other.commitTimeline.length - 1]); // the other changes are the ones after the last commit
+        } else {
+            console.log("Diff hashes")
+            otherChanges = other.getAllChanges(this.commitTimeline[this.commitTimeline.length - 1]); // the other changes are the ones after the last commit
+        }
+
+        console.log("OTHER CHANGES")
+        otherChanges.showList();
+        console.log("NEW CHANGES")
+        newChanges.showList();
+
         const commitHash = this.commitHash();
-        for (const [productName, counter] of other.products) {
+        this.commitChanges(commitHash, newChanges); // WE COMMIT our changes TO OURSELVES
+        for (const [productName, counter] of otherChanges.products) {
             if (!this.products.has(productName)) {
                 this.products.set(productName, new PNCounter());
             }
             const productCounter = this.products.get(productName);
             productCounter.join(counter);
         }
-        this.commitChanges(commitHash);
-        other.commitChanges(commitHash);
+        
+        console.log("WIWIWIIWIW")
+        newChanges.showList();
+
+        console.log(this.commits)
+        //other.commitChanges(commitHash, otherChanges);
     }
 }
 
@@ -178,24 +237,51 @@ class ShoppingList {
 
 // Example usage:
 
+const replica1 = new ShoppingList();
+const replica2 = new ShoppingList();
+// 
+replica1.addProduct('Apples', 3);
+replica1.addProduct('Bananas', 2);
+// 
+replica2.addProduct('Bananas', 1);
+replica2.addProduct('Apples', 3);
+replica2.removeProduct('Apples', 2);
+// 
+// Merge the two replicas
+replica1.merge(replica2);
+
+console.log('MERGE =========');
+console.log('Replica 1:');
+replica1.showList();
+console.log('Replica 2:');
+replica2.showList();
+console.log('MERGE =========');
+
+replica2.merge(replica1);
+// 
+console.log('Replica 1:');
+replica1.showList();
+console.log('Replica 2:');
+replica2.showList();
 
 
-const shoppingList = new ShoppingList();
-shoppingList.addProduct('Apples', 3);
-shoppingList.addProduct('Bananas', 2);
 
-shoppingList.showList();
-
-const commitHash = shoppingList.commitHash();
-shoppingList.commitChanges(commitHash);
-
-shoppingList.addProduct('Bananas', 1);
-shoppingList.removeProduct('Apples', 2);
-
-const dShopping = shoppingList.changesAfter(commitHash);
-
-
-dShopping.showList();
+// const shoppingList = new ShoppingList();
+// shoppingList.addProduct('Apples', 3);
+// shoppingList.addProduct('Bananas', 2);
+// 
+// shoppingList.showList();
+// 
+// const commitHash = shoppingList.commitHash();
+// shoppingList.commitChanges(commitHash);
+// 
+// shoppingList.addProduct('Bananas', 1);
+// shoppingList.removeProduct('Apples', 2);
+// 
+// const dShopping = shoppingList.changesAfter(commitHash);
+// 
+// 
+// dShopping.showList();
 // const replica1 = new ShoppingList();
 // const replica2 = new ShoppingList();
 // 

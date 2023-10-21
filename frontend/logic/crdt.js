@@ -7,7 +7,11 @@ export class GCounter {
 
     clone() {
         const newCounter = new GCounter(this.id);
-        newCounter.counts = new Map([...this.counts]);
+        newCounter.counts = new Map();
+        for (const [id, count] of this.counts) {
+            newCounter.counts.set(id, count);
+        }
+        
         return newCounter;
     }
 
@@ -37,7 +41,7 @@ export class GCounter {
                 this.counts.set(id, 0);
             }
             const currentCount = this.counts.get(id);
-            this.counts.set(id, Math.max(currentCount, count));
+            this.counts.set(id, currentCount + count);
         }
     }
 
