@@ -5,6 +5,12 @@ export class GCounter {
         this.id = id;
     }
 
+    clone() {
+        const newCounter = new GCounter(this.id);
+        newCounter.counts = new Map([...this.counts]);
+        return newCounter;
+    }
+
     increment(quantity) {
         if (!this.counts.has(this.id)) {
             this.counts.set(this.id, quantity || 1);
@@ -67,6 +73,13 @@ export class PNCounter {
     value() { // same as local
         // Return the value of the PNCounter
         return this.positive.value() - this.negative.value();
+    }
+
+    clone() {
+        const newCounter = new PNCounter();
+        newCounter.positive = this.positive.clone();
+        newCounter.negative = this.negative.clone();
+        return newCounter;
     }
 }
 
