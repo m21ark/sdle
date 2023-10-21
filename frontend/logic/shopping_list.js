@@ -7,6 +7,8 @@ class ShoppingList {
         this.products = new Map(); // Map product names to PNCounters
         this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
         this.commitTimeline = []; // List of commit hashes in chronological order
+
+        // TODO: n é preciso manter todas as versoes do shopping list ... so a ultima com cada um dos nos (server e clients se quisermos fazer peer to peer )
     }
 
     commitHash() {
@@ -54,6 +56,27 @@ class ShoppingList {
         //
         // TODO: deserialize the shopping list ... counter etc
         //
+    }
+
+    hasChanges(commitHash) {
+        const commitedList = this.commits.get(commitHash);
+
+        for (const [productName, counter] of this.products) {
+            if (!commitedList.products.has(productName)) {
+                return true;
+            } else {
+                const commitedCounter = commitedList.products.get(productName);
+                console.log('commitedCounter', commitedCounter.value());
+                console.log('counter', counter.value());
+                const diff = counter.value() - commitedCounter.value();
+                if (diff !== 0) {
+                    return true;
+                }
+                
+            }
+        }
+
+        return false;
     }
 
     changesAfter(commitHash) {
@@ -106,9 +129,34 @@ class ShoppingList {
     commitChanges(commitHash) {
         // Commit changes to the shopping list
         this.commits.set(commitHash, this.clone());
-        localStorage.setItem('shoppingList', JSON.stringify(Array.from(this.commits)));
+        // localStorage.setItem('shoppingList', JSON.stringify(Array.from(this.commits)));
         this.commitTimeline.push(commitHash);
         return commitHash; // TODO: commit changes should be in cache and be serialized back .... still need to do the serialization part
+    }
+
+    requestLastCommitHash() {
+        // Request the last commit hash from the server
+    }
+
+    sync() {
+        // Sync the shopping list with the server
+        // check the server last commit hash ... if there are local changes send them to the server so it can merge them ... merge the server changes with the local ones
+
+        // if (hasChanges(serverLastHash)) 
+
+        if (this.hasChanges(this.commitTimeline[this.commitTimeline.length - 1])) { // TODO: this is only true if there is no p2p
+            // send changes to server
+            const changes = this.changesAfter(this.commitTimeline[this.commitTimeline.length - 1]);
+            // ...
+        }
+        // get server changes
+        let serverHasChanges = this.requestLastCommitHash() == this.commitTimeline[this.commitTimeline.length - 1];
+        if (serverHasChanges) {
+            // merge server changes
+            // ... request server changes since the last commit hash
+
+
+        }
     }
 
     merge(other) {
@@ -130,6 +178,8 @@ class ShoppingList {
 
 // Example usage:
 
+
+
 const shoppingList = new ShoppingList();
 shoppingList.addProduct('Apples', 3);
 shoppingList.addProduct('Bananas', 2);
@@ -144,8 +194,8 @@ shoppingList.removeProduct('Apples', 2);
 
 const dShopping = shoppingList.changesAfter(commitHash);
 
-dShopping.showList();
 
+dShopping.showList();
 // const replica1 = new ShoppingList();
 // const replica2 = new ShoppingList();
 // 
