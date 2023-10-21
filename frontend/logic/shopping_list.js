@@ -184,10 +184,7 @@ class ShoppingList {
 
     getAllChanges(hash) {
         // Return a list of all changes after the given commit hash
-        console.log(hash)
         const all_following_commits = this.getAllFollowingCommits(hash);
-        console.log("ALL FOLLOWING COMMITS")
-        console.log(all_following_commits)
         const changes = new ShoppingList();
         for (const commitHash of all_following_commits) {
             const commitChanges = this.commits.get(commitHash);
@@ -198,24 +195,17 @@ class ShoppingList {
 
     merge(other) {
         // Merge product counters from another ShoppingList
-
- 
         let newChanges = this.changesAfter(this.commitTimeline[this.commitTimeline.length - 1]); // the new changes are the ones after the last commit
         // check if other has changes after the last commit
+        let commitHash = this.commitHash();
         let otherChanges;
         if (other.commitTimeline[other.commitTimeline.length - 1] == this.commitTimeline[this.commitTimeline.length - 1]) {
             otherChanges = other.changesAfter(other.commitTimeline[other.commitTimeline.length - 1]); // the other changes are the ones after the last commit
         } else {
-            console.log("Diff hashes")
             otherChanges = other.getAllChanges(this.commitTimeline[this.commitTimeline.length - 1]); // the other changes are the ones after the last commit
+            commitHash = other.commitTimeline[other.commitTimeline.length - 1]; // set the history to the other commit hash recent one
         }
 
-        console.log("OTHER CHANGES")
-        otherChanges.showList();
-        console.log("NEW CHANGES")
-        newChanges.showList();
-
-        const commitHash = this.commitHash();
         this.commitChanges(commitHash, newChanges); // WE COMMIT our changes TO OURSELVES
         for (const [productName, counter] of otherChanges.products) {
             if (!this.products.has(productName)) {
@@ -225,11 +215,11 @@ class ShoppingList {
             productCounter.join(counter);
         }
         
-        console.log("WIWIWIIWIW")
-        newChanges.showList();
+    }
 
-        console.log(this.commits)
-        //other.commitChanges(commitHash, otherChanges);
+    removeFromList(productName) {
+        // Remove a product from the list
+        this.products.set(productName, new PNCounter());
     }
 }
 
@@ -249,20 +239,30 @@ replica2.removeProduct('Apples', 2);
 // 
 // Merge the two replicas
 replica1.merge(replica2);
-
-console.log('MERGE =========');
-console.log('Replica 1:');
-replica1.showList();
-console.log('Replica 2:');
-replica2.showList();
-console.log('MERGE =========');
-
 replica2.merge(replica1);
 // 
 console.log('Replica 1:');
 replica1.showList();
 console.log('Replica 2:');
 replica2.showList();
+
+
+replica1.removeFromList("Apples");
+replica1.addProduct("Bananas", 1);
+
+replica2.addProduct("Apples", 1);
+
+console.log(replica2.commits)
+
+replica1.merge(replica2);
+
+
+//replica2.merge(replica1);
+//
+//console.log('Replica 1:');
+//replica1.showList();
+//console.log('Replica 2:');
+//replica2.showList();
 
 
 
