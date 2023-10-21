@@ -392,74 +392,75 @@ function add_go_back_listener() {
 }
 
 function login_modal() {
-  const loginModal = document.getElementById("popup-login");
-  const overlay = document.getElementById("overlay-login");
-  const closePopupButton = document.getElementById("close-popup-login");
-  const loginForm = document.getElementById("login-form");
+  // nst loginModal = document.getElementById("popup-login");
+  // nst overlay = document.getElementById("overlay-login");
+  // nst closePopupButton = document.getElementById("close-popup-login");
+  // nst loginForm = document.getElementById("login-form");
 
-  loginModal.style.display = "block";
-  overlay.style.display = "block";
+  // ginModal.style.display = "block";
+  // erlay.style.display = "block";
 
-  // input submit to the login form
+  //  input submit to the login form
 
-  loginForm.addEventListener("submit", function (e) {
-    e.preventDefault();
+  // ginForm.addEventListener("submit", function (e) {
+  // e.preventDefault();
 
-    loginModal.style.display = "none";
-    overlay.style.display = "none";
+  // loginModal.style.display = "none";
+  // overlay.style.display = "none";
 
 
-    // add the username to the navbar
-    const username = document.getElementById("username");
-    const usernameInput = document.getElementById("login-email") as HTMLInputElement;
-    const passwordInput = document.getElementById("login-password") as HTMLInputElement;
-    username.textContent = usernameInput.value;
+  // // add the username to the navbar
+  // const username = document.getElementById("username");
+  // const usernameInput = document.getElementById("login-email") as HTMLInputElement;
+  // const passwordInput = document.getElementById("login-password") as HTMLInputElement;
+  // username.textContent = usernameInput.value;
 
-    // clear the input
-    usernameInput.value = "";
-    passwordInput.value = "";
+  // // clear the input
+  // usernameInput.value = "";
+  // passwordInput.value = "";
 
-    // add the logout button
-    const logoutButton = document.createElement("button");
-    logoutButton.className = "btn btn-danger";
-    logoutButton.textContent = "Logout";
-    logoutButton.id = "logout-button";
-    logoutButton.addEventListener("click", function () {
-      username.textContent = "";
-      // TODO
-      logoutButton.remove();
-    });
+  // // add the logout button
+  // const logoutButton = document.createElement("button");
+  // logoutButton.className = "btn btn-danger";
+  // logoutButton.textContent = "Logout";
+  // logoutButton.id = "logout-button";
+  // logoutButton.addEventListener("click", function () {
+  //   username.textContent = "";
+  //   // TODO
+  //   logoutButton.remove();
+  // });
 
     // add the event listener to the submit 
-    const usernameValue = usernameInput.value;
-    const passwordValue = passwordInput.value;
-    const url = "http://localhost:5000/users"; // TODO: change the endpoint
-    const data = {
-      username: usernameValue,
-      password: passwordValue
-    };
-    const otherParams = {
-      headers: {
-        "content-type": "application/json; charset=UTF-8"
-      },
-      body: JSON.stringify(data),
-      method: "POST"
-    };
-    fetch(url, otherParams)
-      .then(function (response) {
-        console.log(response);
-        return response.json();
-      })
-      .then(function (data) {
-        console.log(data);
-      })
-      .catch(function (err) {
-        console.log(err);
-      });
+  //  const usernameValue = usernameInput.value;
+  //  const passwordValue = passwordInput.value;
+    // const url = "http://localhost:5000/users"; // TODO: change the endpoint
+    // const data = {
+      // username: usernameValue,
+      // password: passwordValue
+    // };
+    // const otherParams = {
+      // headers: {
+        // "content-type": "application/json; charset=UTF-8"
+      // },
+      // body: JSON.stringify(data),
+      // method: "POST"
+    // };
+    // fetch(url, otherParams)
+      // .then(function (response) {
+        // console.log(response);
+        // return response.json();
+      // })
+      // .then(function (data) {
+        // console.log(data);
+      // })
+      // .catch(function (err) {
+        // console.log(err);
+      // });
 
 
 
-  });
+  //}
+  //);
 
 
 }
