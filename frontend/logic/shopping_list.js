@@ -10,13 +10,13 @@ class ShoppingList {
             this.products.set(productName, new PNCounter());
         }
         const productCounter = this.products.get(productName);
-        productCounter.increment();
+        productCounter.increment(quantity);
     }
 
     removeProduct(productName, quantity) {
         if (this.products.has(productName)) {
             const productCounter = this.products.get(productName);
-            productCounter.decrement();
+            productCounter.decrement(quantity);
         }
     }
 
@@ -35,14 +35,9 @@ class ShoppingList {
                 this.products.set(productName, new PNCounter());
             }
             const productCounter = this.products.get(productName);
-            productCounter.merge(counter);
+            productCounter.join(counter);
         }
     }
-}
-
-// Utility function to get the replica ID (you need to implement this)
-function getReplicaId() {
-    return Math.floor(Math.random() * 1000);
 }
 
 // Example usage:
@@ -61,8 +56,12 @@ replica1.merge(replica2);
 replica2.merge(replica1);
 
 console.log('Replica 1:');
-console.log(replica1.products);
+for (const [productName, quantity] of replica1.products) {
+    console.log(`${productName}: ${quantity.value()}`);
+}
 
 console.log('Replica 2:');
-console.log(replica2.products);
+for (const [productName, quantity] of replica2.products) {
+    console.log(`${productName}: ${quantity.value()}`);
+}
 

@@ -5,8 +5,12 @@ export class GCounter {
         this.id = id;
     }
 
-    increment() {
-        this.counts += 1;
+    increment(quantity) {
+        if (!this.counts.has(this.id)) {
+            this.counts.set(this.id, quantity || 1);
+        } else {
+            this.counts.set(this.id, this.counts.get(this.id) + (quantity || 1));
+        }
     }
 
     local() {
@@ -14,10 +18,14 @@ export class GCounter {
     }
 
     value() {
-        return this.counts.reduce((a, b) => a + b, 0);
+        let res = 0;
+        for (const [id, count] of this.counts) {
+            res += count;
+        }
+        return res;
     }
 
-    join(other) { // TODO: Mudar a logica para ficar como um rescursive reset map
+    join(other) { // TODO: Mudar a logica para ficar como um remove as rescursive reset map
         for (const [id, count] of other.counts) {
             if (!this.counts.has(id)) {
                 this.counts.set(id, 0);
@@ -35,14 +43,14 @@ export class PNCounter {
         this.negative = new GCounter(id);
     }
 
-    increment() {
+    increment(quantity) {
         // Increment the positive count for the current replica
-        this.positive.increment();
+        this.positive.increment(quantity);
     }
 
-    decrement() {
+    decrement(quantity) {
         // Increment the negative count for the current replica
-        this.negative.increment();
+        this.negative.increment(quantity);
     }
 
     local() {
@@ -56,12 +64,9 @@ export class PNCounter {
         this.negative.join(other.negative);
     }
 
-    value() {
-        // Calculate the overall value by subtracting the negative count from the positive count
-        const replicaId = getReplicaId(); // Implement this function as needed
-        const positiveCount = this.positive.get(replicaId) || 0;
-        const negativeCount = this.negative.get(replicaId) || 0;
-        return positiveCount - negativeCount;
+    value() { // same as local
+        // Return the value of the PNCounter
+        return this.positive.value() - this.negative.value();
     }
 }
 
