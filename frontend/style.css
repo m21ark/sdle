@@ -77,6 +77,24 @@ div#appList {
   justify-content: center;
 }
 
+.floating-add-button-left {
+  position: fixed;
+  bottom: 20px;
+  left: 20px;
+  background-color: green;
+  color: #fff;
+  border: none;
+  border-radius: 23px; /* changed from 50% to 50px */
+  width: 70px;
+  height: 70px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
 .floating-add-button:hover {
   background-color: #0069d9;
 }

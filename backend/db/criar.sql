@@ -18,6 +18,10 @@ CREATE TABLE list (
 );
 
 INSERT INTO list (name) VALUES ('fruits');
+INSERT INTO list (name) VALUES ('Big list');
+INSERT INTO list (name) VALUES ('MAA');
+INSERT INTO list (name) VALUES ('OLA');
+
 
 CREATE TABLE commitChanges (
     id INTEGER PRIMARY KEY,

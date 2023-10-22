@@ -30,17 +30,21 @@ def add_commit_to_list(list_name, commit):
 def get_commits_after(list_name, commit_hash):
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('SELECT commit_data FROM commitChanges WHERE list_name = ? \
-                   AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?)', (list_name, commit_hash,))
+    cursor.execute('SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ? \
+                   AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?', 
+                   (list_name, commit_hash, commit_hash))
     rows = cursor.fetchall()
     conn.close()
     
     result = []
     for row in rows:
-        result.append({'commit_data': row[0]})
+        result.append({
+            'commit_hash': row[0], # 'commit_hash': 'commit_hash',
+            'commit_data': row[1]})
     
     return jsonify(result)
    
+
 
 
 
