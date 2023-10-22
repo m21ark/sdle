@@ -52,7 +52,6 @@ function add_list_item() {
     else itemNameElement.classList.remove("completed");
 
     const currList = document.getElementById("current-list-name").textContent;
-    console.log(currList);
 
     cache_list_changes(LocalData._shoppingLists.find((list) => list.name === currList));
   }
@@ -75,6 +74,12 @@ function add_list_item() {
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
 
+  const currList = document.getElementById("current-list-name").textContent;
+  const listObj = LocalData._shoppingLists.find((list) => list.name === currList);
+
+  listObj.addProduct(itemName, itemQuantity);
+  LocalData.cache_list_changes(listObj);
+
   if (itemName === "" || itemQuantity === "") {
     generate_notification("Please enter a name and quantity!", "bg-danger");
     return;
@@ -90,12 +95,12 @@ function add_list_item() {
   const itemNameElement = document.createElement("span");
   itemNameElement.textContent = `${itemName} \t (Qnt: ${itemQuantity})`;
 
-  const deleteButton = document.createElement("button");
-  deleteButton.className = "btn btn-danger delete-button";
-  deleteButton.textContent = "X";
-  deleteButton.addEventListener("click", removeItem);
-
-  itemDiv.appendChild(deleteButton);
+  //const deleteButton = document.createElement("button");
+  //deleteButton.className = "btn btn-danger delete-button";
+  //deleteButton.textContent = "X";
+  //deleteButton.addEventListener("click", removeItem);
+//
+  //itemDiv.appendChild(deleteButton);
   itemDiv.appendChild(itemNameElement);
   itemDiv.appendChild(checkbox);
 
