@@ -2,6 +2,7 @@ import { ShoppingList } from "../logic/shopping_list.js";
 
 export var _shoppingLists = []; // TODO: should be a map of list names to list
 export var _username = "";
+export var online = true;
 
 // let shoppingList = new ShoppingList();
 // shoppingList.name = "Big list";
@@ -36,7 +37,6 @@ export function load_name() {
 export function cache_list_changes(list) {
     localStorage.setItem("shoppingLists", JSON.stringify(_shoppingLists.map(list => list.name)));
     localStorage.setItem(list.name, JSON.stringify(list));
-    console.log(localStorage.getItem(list.name));
 }
 
 export function cache_changes() {
@@ -82,7 +82,7 @@ function commit_changes(list) {
         };
 
         list.commitChanges(list.commitHash(), changes);
-        
+
         const url = `http://localhost:5000/list/${list.name}/${list.commitTimeline[list.commitTimeline.length - 1]}`;
 
         fetch(url, {
@@ -94,32 +94,36 @@ function commit_changes(list) {
         })
             .then(response => {
                 response.json();
-            } )
+            })
             .then(data => {
-                console.log('Response:', data);
                 list.dChanges.clear()
                 list.dChanges = new Map();
                 cache_list_changes(list);
             })
             .catch(error => {
-               // console.error('Error:', error);
+                // console.error('Error:', error);
             });
     }
 
 }
 
-export var online = true;
-
-function toggleOnline() {
+function toggleOnline() { // ITS stupid to be in this file, but there are problems with the imports
+    console.log("toggle online");
     online = !online;
     if (online) {
         document.getElementById("online-status").textContent = "Online";
-        document.getElementById("online-status").style.color = "green";
+        document.getElementById("online-status").style.backgroundColor = "green";
     } else {
         document.getElementById("online-status").textContent = "Offline";
-        document.getElementById("online-status").style.color = "red";
+        document.getElementById("online-status").style.backgroundColor = "red";
     }
 }
+
+function switchOnline() {
+    const onlineSwitch = document.querySelector("#online-status");
+    onlineSwitch.addEventListener("click", toggleOnline);
+}
+
 
 // set a timeout that call the sync function every 5 seconds
 setInterval(() => {
@@ -136,5 +140,7 @@ setInterval(() => {
 
 load_previous_lists();
 load_name();
+switchOnline();
+
 
 
