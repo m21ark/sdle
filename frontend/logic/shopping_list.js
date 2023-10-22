@@ -5,7 +5,9 @@ import { PNCounter } from './crdt.js';
 class ShoppingList {
 
 
-    constructor(prod, commits, commitTimeline) {
+    constructor(prod, commits, commitTimeline, name) {
+        if (name != undefined) this.name = name;
+        else this.name = "default";
         this.products = new Map(); // Map product names to PNCounters
         this.dChanges = new Map(); // Map product names to PNCounters
         this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
@@ -83,12 +85,12 @@ class ShoppingList {
             commits.set(commitHash, Object.setPrototypeOf(commit, ShoppingList.prototype));
         }
         for (const [productName, quantity] of Object.entries(parsed.dChanges)) {
-            console.log(productName, quantity);
             dChanges.set(productName, new PNCounter());
             if (quantity > 0) dChanges.get(productName).increment(quantity);
             else if (quantity < 0) dChanges.get(productName).decrement(-quantity);
         }
 
+        this.name = parsed.name;
         this.products = products;
         this.commits = commits;
         this.commitTimeline = commitTimeline;
@@ -111,6 +113,7 @@ class ShoppingList {
         }
 
         return {
+            name: this.name,
             products: serializedProducts,
             commits: serializedCommits,
             dChanges: dChanges, // TODO: see if we can remove dchanges
@@ -328,13 +331,4 @@ class ShoppingList {
 
 export { ShoppingList };
 
-let shoppingList = new ShoppingList();
-shoppingList.addProduct("apple", 1);
-shoppingList.addProduct("orange", 2);
-
-console.log(shoppingList);
-
-let newShoppingList = new ShoppingList();
-newShoppingList.deserialize(shoppingList.serialize());
-console.log(newShoppingList);
 

@@ -12,6 +12,7 @@ function generate_notification(text, type) {
   }, 5000);
 }
 
+
 function add_share_link_listener() {
   function add_to_clipboard(shareableLink) {
     navigator.clipboard
@@ -55,10 +56,10 @@ function add_list_item() {
 
   const itemNameInput = document.getElementById(
     "item-name"
-  ) as HTMLInputElement;
+  );
   const itemQuantityInput = document.getElementById(
     "item-quantity"
-  ) as HTMLInputElement;
+  );
 
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
@@ -192,7 +193,7 @@ function add_list_popup() {
 function add_list_to_list() {
   const listNameInput = document.getElementById(
     "list-name"
-  ) as HTMLInputElement;
+  );
   const listName = listNameInput.value.trim();
 
   // clear the input
@@ -232,7 +233,7 @@ function add_list_to_list() {
   deleteButton.addEventListener("click", function (event) {
     const res = confirm("Are you sure you want to delete this list?");
     if (!res) return;
-    const listDiv = (event.target as HTMLElement).parentElement;
+    const listDiv = (event.target).parentElement;
     listContainer.removeChild(listDiv);
     cache_list_changes();
 
@@ -268,9 +269,9 @@ function load_previous_items() {
 
   checkboxes.forEach((checkbox) => {
     checkbox.addEventListener("change", function (event) {
-      const itemNameElement = (event.target as HTMLInputElement)
+      const itemNameElement = (event.target )
         .previousElementSibling;
-      if ((event.target as HTMLInputElement).checked)
+      if ((event.target).checked)
         itemNameElement.classList.add("completed");
       else itemNameElement.classList.remove("completed");
       cache_item_changes();
@@ -282,7 +283,7 @@ function load_previous_items() {
     button.addEventListener("click", function (event) {
       const res = confirm("Are you sure you want to delete this item?");
       if (!res) return;
-      const itemDiv = (event.target as HTMLElement).parentElement;
+      const itemDiv = (event.target).parentElement;
       itemsContainer.removeChild(itemDiv);
       cache_item_changes();
     });
@@ -292,7 +293,7 @@ function load_previous_items() {
   const itemNames = document.querySelectorAll(".item span");
   itemNames.forEach((itemName) => {
     if (itemName.classList.contains("completed")) {
-      const checkbox = itemName.nextElementSibling as HTMLInputElement;
+      const checkbox = itemName.nextElementSibling;
       checkbox.checked = true;
     }
   });
@@ -331,60 +332,7 @@ function toggle_view() {
   }
 }
 
-function load_previous_lists() {
-  const list_container = document.getElementById("lists");
-  const lists = localStorage.getItem("lists");
-  if (lists) list_container.innerHTML = lists;
-  else {
-    addNoListMessage();
-    return;
-  }
 
-  const list_href = document.querySelectorAll(
-    ".a-list-name"
-  ) as NodeListOf<HTMLElement>;
-  for (let i = 0; i < list_href.length; i++)
-    list_href[i].addEventListener("click", () => {
-      document.getElementById("current-list-name").textContent =
-        list_href[i].dataset.id;
-      document.getElementById("list-name-title").textContent =
-        list_href[i].dataset.name;
-      toggle_view();
-      load_previous_items();
-    });
-
-  const deleteButtons = document.querySelectorAll(".delete-button-list");
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", function (event) {
-      const res = confirm("Are you sure you want to delete this list?");
-      if (!res) return;
-      const listDiv = (event.target as HTMLElement).parentElement;
-      list_container.removeChild(listDiv);
-      cache_list_changes();
-
-      // clear the lists items
-      const itemsContainer = document.getElementById("items");
-      itemsContainer.innerHTML = "";
-      cache_item_changes(true);
-    });
-  });
-}
-
-function addNoListMessage() {
-  const error = document.getElementById("lists-list");
-  const errorP = document.createElement("p");
-  errorP.textContent = "No lists found";
-  errorP.className = "no_list_found";
-  error.appendChild(errorP);
-}
-
-function addNoItemMessage() {
-  const error = document.getElementById("todo-list");
-  const errorP = document.createElement("p");
-  errorP.textContent = "No items found";
-  errorP.className = "no_list_found";
-  error.appendChild(errorP);
-}
 
 function add_go_back_listener() {
   const burger = document.getElementById("burger-icon");
@@ -465,11 +413,11 @@ function login_modal() {
 
 }
 
-add_go_back_listener();
-add_list_popup();
-load_previous_lists();
-add_item_popup();
-update_item_count();
-update_list_count();
-add_share_link_listener();
-login_modal();
+//add_go_back_listener();
+//add_list_popup();
+//load_previous_lists();
+//add_item_popup();
+//update_item_count();
+//update_list_count();
+//add_share_link_listener();
+//login_modal();
