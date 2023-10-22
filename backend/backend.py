@@ -6,6 +6,46 @@ app = Flask(__name__)
 CORS( app )
 
 
+# ========== MAIN ROUTES ==========
+
+
+@app.route('/list/<string:list_name>/<string:commit>', methods=['POST'])
+def add_commit_to_list(list_name, commit):
+    data = request.get_json()
+    if 'data' in data:
+        conn = connect_db()
+        cursor = conn.cursor()
+        cursor.execute('INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)',
+                       (data['username'], list_name, commit, data['data']))
+        conn.commit()
+        conn.close()
+        return 'Commit added successfully', 201
+    else:
+        return 'Invalid commit data', 400
+
+        
+
+
+@app.route('/commits/<string:list_name>/<string:commit_hash>', methods=['GET'])
+def get_commits_after(list_name, commit_hash):
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('SELECT commit_data FROM commitChanges WHERE list_name = ? \
+                   AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?)', (list_name, commit_hash,))
+    rows = cursor.fetchall()
+    conn.close()
+    
+    result = []
+    for row in rows:
+        result.append({'commit_data': row[0]})
+    
+    return jsonify(result)
+   
+
+
+
+
+
 # ===================================================== USER ROUTES =====================================================
 
 
