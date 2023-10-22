@@ -16,18 +16,31 @@ function load_previous_lists() {
     if (lists) {
         lists.forEach(list => {
             let s = new ShoppingList();
+            s.name = list;
             s.fromJSON(localStorage.getItem(list));
             _shoppingLists.push(s);
         });
     }
 }
 
+export function cache_list_changes(list) {
+    localStorage.setItem("shoppingLists", JSON.stringify(_shoppingLists.map(list => list.name)));
+    localStorage.setItem(list.name, JSON.stringify(list));
+}
+
+export function cache_changes() {
+    localStorage.setItem("shoppingLists", JSON.stringify(_shoppingLists.map(list => list.name)));
+
+    _shoppingLists.forEach(list => {
+        localStorage.setItem(list.name, JSON.stringify(list));
+    });
+}
 
 
 load_previous_lists();
 
+
 //let shoppingList2 = new ShoppingList();
 //shoppingList2.fromJSON(localStorage.getItem("shoppingLists"));
 
-console.log(_shoppingLists);
 //console.log(shoppingList2);

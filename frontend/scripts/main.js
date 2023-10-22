@@ -1,3 +1,7 @@
+import * as LocalData from './local_data_operations.js'
+import { ShoppingList } from "../logic/shopping_list.js";
+import { toggle_view, render_list_items } from './renderer.js';
+
 function generate_notification(text, type) {
   const toast = document.getElementById("notification-toast");
   const not_header = document.querySelector(".toast-header");
@@ -191,11 +195,18 @@ function add_list_popup() {
 }
 
 function add_list_to_list() {
+
+
   const listNameInput = document.getElementById(
     "list-name"
   );
   const listName = listNameInput.value.trim();
 
+  const newList = new ShoppingList();
+  newList.name = listName;
+  LocalData._shoppingLists.push(newList);
+  console.log(LocalData._shoppingLists);
+  LocalData.cache_changes();
   // clear the input
   listNameInput.value = "";
 
@@ -222,7 +233,7 @@ function add_list_to_list() {
     document.getElementById("current-list-name").textContent = uniqueId;
     document.getElementById("list-name-title").textContent = listName;
     toggle_view();
-    load_previous_items();
+    render_list_items();
   });
 
   const deleteButton = document.createElement("button");
@@ -254,36 +265,7 @@ function add_list_to_list() {
 }
 
 
-function toggle_view() {
-  const div1 = document.getElementById("appList");
-  const div2 = document.getElementById("appListing");
 
-  const btn1 = document.getElementById("floating-add-button");
-  const btn2 = document.getElementById("floating-add-button-list");
-
-  const burger = document.getElementById("burger-icon");
-
-  if (div1.style.display === "none") {
-    // enter item list view
-    div1.style.display = "block";
-    div2.style.display = "none";
-    btn2.style.display = "none";
-    btn1.style.display = "block";
-    burger.style.display = "block";
-  } else {
-    // enter lists view
-    div1.style.display = "none";
-    div2.style.display = "block";
-    btn1.style.display = "none";
-    btn2.style.display = "block";
-    burger.style.display = "none";
-    document.getElementById("current-list-name").textContent = "";
-
-    // empty items container when switching to lists view to avoid confusion
-    const itemsContainer = document.getElementById("items");
-    itemsContainer.innerHTML = "";
-  }
-}
 
 
 
@@ -331,32 +313,32 @@ function login_modal() {
   //   logoutButton.remove();
   // });
 
-    // add the event listener to the submit 
+  // add the event listener to the submit 
   //  const usernameValue = usernameInput.value;
   //  const passwordValue = passwordInput.value;
-    // const url = "http://localhost:5000/users"; // TODO: change the endpoint
-    // const data = {
-      // username: usernameValue,
-      // password: passwordValue
-    // };
-    // const otherParams = {
-      // headers: {
-        // "content-type": "application/json; charset=UTF-8"
-      // },
-      // body: JSON.stringify(data),
-      // method: "POST"
-    // };
-    // fetch(url, otherParams)
-      // .then(function (response) {
-        // console.log(response);
-        // return response.json();
-      // })
-      // .then(function (data) {
-        // console.log(data);
-      // })
-      // .catch(function (err) {
-        // console.log(err);
-      // });
+  // const url = "http://localhost:5000/users"; // TODO: change the endpoint
+  // const data = {
+  // username: usernameValue,
+  // password: passwordValue
+  // };
+  // const otherParams = {
+  // headers: {
+  // "content-type": "application/json; charset=UTF-8"
+  // },
+  // body: JSON.stringify(data),
+  // method: "POST"
+  // };
+  // fetch(url, otherParams)
+  // .then(function (response) {
+  // console.log(response);
+  // return response.json();
+  // })
+  // .then(function (data) {
+  // console.log(data);
+  // })
+  // .catch(function (err) {
+  // console.log(err);
+  // });
 
 
 

@@ -102,15 +102,30 @@ class ShoppingList {
         const serializedProducts = {};
         const serializedCommits = {};
         const dChanges = {};
-        for (const [productName, counter] of this.products) {
-            serializedProducts[productName] = counter.value();
+
+        try {
+            for (const [productName, counter] of this.products) {
+                serializedProducts[productName] = counter.value();
+            }
+        } catch (error) {
+            //console.log(error);
         }
-        for (const [commitHash, commit] of this.commits) {
-            serializedCommits[commitHash] = commit.toJSON();
+        try {
+            for (const [commitHash, commit] of this.commits) {
+                serializedCommits[commitHash] = commit.toJSON();
+            }
+        } catch (error) {
+            //console.log(error);
         }
-        for (const [productName, counter] of this.dChanges) {
-            dChanges[productName] = counter.value();
+        try {
+            for (const [productName, counter] of this.dChanges) {
+                dChanges[productName] = counter.value();
+            }
         }
+        catch (error) {
+            //console.log(error);
+        }
+
 
         return {
             name: this.name,

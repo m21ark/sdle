@@ -17,6 +17,36 @@ function addNoListMessage() {
     error.appendChild(errorP);
 }
 
+export function toggle_view() {
+    const div1 = document.getElementById("appList");
+    const div2 = document.getElementById("appListing");
+
+    const btn1 = document.getElementById("floating-add-button");
+    const btn2 = document.getElementById("floating-add-button-list");
+
+    const burger = document.getElementById("burger-icon");
+
+    if (div1.style.display === "none") {
+        // enter item list view
+        div1.style.display = "block";
+        div2.style.display = "none";
+        btn2.style.display = "none";
+        btn1.style.display = "block";
+        burger.style.display = "block";
+    } else {
+        // enter lists view
+        div1.style.display = "none";
+        div2.style.display = "block";
+        btn1.style.display = "none";
+        btn2.style.display = "block";
+        burger.style.display = "none";
+        document.getElementById("current-list-name").textContent = "";
+
+        // empty items container when switching to lists view to avoid confusion
+        const itemsContainer = document.getElementById("items");
+        itemsContainer.innerHTML = "";
+    }
+}
 
 function list_rendering(list) { // TODO: add the list id
     return `<div class="list">\
@@ -67,6 +97,8 @@ function render_lists() {
     });
 }
 
+
+
 function list_item_rendering(id, item) {
     return `<div class="item">\
     <button class="btn btn-danger delete-button">X</button> \
@@ -77,59 +109,59 @@ function list_item_rendering(id, item) {
 }
 
 
-function render_list_items() {
+export function render_list_items() {
     const itemsContainer = document.getElementById("items");
     const currList = document.getElementById("current-list-name").textContent;
 
     if (currList === "") return;
-  
+
     const items = LocalData._shoppingLists.find((list) => list.name === currList);
-    
+
     let itemsHtml = "";
 
     for (const [id, item] of items.products) {
         itemsHtml += list_item_rendering(id, item);
     }
-    
+
     if (items) itemsContainer.innerHTML = itemsHtml;
     else if (document.getElementById("todo-list").children.length < 2) {
-      addNoItemMessage();
+        addNoItemMessage();
     }
-  
+
     const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
-  
+
     checkboxes.forEach((checkbox) => {
-      checkbox.addEventListener("change", function (event) {
-        const itemNameElement = (event.target )
-          .previousElementSibling;
-        if ((event.target).checked)
-          itemNameElement.classList.add("completed");
-        else itemNameElement.classList.remove("completed");
-        cache_item_changes();
-      });
+        checkbox.addEventListener("change", function (event) {
+            const itemNameElement = (event.target)
+                .previousElementSibling;
+            if ((event.target).checked)
+                itemNameElement.classList.add("completed");
+            else itemNameElement.classList.remove("completed");
+            cache_item_changes();
+        });
     });
-  
+
     const deleteButtons = document.querySelectorAll(".delete-button");
     deleteButtons.forEach((button) => {
-      button.addEventListener("click", function (event) {
-        const res = confirm("Are you sure you want to delete this item?");
-        if (!res) return;
-        const itemDiv = (event.target).parentElement;
-        itemsContainer.removeChild(itemDiv);
-        cache_item_changes();
-      });
+        button.addEventListener("click", function (event) {
+            const res = confirm("Are you sure you want to delete this item?");
+            if (!res) return;
+            const itemDiv = (event.target).parentElement;
+            itemsContainer.removeChild(itemDiv);
+            cache_item_changes();
+        });
     });
-  
+
     // if name is crossed out, check the checkbox
     const itemNames = document.querySelectorAll(".item span");
     itemNames.forEach((itemName) => {
-      if (itemName.classList.contains("completed")) {
-        const checkbox = itemName.nextElementSibling;
-        checkbox.checked = true;
-      }
+        if (itemName.classList.contains("completed")) {
+            const checkbox = itemName.nextElementSibling;
+            checkbox.checked = true;
+        }
     });
-  
-    update_item_count();
+
+    //update_item_count();
 }
 
 
