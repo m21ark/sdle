@@ -7,6 +7,7 @@ class ShoppingList {
 
     constructor(prod, commits, commitTimeline) {
         this.products = new Map(); // Map product names to PNCounters
+        this.dChanges = new Map(); // Map product names to PNCounters
         this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
         this.commitTimeline = []; // List of commit hashes in chronological order
         if (prod != undefined && commits != undefined && commitTimeline != undefined) {
@@ -33,13 +34,20 @@ class ShoppingList {
         if (!this.products.has(productName)) {
             this.products.set(productName, new PNCounter());
         }
+        if (!this.dChanges.has(productName)) this.dChanges.set(productName, new PNCounter());
+
         const productCounter = this.products.get(productName);
         productCounter.increment(quantity);
+        this.dChanges.get(productName).increment(quantity);
     }
 
     removeProduct(productName, quantity) {
         if (this.products.has(productName)) {
             const productCounter = this.products.get(productName);
+            productCounter.decrement(quantity);
+        }
+        if (this.dChanges.has(productName)) {
+            const productCounter = this.dChanges.get(productName);
             productCounter.decrement(quantity);
         }
     }
@@ -131,6 +139,12 @@ class ShoppingList {
         newShoppingList.commits = new Map([...this.commits]);
         newShoppingList.commitTimeline = [...this.commitTimeline];
 
+        const dChanges = new Map();
+        for (const [productName, counter] of this.dChanges) {
+            dChanges.set(productName, counter.clone());
+        }
+        newShoppingList.dChanges = dChanges;
+
         return newShoppingList;
     }
 
@@ -140,6 +154,8 @@ class ShoppingList {
         this.commits.set(commitHash, changes.clone());
         // localStorage.setItem('shoppingList', JSON.stringify(Array.from(this.commits)));
         this.commitTimeline.push(commitHash);
+        this.dChanges = new Map();
+
         return commitHash; // TODO: commit changes should be in cache and be serialized back .... still need to do the serialization part
     }
 
@@ -185,6 +201,7 @@ class ShoppingList {
     getAllChanges(hash) {
         // Return a list of all changes after the given commit hash
         const all_following_commits = this.getAllFollowingCommits(hash);
+
         const changes = new ShoppingList();
         for (const commitHash of all_following_commits) {
             const commitChanges = this.commits.get(commitHash);
@@ -198,15 +215,37 @@ class ShoppingList {
         let newChanges = this.changesAfter(this.commitTimeline[this.commitTimeline.length - 1]); // the new changes are the ones after the last commit
         // check if other has changes after the last commit
         let commitHash = this.commitHash();
+        let commitAgreement = false;
         let otherChanges;
+
+
         if (other.commitTimeline[other.commitTimeline.length - 1] == this.commitTimeline[this.commitTimeline.length - 1]) {
             otherChanges = other.changesAfter(other.commitTimeline[other.commitTimeline.length - 1]); // the other changes are the ones after the last commit
         } else {
             otherChanges = other.getAllChanges(this.commitTimeline[this.commitTimeline.length - 1]); // the other changes are the ones after the last commit
             commitHash = other.commitTimeline[other.commitTimeline.length - 1]; // set the history to the other commit hash recent one
+            commitAgreement = true;
         }
 
-        this.commitChanges(commitHash, newChanges); // WE COMMIT our changes TO OURSELVES
+        // DEBUG
+        // console.log("NEW CHANGES");
+        // newChanges.showList();
+        // console.log("OTHER CHANGES");
+        // otherChanges.showList();
+        // console.log("=====================================");
+        // console.log("dCHANGES");
+        // console.log(this.dChanges);
+        // console.log("=====================================");
+        // console.log("OTHER dCHANGES");
+        // console.log(other.dChanges);
+        let newHash = this.commitHash();
+        if (commitAgreement) {
+            other.commitChanges(newHash, newChanges); // WE COMMIT the other changes TO THE OTHER
+            this.commitChanges(commitHash, otherChanges); // WE COMMIT the other changes TO OURSELVES
+            this.commitChanges(newHash, newChanges); // WE COMMIT our changes TO OURSELVES
+        } else {
+            this.commitChanges(commitHash, newChanges); // WE COMMIT our changes TO OURSELVES
+        }
         for (const [productName, counter] of otherChanges.products) {
             if (!this.products.has(productName)) {
                 this.products.set(productName, new PNCounter());
@@ -214,12 +253,13 @@ class ShoppingList {
             const productCounter = this.products.get(productName);
             productCounter.join(counter);
         }
-        
+
     }
 
     removeFromList(productName) {
         // Remove a product from the list
         this.products.set(productName, new PNCounter());
+        this.dChanges.set(productName, new PNCounter());
     }
 }
 
@@ -246,24 +286,30 @@ replica1.showList();
 console.log('Replica 2:');
 replica2.showList();
 
+console.log("=====================================");
+console.log("CHANGES ");
+console.log(replica1.commits);
 
-replica1.removeFromList("Apples");
+
+console.log(replica2.commits);
+
+
+
+//replica1.removeFromList("Apples");
 replica1.addProduct("Bananas", 1);
 
 replica2.addProduct("Apples", 1);
 
-console.log(replica2.commits)
+
+console.log("=====================================");
 
 replica1.merge(replica2);
+replica2.merge(replica1);
 
-
-//replica2.merge(replica1);
-//
-//console.log('Replica 1:');
-//replica1.showList();
-//console.log('Replica 2:');
-//replica2.showList();
-
+console.log('Replica 1:');
+replica1.showList();
+console.log('Replica 2:');
+replica2.showList();
 
 
 // const shoppingList = new ShoppingList();
