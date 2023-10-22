@@ -72,6 +72,7 @@ class ShoppingList {
         const products = new Map();
         const commits = new Map();
         const commitTimeline = parsed.commitTimeline;
+        const dChanges = new Map();
 
         for (const [productName, quantity] of Object.entries(parsed.products)) {
             products.set(productName, new PNCounter());
@@ -81,9 +82,17 @@ class ShoppingList {
         for (const [commitHash, commit] of Object.entries(parsed.commits)) {
             commits.set(commitHash, Object.setPrototypeOf(commit, ShoppingList.prototype));
         }
+        for (const [productName, quantity] of Object.entries(parsed.dChanges)) {
+            console.log(productName, quantity);
+            dChanges.set(productName, new PNCounter());
+            if (quantity > 0) dChanges.get(productName).increment(quantity);
+            else if (quantity < 0) dChanges.get(productName).decrement(-quantity);
+        }
+
         this.products = products;
         this.commits = commits;
         this.commitTimeline = commitTimeline;
+        this.dChanges = dChanges;
     }
 
 
@@ -104,7 +113,7 @@ class ShoppingList {
         return {
             products: serializedProducts,
             commits: serializedCommits,
-            dChanges: this.dChanges, // TODO: see if we can remove dchanges
+            dChanges: dChanges, // TODO: see if we can remove dchanges
             commitTimeline: this.commitTimeline,
         };
     }
