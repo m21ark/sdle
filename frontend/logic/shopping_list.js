@@ -66,17 +66,54 @@ class ShoppingList {
         }
     }
 
-    serialize() {
-        // Serialize the shopping list 
-        return JSON.stringify(Array.from(this.products));
+
+    fromJSON(json) {
+        const parsed = JSON.parse(json);
+        const products = new Map();
+        const commits = new Map();
+        const commitTimeline = parsed.commitTimeline;
+
+        for (const [productName, quantity] of Object.entries(parsed.products)) {
+            products.set(productName, new PNCounter());
+            if (quantity > 0) products.get(productName).increment(quantity);
+            else if (quantity < 0) products.get(productName).decrement(-quantity);
+        }
+        for (const [commitHash, commit] of Object.entries(parsed.commits)) {
+            commits.set(commitHash, Object.setPrototypeOf(commit, ShoppingList.prototype));
+        }
+        this.products = products;
+        this.commits = commits;
+        this.commitTimeline = commitTimeline;
     }
 
+
+    toJSON() {
+        const serializedProducts = {};
+        const serializedCommits = {};
+        const dChanges = {};
+        for (const [productName, counter] of this.products) {
+            serializedProducts[productName] = counter.value();
+        }
+        for (const [commitHash, commit] of this.commits) {
+            serializedCommits[commitHash] = commit.toJSON();
+        }
+        for (const [productName, counter] of this.dChanges) {
+            dChanges[productName] = counter.value();
+        }
+
+        return {
+            products: serializedProducts,
+            commits: serializedCommits,
+            dChanges: this.dChanges, // TODO: see if we can remove dchanges
+            commitTimeline: this.commitTimeline,
+        };
+    }
+
+    serialize() {
+        return JSON.stringify(this);
+    }
     deserialize(serialized) {
-        // Deserialize the shopping list
-        //this.products = new Map(JSON.parse(serialized));
-        //
-        // TODO: deserialize the shopping list ... counter etc
-        //
+        return this.fromJSON(serialized);
     }
 
     hasChanges(commitHash) {
@@ -119,15 +156,15 @@ class ShoppingList {
         return productsList;
     }
 
-    
+
 
     changesAfter(commitHash) {
         // Return a new ShoppingList with the changes after the given commit hash
         const newShoppingList = new ShoppingList();
         let commitsUnitl = this.getCommitsUntil(commitHash);
-        
+
         const commitedList = this.getProductChanges(commitsUnitl);
-        
+
         for (const [productName, counter] of this.products) {
             if (!commitedList.has(productName)) {
                 newShoppingList.products.set(productName, counter);
@@ -281,3 +318,14 @@ class ShoppingList {
 }
 
 export { ShoppingList };
+
+let shoppingList = new ShoppingList();
+shoppingList.addProduct("apple", 1);
+shoppingList.addProduct("orange", 2);
+
+console.log(shoppingList);
+
+let newShoppingList = new ShoppingList();
+newShoppingList.deserialize(shoppingList.serialize());
+console.log(newShoppingList);
+

@@ -85,5 +85,7 @@ export class PNCounter {
         newCounter.negative = this.negative.clone();
         return newCounter;
     }
+
+
 }
 
