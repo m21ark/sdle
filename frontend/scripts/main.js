@@ -253,53 +253,6 @@ function add_list_to_list() {
   cache_list_changes();
 }
 
-function load_previous_items() {
-  const itemsContainer = document.getElementById("items");
-  const currList = document.getElementById("current-list-name").textContent;
-  const cacheLocation = "myitems_" + currList;
-  if (currList === "") return;
-
-  const items = localStorage.getItem(cacheLocation);
-  if (items) itemsContainer.innerHTML = items;
-  else if (document.getElementById("todo-list").children.length < 2) {
-    addNoItemMessage();
-  }
-
-  const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
-
-  checkboxes.forEach((checkbox) => {
-    checkbox.addEventListener("change", function (event) {
-      const itemNameElement = (event.target )
-        .previousElementSibling;
-      if ((event.target).checked)
-        itemNameElement.classList.add("completed");
-      else itemNameElement.classList.remove("completed");
-      cache_item_changes();
-    });
-  });
-
-  const deleteButtons = document.querySelectorAll(".delete-button");
-  deleteButtons.forEach((button) => {
-    button.addEventListener("click", function (event) {
-      const res = confirm("Are you sure you want to delete this item?");
-      if (!res) return;
-      const itemDiv = (event.target).parentElement;
-      itemsContainer.removeChild(itemDiv);
-      cache_item_changes();
-    });
-  });
-
-  // if name is crossed out, check the checkbox
-  const itemNames = document.querySelectorAll(".item span");
-  itemNames.forEach((itemName) => {
-    if (itemName.classList.contains("completed")) {
-      const checkbox = itemName.nextElementSibling;
-      checkbox.checked = true;
-    }
-  });
-
-  update_item_count();
-}
 
 function toggle_view() {
   const div1 = document.getElementById("appList");
@@ -413,11 +366,10 @@ function login_modal() {
 
 }
 
-//add_go_back_listener();
-//add_list_popup();
-//load_previous_lists();
-//add_item_popup();
-//update_item_count();
-//update_list_count();
-//add_share_link_listener();
-//login_modal();
+add_go_back_listener();
+add_list_popup();
+add_item_popup();
+update_item_count();
+update_list_count();
+add_share_link_listener();
+login_modal();

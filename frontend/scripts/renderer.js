@@ -70,9 +70,9 @@ function render_lists() {
 function list_item_rendering(id, item) {
     return `<div class="item">\
     <button class="btn btn-danger delete-button">X</button> \
-    <input type="checkbox" /> \
     <span>${id}</span> \
     <span class="quantity">${item.value()}</span> \
+    <input type="checkbox" /> \
     </div>`;
 }
 
