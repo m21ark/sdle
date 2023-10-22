@@ -1,6 +1,7 @@
 import { ShoppingList } from "../logic/shopping_list.js";
 
 export var _shoppingLists = []; // TODO: should be a map of list names to list
+export var _username = "";
 
 // let shoppingList = new ShoppingList();
 // shoppingList.name = "Big list";
@@ -23,6 +24,15 @@ function load_previous_lists() {
     }
 }
 
+export function cache_name(name) {
+    localStorage.setItem("username", name);
+    _username = name;
+}
+
+export function load_name() {
+    _username = localStorage.getItem("username");
+}
+
 export function cache_list_changes(list) {
     localStorage.setItem("shoppingLists", JSON.stringify(_shoppingLists.map(list => list.name)));
     localStorage.setItem(list.name, JSON.stringify(list));
@@ -39,9 +49,6 @@ export function cache_changes() {
 
 
 load_previous_lists();
+load_name();
 
 
-//let shoppingList2 = new ShoppingList();
-//shoppingList2.fromJSON(localStorage.getItem("shoppingLists"));
-
-//console.log(shoppingList2);

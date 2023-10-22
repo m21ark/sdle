@@ -287,77 +287,17 @@ function add_go_back_listener() {
 }
 
 function login_modal() {
-  // nst loginModal = document.getElementById("popup-login");
-  // nst overlay = document.getElementById("overlay-login");
-  // nst closePopupButton = document.getElementById("close-popup-login");
-  // nst loginForm = document.getElementById("login-form");
-
-  // ginModal.style.display = "block";
-  // erlay.style.display = "block";
-
-  //  input submit to the login form
-
-  // ginForm.addEventListener("submit", function (e) {
-  // e.preventDefault();
-
-  // loginModal.style.display = "none";
-  // overlay.style.display = "none";
 
 
   // // add the username to the navbar
-  // const username = document.getElementById("username");
-  // const usernameInput = document.getElementById("login-email") as HTMLInputElement;
-  // const passwordInput = document.getElementById("login-password") as HTMLInputElement;
-  // username.textContent = usernameInput.value;
-
-  // // clear the input
-  // usernameInput.value = "";
-  // passwordInput.value = "";
-
-  // // add the logout button
-  // const logoutButton = document.createElement("button");
-  // logoutButton.className = "btn btn-danger";
-  // logoutButton.textContent = "Logout";
-  // logoutButton.id = "logout-button";
-  // logoutButton.addEventListener("click", function () {
-  //   username.textContent = "";
-  //   // TODO
-  //   logoutButton.remove();
-  // });
-
-  // add the event listener to the submit 
-  //  const usernameValue = usernameInput.value;
-  //  const passwordValue = passwordInput.value;
-  // const url = "http://localhost:5000/users"; // TODO: change the endpoint
-  // const data = {
-  // username: usernameValue,
-  // password: passwordValue
-  // };
-  // const otherParams = {
-  // headers: {
-  // "content-type": "application/json; charset=UTF-8"
-  // },
-  // body: JSON.stringify(data),
-  // method: "POST"
-  // };
-  // fetch(url, otherParams)
-  // .then(function (response) {
-  // console.log(response);
-  // return response.json();
-  // })
-  // .then(function (data) {
-  // console.log(data);
-  // })
-  // .catch(function (err) {
-  // console.log(err);
-  // });
-
-
-
-  //}
-  //);
-
-
+  const username = document.getElementById("username");
+  // ask the user for the username
+  if (LocalData._username == "") {
+    username.value = prompt("Please enter your username");
+    LocalData.cache_name(username.value);
+  }
+  
+  username.textContent = LocalData._username;
 }
 
 add_go_back_listener();
