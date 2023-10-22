@@ -21,7 +21,7 @@ function addNoListMessage() {
 function list_rendering(list) { // TODO: add the list id
     return `<div class="list">\
     <button class="btn btn-danger delete-button-list">X</button> \
-    <a class="a-list-name" data-id="id_a*tua*mae_l41to3wgl" data-name="${list.name}">${list.name}</a></div>`;
+    <a class="a-list-name" data-id="${list.name}" data-name="${list.name}">${list.name}</a></div>`;
 }
 
 function render_lists() {
@@ -47,7 +47,7 @@ function render_lists() {
             document.getElementById("list-name-title").textContent =
                 list_href[i].dataset.name;
             toggle_view();
-            load_previous_items();
+            render_list_items();
         });
 
     const deleteButtons = document.querySelectorAll(".delete-button-list");
@@ -67,8 +67,69 @@ function render_lists() {
     });
 }
 
-function render_list_items(list) {
+function list_item_rendering(id, item) {
+    return `<div class="item">\
+    <button class="btn btn-danger delete-button">X</button> \
+    <input type="checkbox" /> \
+    <span>${id}</span> \
+    <span class="quantity">${item.value()}</span> \
+    </div>`;
+}
+
+
+function render_list_items() {
+    const itemsContainer = document.getElementById("items");
+    const currList = document.getElementById("current-list-name").textContent;
+
+    if (currList === "") return;
+  
+    const items = LocalData._shoppingLists.find((list) => list.name === currList);
     
+    let itemsHtml = "";
+
+    for (const [id, item] of items.products) {
+        itemsHtml += list_item_rendering(id, item);
+    }
+    
+    if (items) itemsContainer.innerHTML = itemsHtml;
+    else if (document.getElementById("todo-list").children.length < 2) {
+      addNoItemMessage();
+    }
+  
+    const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
+  
+    checkboxes.forEach((checkbox) => {
+      checkbox.addEventListener("change", function (event) {
+        const itemNameElement = (event.target )
+          .previousElementSibling;
+        if ((event.target).checked)
+          itemNameElement.classList.add("completed");
+        else itemNameElement.classList.remove("completed");
+        cache_item_changes();
+      });
+    });
+  
+    const deleteButtons = document.querySelectorAll(".delete-button");
+    deleteButtons.forEach((button) => {
+      button.addEventListener("click", function (event) {
+        const res = confirm("Are you sure you want to delete this item?");
+        if (!res) return;
+        const itemDiv = (event.target).parentElement;
+        itemsContainer.removeChild(itemDiv);
+        cache_item_changes();
+      });
+    });
+  
+    // if name is crossed out, check the checkbox
+    const itemNames = document.querySelectorAll(".item span");
+    itemNames.forEach((itemName) => {
+      if (itemName.classList.contains("completed")) {
+        const checkbox = itemName.nextElementSibling;
+        checkbox.checked = true;
+      }
+    });
+  
+    update_item_count();
 }
 
 
