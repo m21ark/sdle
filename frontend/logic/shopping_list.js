@@ -254,17 +254,7 @@ class ShoppingList {
             commitAgreement = true;
         }
 
-        // DEBUG
-        // console.log("NEW CHANGES");
-        // newChanges.showList();
-        // console.log("OTHER CHANGES");
-        // otherChanges.showList();
-        // console.log("=====================================");
-        // console.log("dCHANGES");
-        // console.log(this.dChanges);
-        // console.log("=====================================");
-        // console.log("OTHER dCHANGES");
-        // console.log(other.dChanges);
+
         let newHash = this.commitHash();
         if (commitAgreement) {
             other.commitChanges(newHash, newChanges); // WE COMMIT the other changes TO THE OTHER
@@ -290,100 +280,4 @@ class ShoppingList {
     }
 }
 
-
-
-// Example usage:
-
-const replica1 = new ShoppingList();
-const replica2 = new ShoppingList();
-// 
-replica1.addProduct('Apples', 3);
-replica1.addProduct('Bananas', 2);
-// 
-replica2.addProduct('Bananas', 1);
-replica2.addProduct('Apples', 3);
-replica2.removeProduct('Apples', 2);
-// 
-// Merge the two replicas
-replica1.merge(replica2);
-replica2.merge(replica1);
-// 
-console.log('Replica 1:');
-replica1.showList();
-console.log('Replica 2:');
-replica2.showList();
-
-console.log("=====================================");
-console.log("CHANGES ");
-console.log(replica1.commits);
-
-
-console.log(replica2.commits);
-
-
-
-//replica1.removeFromList("Apples");
-replica1.addProduct("Bananas", 1);
-
-replica2.addProduct("Apples", 1);
-
-
-console.log("=====================================");
-
-console.log("Replica changes after 1:");
-replica1.changesAfter(replica1.commitTimeline[replica1.commitTimeline.length - 1]).showList();
-
-console.log("Replica changes after 2:");
-replica2.changesAfter(replica2.commitTimeline[replica2.commitTimeline.length - 1]).showList();
-console.log("=====================================");
-
-
-replica1.merge(replica2);
-replica2.merge(replica1);
-
-console.log('Replica 1:');
-replica1.showList();
-console.log('Replica 2:');
-replica2.showList();
-
-
-// const shoppingList = new ShoppingList();
-// shoppingList.addProduct('Apples', 3);
-// shoppingList.addProduct('Bananas', 2);
-// 
-// shoppingList.showList();
-// 
-// const commitHash = shoppingList.commitHash();
-// shoppingList.commitChanges(commitHash);
-// 
-// shoppingList.addProduct('Bananas', 1);
-// shoppingList.removeProduct('Apples', 2);
-// 
-// const dShopping = shoppingList.changesAfter(commitHash);
-// 
-// 
-// dShopping.showList();
-// const replica1 = new ShoppingList();
-// const replica2 = new ShoppingList();
-// 
-// replica1.addProduct('Apples', 3);
-// replica1.addProduct('Bananas', 2);
-// 
-// replica2.addProduct('Bananas', 1);
-// replica2.removeProduct('Apples', 2);
-// 
-// // Merge the two replicas
-// replica1.merge(replica2);
-// replica2.merge(replica1);
-// 
-// console.log('Replica 1:');
-// replica1.showList();
-// console.log('Replica 2:');
-// replica2.showList();
-// 
-// // Commit changes to the shopping list
-// const commitHash1 = replica1.commitChanges();
-// 
-// replica1.addProduct('Bananas', 10);
-// 
-// 
+export { ShoppingList };
