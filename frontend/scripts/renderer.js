@@ -76,6 +76,9 @@ function render_lists() {
                 list_href[i].dataset.id;
             document.getElementById("list-name-title").textContent =
                 list_href[i].dataset.name;
+            // change hash to current list name
+            window.location.hash = list_href[i].dataset.id;
+
             toggle_view();
             render_list_items();
         });
@@ -100,13 +103,14 @@ function render_lists() {
 
 
 function list_item_rendering(id, item) {
-    return `<div class="item">\
-    <button class="btn btn-danger delete-button">X</button> \
+    //<button class="btn btn-danger delete-button">X</button> \
+    return `<div class="item">\ 
     <span>${id}</span> \
     <span class="quantity">${item.value()}</span> \
     <input type="checkbox" /> \
     </div>`;
 }
+
 
 
 export function render_list_items() {
@@ -120,6 +124,7 @@ export function render_list_items() {
     let itemsHtml = "";
 
     for (const [id, item] of items.products) {
+        if (item.value() === 0) continue;
         itemsHtml += list_item_rendering(id, item);
     }
 
@@ -133,24 +138,31 @@ export function render_list_items() {
     checkboxes.forEach((checkbox) => {
         checkbox.addEventListener("change", function (event) {
             const itemNameElement = (event.target)
-                .previousElementSibling;
+                .previousElementSibling.previousElementSibling;
             if ((event.target).checked)
                 itemNameElement.classList.add("completed");
             else itemNameElement.classList.remove("completed");
-            cache_item_changes();
+
+            const currList = document.getElementById("current-list-name").textContent;
+           
+            const listObj = LocalData._shoppingLists.find((list) => list.name === currList);
+
+            listObj.removeFromList(itemNameElement.textContent);
+
+            LocalData.cache_list_changes(listObj);
         });
     });
 
-    const deleteButtons = document.querySelectorAll(".delete-button");
-    deleteButtons.forEach((button) => {
-        button.addEventListener("click", function (event) {
-            const res = confirm("Are you sure you want to delete this item?");
-            if (!res) return;
-            const itemDiv = (event.target).parentElement;
-            itemsContainer.removeChild(itemDiv);
-            cache_item_changes();
-        });
-    });
+    // const deleteButtons = document.querySelectorAll(".delete-button");
+    // deleteButtons.forEach((button) => {
+    //     button.addEventListener("click", function (event) {
+    //         const res = confirm("Are you sure you want to delete this item?");
+    //         if (!res) return;
+    //         const itemDiv = (event.target).parentElement;
+    //         itemsContainer.removeChild(itemDiv);
+    //         cache_item_changes();
+    //     });
+    // });
 
     // if name is crossed out, check the checkbox
     const itemNames = document.querySelectorAll(".item span");

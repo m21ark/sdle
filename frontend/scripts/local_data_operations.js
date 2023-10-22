@@ -26,6 +26,7 @@ function load_previous_lists() {
 export function cache_list_changes(list) {
     localStorage.setItem("shoppingLists", JSON.stringify(_shoppingLists.map(list => list.name)));
     localStorage.setItem(list.name, JSON.stringify(list));
+    console.log(localStorage.getItem(list.name));
 }
 
 export function cache_changes() {

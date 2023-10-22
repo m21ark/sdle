@@ -40,6 +40,9 @@ function add_share_link_listener() {
   });
 }
 
+
+
+
 function add_list_item() {
   const itemsContainer = document.getElementById("items");
 
@@ -47,7 +50,11 @@ function add_list_item() {
     const itemNameElement = event.target.previousElementSibling;
     if (event.target.checked) itemNameElement.classList.add("completed");
     else itemNameElement.classList.remove("completed");
-    cache_item_changes();
+
+    const currList = document.getElementById("current-list-name").textContent;
+    console.log(currList);
+
+    cache_list_changes(LocalData._shoppingLists.find((list) => list.name === currList));
   }
 
   function removeItem(event) {
