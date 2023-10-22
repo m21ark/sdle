@@ -144,22 +144,11 @@ class ShoppingList {
     }
 
     hasChanges(commitHash) {
-        const commitedList = this.commits.get(commitHash);
-
-        for (const [productName, counter] of this.products) {
-            if (!commitedList.products.has(productName)) {
-                return true;
-            } else {
-                const commitedCounter = commitedList.products.get(productName);
-                const diff = counter.value() - commitedCounter.value();
-                if (diff !== 0) {
-                    return true;
-                }
-
-            }
-        }
-
-        return false;
+        // Return true if dchanges has values inside it
+        if (this.dChanges.size > 0) return true;
+        //const changes = this.changesAfter(commitHash);
+        //if (changes.products.size > 0) return true;
+        return false; 
     }
 
     getCommitsUntil(commitHash) {

@@ -61,7 +61,7 @@ function fetch_commits(list) {
                 //list.lastCommit = data[data.length - 1].id;
                 //// cache the changes
                 //cache_list_changes(list);
-                console.log(data);
+                //console.log(data);
             }
         })
         .catch(error => console.error(`Error fetching commits for ${list.name}: ${error}`));
@@ -69,7 +69,46 @@ function fetch_commits(list) {
     return;
 }
 
-export var online = false;
+function commit_changes(list) {
+
+    if (list.hasChanges(list.commitTimeline[list.commitTimeline.length - 1])) {
+        let changes = new ShoppingList();
+        changes.name = list.name;
+        changes.products = list.dChanges;
+
+        const data = {
+            username: document.getElementById("username").textContent,
+            data: JSON.stringify(changes) // TODO: we only need to pass the changes map but something in the serialization is not working
+        };
+
+        list.commitChanges(list.commitHash(), changes);
+        
+        const url = `http://localhost:5000/list/${list.name}/${list.commitTimeline[list.commitTimeline.length - 1]}`;
+
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+            .then(response => {
+                response.json();
+            } )
+            .then(data => {
+                console.log('Response:', data);
+                list.dChanges.clear()
+                list.dChanges = new Map();
+                cache_list_changes(list);
+            })
+            .catch(error => {
+               // console.error('Error:', error);
+            });
+    }
+
+}
+
+export var online = true;
 
 function toggleOnline() {
     online = !online;
@@ -87,6 +126,7 @@ setInterval(() => {
     if (online) {
         _shoppingLists.forEach(list => {
             fetch_commits(list);
+            commit_changes(list);
         });
 
     }

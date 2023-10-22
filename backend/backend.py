@@ -12,16 +12,16 @@ CORS( app )
 @app.route('/list/<string:list_name>/<string:commit>', methods=['POST'])
 def add_commit_to_list(list_name, commit):
     data = request.get_json()
-    if 'data' in data:
-        conn = connect_db()
-        cursor = conn.cursor()
-        cursor.execute('INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)',
-                       (data['username'], list_name, commit, data['data']))
-        conn.commit()
-        conn.close()
-        return 'Commit added successfully', 201
-    else:
-        return 'Invalid commit data', 400
+    #if 'data' in data:
+    conn = connect_db()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)',
+                    (data['username'], list_name, commit, data['data']))
+    conn.commit()
+    conn.close()
+    return 'Commit added successfully', 201
+    # else:
+    #     return 'Invalid commit data', 400
 
         
 
