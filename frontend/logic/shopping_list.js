@@ -98,16 +98,41 @@ class ShoppingList {
         return false;
     }
 
+    getCommitsUntil(commitHash) {
+        // Return a list of all commits until the given commit hash
+        const index = this.commitTimeline.indexOf(commitHash);
+        return this.commitTimeline.slice(0, index + 1);
+    }
+
+    getProductChanges(commitHashList) {
+        let productsList = new Map();
+        for (const commitHash of commitHashList) {
+            const commitChanges = this.commits.get(commitHash);
+            for (const [productName, counter] of commitChanges.products) {
+                if (!productsList.has(productName)) {
+                    productsList.set(productName, new PNCounter());
+                }
+                const productCounter = productsList.get(productName);
+                productCounter.join(counter);
+            }
+        }
+        return productsList;
+    }
+
+    
+
     changesAfter(commitHash) {
         // Return a new ShoppingList with the changes after the given commit hash
         const newShoppingList = new ShoppingList();
-        const commitedList = this.commits.get(commitHash);
-
+        let commitsUnitl = this.getCommitsUntil(commitHash);
+        
+        const commitedList = this.getProductChanges(commitsUnitl);
+        
         for (const [productName, counter] of this.products) {
-            if (!commitedList.products.has(productName)) {
+            if (!commitedList.has(productName)) {
                 newShoppingList.products.set(productName, counter);
             } else {
-                const commitedCounter = commitedList.products.get(productName);
+                const commitedCounter = commitedList.get(productName);
                 const diff = counter.value() - commitedCounter.value();
                 if (diff !== 0) {
                     const newCounter = new PNCounter();
@@ -192,10 +217,12 @@ class ShoppingList {
 
     mergeListOfCommits(commitHashes) {
         // Merge a list of commits
+        const changesS = new ShoppingList();
         for (const commitHash of commitHashes) {
             const changes = this.commits.get(commitHash);
-            this.merge(changes);
+            changesS.merge(changes);
         }
+        return changesS;
     }
 
     getAllChanges(hash) {
@@ -302,6 +329,14 @@ replica2.addProduct("Apples", 1);
 
 
 console.log("=====================================");
+
+console.log("Replica changes after 1:");
+replica1.changesAfter(replica1.commitTimeline[replica1.commitTimeline.length - 1]).showList();
+
+console.log("Replica changes after 2:");
+replica2.changesAfter(replica2.commitTimeline[replica2.commitTimeline.length - 1]).showList();
+console.log("=====================================");
+
 
 replica1.merge(replica2);
 replica2.merge(replica1);
