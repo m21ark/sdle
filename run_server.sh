@@ -1,2 +1,2 @@
 #!/bin/sh
-exec node backend/index.js 2>&1
+npx nodemon backend/index.js 2>&1
