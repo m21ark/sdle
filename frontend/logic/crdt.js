@@ -42,7 +42,7 @@ export class GCounter {
             }
             const currentCount = this.counts.get(id);
             this.counts.set(id, currentCount + count);
-        }
+        } 
     }
 
 }
