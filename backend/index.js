@@ -25,13 +25,8 @@ app.post('/list/:list_name/:commit', (req, res) => {
     const commitHash = req.params.commit;
     const data = req.body;
 
-    console.log(data.username, listName, commitHash, data.data);
-
-    db.serialize(() => {
-        const stmt = db.prepare('INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)');
-        stmt.run(data.username, listName, commitHash, data.data);
-        stmt.finalize();
-    });
+    queryRun('INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)',
+        [data.username, listName, commitHash, data.data])
 
     res.status(201).send('Commit added successfully');
 });
@@ -40,19 +35,13 @@ app.get('/commits/:list_name/:commit_hash', (req, res) => {
     const listName = req.params.list_name;
     const commitHash = req.params.commit_hash;
 
-    db.all('SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ? ' +
-        'AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?',
-        listName, commitHash, commitHash, (err, rows) => {
-            if (err) {
-                res.status(500).send('Internal Server Error');
-            } else {
-                const result = rows.map(row => ({
-                    commit_hash: row.commit_hash,
-                    commit_data: row.commit_data
-                }));
-                res.json(result);
-            }
-        });
+    // TODO: its possible to have a better query/logic
+
+    let response = queryAll('SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ? ' +
+    'AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?', 
+    [listName, commitHash, commitHash])
+        
+    res.status(200).json(response);
 });
 
 
