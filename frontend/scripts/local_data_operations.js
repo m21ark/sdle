@@ -141,6 +141,3 @@ setInterval(() => {
 load_previous_lists();
 load_name();
 switchOnline();
-
-
-

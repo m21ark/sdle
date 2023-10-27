@@ -76,8 +76,6 @@ function render_lists() {
                 list_href[i].dataset.id;
             document.getElementById("list-name-title").textContent =
                 list_href[i].dataset.name;
-            // change hash to current list name
-            window.location.hash = list_href[i].dataset.id;
 
             toggle_view();
             render_list_items();

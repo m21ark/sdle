@@ -32,15 +32,56 @@ function add_share_link_listener() {
   const shareButton = document.getElementById("share-button");
 
   shareButton.addEventListener("click", function () {
-    const uniqueId = "my_lists_id" + Math.random().toString(36).substr(2, 9);
+    const uniqueId = document.getElementById("current-list-name").textContent;
     const currentUrl = window.location.href;
-    const shareableLink = `${currentUrl}?id=${uniqueId}`;
+    const shareableLink = `${currentUrl}?get_id=${uniqueId}`;
 
     add_to_clipboard(shareableLink);
   });
 }
 
 
+function add_list_by_url() {
+  // if url has argument get_id then create a list with that id
+  const urlParams = new URLSearchParams(window.location.search);
+  const listId = urlParams.get("get_id");
+
+  // check if there is already a list with that id
+  const lists = LocalData._shoppingLists;
+  const listExists = lists.find((list) => list.name === listId);
+  //from lists remove the ones with name equal to empty string
+  
+
+  if (listExists) {
+    generate_notification("List already exists!", "bg-danger");
+    return;
+  }
+
+  
+
+  if (listId) {// http://127.0.0.1:5500/#MAA?get_id=MAAE
+      // TODO: return all the commits from that list and create the list
+      // const url = `http://localhost:5000/list/${listId}`;
+      // fetch(url)
+      //     .then(response => response.json())
+      //     .then(data => {
+      //         let s = new ShoppingList();
+      //         s.name = data.name;
+      //         s.fromJSON(data.data);
+      //         _shoppingLists.push(s);
+      //         cache_list_changes(s);
+      //         render_list_items(s);
+      //     })
+      //     .catch(error => console.error(`Error fetching list ${listId}: ${error}`));
+      let s = new ShoppingList();
+      s.name = listId;
+      LocalData._shoppingLists.push(s);
+      cache_list_changes(s);
+      console.log(s);
+      add_list_to_list();
+
+  }
+}
 
 
 function add_list_item() {
@@ -214,18 +255,18 @@ function add_list_to_list() {
   );
   const listName = listNameInput.value.trim();
 
-  const newList = new ShoppingList();
-  newList.name = listName;
-  LocalData._shoppingLists.push(newList);
-  console.log(LocalData._shoppingLists);
-  LocalData.cache_changes();
-  // clear the input
   listNameInput.value = "";
-
+  
   if (listName === "") {
     generate_notification("Please enter a name!", "bg-danger");
     return;
   }
+
+  const newList = new ShoppingList();
+  newList.name = listName;
+  LocalData._shoppingLists.push(newList);
+  LocalData.cache_changes();
+  // clear the input
 
   const listContainer = document.getElementById("lists");
 
@@ -278,9 +319,6 @@ function add_list_to_list() {
 
 
 
-
-
-
 function add_go_back_listener() {
   const burger = document.getElementById("burger-icon");
   burger.addEventListener("click", toggle_view);
@@ -309,3 +347,4 @@ update_item_count();
 update_list_count();
 add_share_link_listener();
 login_modal();
+add_list_by_url();
