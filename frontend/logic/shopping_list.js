@@ -161,6 +161,9 @@ class ShoppingList {
         let productsList = new Map();
         for (const commitHash of commitHashList) {
             const commitChanges = this.commits.get(commitHash);
+            if (!commitChanges.products || typeof commitChanges.products[Symbol.iterator] !== 'function') {
+                continue;
+            }
             for (const [productName, counter] of commitChanges.products) {
                 if (!productsList.has(productName)) {
                     productsList.set(productName, new PNCounter());

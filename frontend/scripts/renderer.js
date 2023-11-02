@@ -87,13 +87,13 @@ function render_lists() {
             const res = confirm("Are you sure you want to delete this list?");
             if (!res) return;
             const listDiv = (event.target).parentElement;
-            list_container.removeChild(listDiv);
-            cache_list_changes();
+            list_container.removeChild(listDiv);      
 
             // clear the lists items
             const itemsContainer = document.getElementById("items");
             itemsContainer.innerHTML = "";
-            cache_item_changes(true);
+
+            LocalData.remove_list(listDiv.lastChild.textContent);
         });
     });
 }

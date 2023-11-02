@@ -47,6 +47,12 @@ export function cache_changes() {
     });
 }
 
+export function remove_list(listName) {
+    _shoppingLists = _shoppingLists.filter(list => list.name !== listName);
+    localStorage.removeItem(listName);
+    cache_changes();
+}
+
 function fetch_commits(list) {
 
     const lastCommit = list.lastCommit || 0;

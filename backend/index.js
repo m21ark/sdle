@@ -44,6 +44,15 @@ app.get('/commits/:list_name/:commit_hash', (req, res) => {
     res.status(200).json(response);
 });
 
+app.get('/list/:list_name', (req, res) => {
+    const listName = req.params.list_name;
+
+    let response = queryAll('SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?', [listName]);
+
+
+    res.status(200).json(response);
+});
+
 
 app.get('/ping', (req, res) => {
     res.send('pong');

@@ -50,36 +50,35 @@ function add_list_by_url() {
   const lists = LocalData._shoppingLists;
   const listExists = lists.find((list) => list.name === listId);
   //from lists remove the ones with name equal to empty string
-  
 
+  
   if (listExists) {
     generate_notification("List already exists!", "bg-danger");
     return;
   }
 
-  
+  console.log(listId);
+
 
   if (listId) {// http://127.0.0.1:5500/#MAA?get_id=MAAE
-      // TODO: return all the commits from that list and create the list
-      // const url = `http://localhost:5000/list/${listId}`;
-      // fetch(url)
-      //     .then(response => response.json())
-      //     .then(data => {
-      //         let s = new ShoppingList();
-      //         s.name = data.name;
-      //         s.fromJSON(data.data);
-      //         _shoppingLists.push(s);
-      //         cache_list_changes(s);
-      //         render_list_items(s);
-      //     })
-      //     .catch(error => console.error(`Error fetching list ${listId}: ${error}`));
-      let s = new ShoppingList();
-      s.name = listId;
-      LocalData._shoppingLists.push(s);
-      cache_list_changes(s);
-      console.log(s);
-      add_list_to_list();
+    // TODO: return all the commits from that list and create the list
+    const url = `http://localhost:5000/list/${listId}`;
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        let s = new ShoppingList();
+        s.name = listId;
 
+        for (let row of data) {
+          let temp = new ShoppingList();
+          temp.deserialize(row['commit_data']);
+          s.merge(temp);
+        }
+
+        LocalData._shoppingLists.push(s);
+        LocalData.cache_changes();
+      })
+      .catch(error => console.error(`Error fetching list ${listId}: ${error}`));
   }
 }
 
@@ -115,16 +114,16 @@ function add_list_item() {
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
 
-  const currList = document.getElementById("current-list-name").textContent;
-  const listObj = LocalData._shoppingLists.find((list) => list.name === currList);
-
-  listObj.addProduct(itemName, itemQuantity);
-  LocalData.cache_list_changes(listObj);
-
   if (itemName === "" || itemQuantity === "") {
     generate_notification("Please enter a name and quantity!", "bg-danger");
     return;
   }
+  const currList = document.getElementById("current-list-name").textContent;
+  const listObj = LocalData._shoppingLists.find((list) => list.name === currList);
+
+
+  listObj.addProduct(itemName, itemQuantity);
+  LocalData.cache_list_changes(listObj);
 
   const itemDiv = document.createElement("div");
   itemDiv.className = "item";
@@ -140,7 +139,7 @@ function add_list_item() {
   //deleteButton.className = "btn btn-danger delete-button";
   //deleteButton.textContent = "X";
   //deleteButton.addEventListener("click", removeItem);
-//
+  //
   //itemDiv.appendChild(deleteButton);
   itemDiv.appendChild(itemNameElement);
   itemDiv.appendChild(checkbox);
@@ -256,7 +255,7 @@ function add_list_to_list() {
   const listName = listNameInput.value.trim();
 
   listNameInput.value = "";
-  
+
   if (listName === "") {
     generate_notification("Please enter a name!", "bg-danger");
     return;
@@ -299,12 +298,11 @@ function add_list_to_list() {
     if (!res) return;
     const listDiv = (event.target).parentElement;
     listContainer.removeChild(listDiv);
-    cache_list_changes();
 
     // clear the lists items
     const itemsContainer = document.getElementById("items");
     itemsContainer.innerHTML = "";
-    cache_item_changes(true);
+    LocalData.remove_list(listName);
   });
 
   listDiv.appendChild(deleteButton);
@@ -330,11 +328,12 @@ function login_modal() {
   // // add the username to the navbar
   const username = document.getElementById("username");
   // ask the user for the username
-  if (LocalData._username == "") {
+
+  if (LocalData._username == "" || LocalData._username == null) {
     username.value = prompt("Please enter your username");
     LocalData.cache_name(username.value);
   }
-  
+
   username.textContent = LocalData._username;
 }
 
