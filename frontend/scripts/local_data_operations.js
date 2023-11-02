@@ -55,19 +55,21 @@ export function remove_list(listName) {
 
 function fetch_commits(list) {
 
-    const lastCommit = list.lastCommit || 0;
+    const lastCommit = list.commitTimeline[list.commitTimeline.length -1] || 0;
     const url = `http://localhost:5000/commits/${list.name}/${lastCommit}`;
     fetch(url)
         .then(response => response.json())
         .then(data => {
             if (data.length > 0) {
-                // update the list with the new commits
-                //list.updateFromCommits(data);
-                //// update the lastCommit checkpoint
-                //list.lastCommit = data[data.length - 1].id;
-                //// cache the changes
-                //cache_list_changes(list);
-                //console.log(data);
+                for (let row of data) {
+                    let temp = new ShoppingList();
+                    temp.deserialize(row['commit_data']);
+                    list.mergeDeltaChanges(row["commit_hash"], temp)
+                    cache_changes();
+                    // if active page list is the same as the list that was updated we need to update the page
+                    // TODO: Add to the list view the new changes
+
+                }
             }
         })
         .catch(error => console.error(`Error fetching commits for ${list.name}: ${error}`));
