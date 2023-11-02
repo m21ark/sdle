@@ -161,7 +161,7 @@ class ShoppingList {
         let productsList = new Map();
         for (const commitHash of commitHashList) {
             const commitChanges = this.commits.get(commitHash);
-            if ( commitChanges.products[Symbol.iterator] !== 'function') {
+            if (commitChanges.products[Symbol.iterator] !== 'function') {
                 commitChanges.products = new Map();
             }
             for (const [productName, counter] of commitChanges.products) {
@@ -297,7 +297,7 @@ class ShoppingList {
         }
         return changes;
     }
-    mergeDeltaChanges(commitHash,dChangeList) {
+    mergeDeltaChanges(commitHash, dChangeList) {
         // Merge a list of dChanges
         for (const [productName, counter] of dChangeList.products) {
             if (!this.products.has(productName)) {
@@ -348,8 +348,11 @@ class ShoppingList {
 
     removeFromList(productName) {
         // Remove a product from the list
-        this.products.set(productName, new PNCounter());
+        let decrement = this.products.get(productName).value();
+        this.products.get(productName).decrement(decrement);
         this.dChanges.set(productName, new PNCounter());
+        
+        this.dChanges.get(productName).decrement(decrement);
     }
 }
 
