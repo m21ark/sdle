@@ -148,7 +148,7 @@ class ShoppingList {
         if (this.dChanges.size > 0) return true;
         //const changes = this.changesAfter(commitHash);
         //if (changes.products.size > 0) return true;
-        return false; 
+        return false;
     }
 
     getCommitsUntil(commitHash) {
@@ -161,8 +161,8 @@ class ShoppingList {
         let productsList = new Map();
         for (const commitHash of commitHashList) {
             const commitChanges = this.commits.get(commitHash);
-            if (!commitChanges.products || typeof commitChanges.products[Symbol.iterator] !== 'function') {
-                continue;
+            if ( commitChanges.products[Symbol.iterator] !== 'function') {
+                commitChanges.products = new Map();
             }
             for (const [productName, counter] of commitChanges.products) {
                 if (!productsList.has(productName)) {
@@ -232,6 +232,11 @@ class ShoppingList {
 
     commitChanges(commitHash, changes) {
         // Commit changes to the shopping list
+        // if this.commits its not from map prototype return 
+        if (!(this.commits instanceof Map)) {
+            this.commits = new Map();
+        }
+
         this.commits.set(commitHash, changes.clone());
         // localStorage.setItem('shoppingList', JSON.stringify(Array.from(this.commits)));
         this.commitTimeline.push(commitHash);
@@ -291,6 +296,18 @@ class ShoppingList {
             changes.merge(commitChanges);
         }
         return changes;
+    }
+    mergeDeltaChanges(commitHash,dChangeList) {
+        // Merge a list of dChanges
+        for (const [productName, counter] of dChangeList.products) {
+            if (!this.products.has(productName)) {
+                this.products.set(productName, new PNCounter());
+            }
+            const productCounter = this.products.get(productName);
+            productCounter.join(counter);
+        }
+        this.commitTimeline.push(commitHash);
+        this.commits.set(commitHash, dChangeList);
     }
 
     merge(other) {

@@ -57,11 +57,7 @@ function add_list_by_url() {
     return;
   }
 
-  console.log(listId);
-
-
-  if (listId) {// http://127.0.0.1:5500/#MAA?get_id=MAAE
-    // TODO: return all the commits from that list and create the list
+  if (listId) {
     const url = `http://localhost:5000/list/${listId}`;
     fetch(url)
       .then(response => response.json())
@@ -72,11 +68,15 @@ function add_list_by_url() {
         for (let row of data) {
           let temp = new ShoppingList();
           temp.deserialize(row['commit_data']);
-          s.merge(temp);
+          s.mergeDeltaChanges(row['commit_hash'], temp);
         }
 
         LocalData._shoppingLists.push(s);
         LocalData.cache_changes();
+        // change url and take the get_id 
+        window.history.pushState({}, null, window.location.pathname);
+        location.reload();
+        generate_notification("List added!", "bg-success");
       })
       .catch(error => console.error(`Error fetching list ${listId}: ${error}`));
   }
