@@ -1,6 +1,6 @@
-import * as LocalData from './local_data_operations.js'
+import * as LocalData from "./local_data_operations.js";
 import { ShoppingList } from "../logic/shopping_list.js";
-import { toggle_view, render_list_items } from './renderer.js';
+import { toggle_view, render_list_items } from "./renderer.js";
 
 function generate_notification(text, type) {
   const toast = document.getElementById("notification-toast");
@@ -15,7 +15,6 @@ function generate_notification(text, type) {
     toast.classList.remove("show");
   }, 5000);
 }
-
 
 function add_share_link_listener() {
   function add_to_clipboard(shareableLink) {
@@ -40,7 +39,6 @@ function add_share_link_listener() {
   });
 }
 
-
 function add_list_by_url() {
   // if url has argument get_id then create a list with that id
   const urlParams = new URLSearchParams(window.location.search);
@@ -51,7 +49,6 @@ function add_list_by_url() {
   const listExists = lists.find((list) => list.name === listId);
   //from lists remove the ones with name equal to empty string
 
-  
   if (listExists) {
     generate_notification("List already exists!", "bg-danger");
     return;
@@ -60,28 +57,29 @@ function add_list_by_url() {
   if (listId) {
     const url = `http://localhost:5000/list/${listId}`;
     fetch(url)
-      .then(response => response.json())
-      .then(data => {
+      .then((response) => response.json())
+      .then((data) => {
         let s = new ShoppingList();
         s.name = listId;
 
         for (let row of data) {
           let temp = new ShoppingList();
-          temp.deserialize(row['commit_data']);
-          s.mergeDeltaChanges(row['commit_hash'], temp);
+          temp.deserialize(row["commit_data"]);
+          s.mergeDeltaChanges(row["commit_hash"], temp);
         }
 
         LocalData._shoppingLists.push(s);
         LocalData.cache_changes();
-        // change url and take the get_id 
+        // change url and take the get_id
         window.history.pushState({}, null, window.location.pathname);
         location.reload();
         generate_notification("List added!", "bg-success");
       })
-      .catch(error => console.error(`Error fetching list ${listId}: ${error}`));
+      .catch((error) =>
+        console.error(`Error fetching list ${listId}: ${error}`)
+      );
   }
 }
-
 
 function add_list_item() {
   const itemsContainer = document.getElementById("items");
@@ -93,7 +91,9 @@ function add_list_item() {
 
     const currList = document.getElementById("current-list-name").textContent;
 
-    cache_list_changes(LocalData._shoppingLists.find((list) => list.name === currList));
+    cache_list_changes(
+      LocalData._shoppingLists.find((list) => list.name === currList)
+    );
   }
 
   function removeItem(event) {
@@ -104,12 +104,8 @@ function add_list_item() {
     cache_item_changes();
   }
 
-  const itemNameInput = document.getElementById(
-    "item-name"
-  );
-  const itemQuantityInput = document.getElementById(
-    "item-quantity"
-  );
+  const itemNameInput = document.getElementById("item-name");
+  const itemQuantityInput = document.getElementById("item-quantity");
 
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
@@ -119,8 +115,9 @@ function add_list_item() {
     return;
   }
   const currList = document.getElementById("current-list-name").textContent;
-  const listObj = LocalData._shoppingLists.find((list) => list.name === currList);
-
+  const listObj = LocalData._shoppingLists.find(
+    (list) => list.name === currList
+  );
 
   listObj.addProduct(itemName, itemQuantity);
   LocalData.cache_list_changes(listObj);
@@ -247,11 +244,7 @@ function add_list_popup() {
 }
 
 function add_list_to_list() {
-
-
-  const listNameInput = document.getElementById(
-    "list-name"
-  );
+  const listNameInput = document.getElementById("list-name");
   const listName = listNameInput.value.trim();
 
   listNameInput.value = "";
@@ -296,7 +289,7 @@ function add_list_to_list() {
   deleteButton.addEventListener("click", function (event) {
     const res = confirm("Are you sure you want to delete this list?");
     if (!res) return;
-    const listDiv = (event.target).parentElement;
+    const listDiv = event.target.parentElement;
     listContainer.removeChild(listDiv);
 
     // clear the lists items
@@ -315,16 +308,12 @@ function add_list_to_list() {
   cache_list_changes();
 }
 
-
-
 function add_go_back_listener() {
   const burger = document.getElementById("burger-icon");
   burger.addEventListener("click", toggle_view);
 }
 
 function login_modal() {
-
-
   // // add the username to the navbar
   const username = document.getElementById("username");
   // ask the user for the username
@@ -336,8 +325,6 @@ function login_modal() {
 
   username.textContent = LocalData._username;
 }
-
-
 
 add_go_back_listener();
 add_list_popup();

@@ -1,15 +1,5 @@
-# Node.js
 node_modules/
-
-# Visual Studio Code
 .vscode/
-
-# compiled output
 dist/
-
-# Python Cache
 __pycache__
-
-# Database
 *.db
-

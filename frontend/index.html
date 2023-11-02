@@ -16,7 +16,6 @@
     />
     <link rel="stylesheet" href="style.css" />
 
-
     <script defer type="module" src="logic/shopping_list.js"></script>
     <script defer type="module" src="scripts/local_data_operations.js"></script>
     <script defer type="module" src="scripts/renderer.js"></script>
@@ -30,10 +29,8 @@
 
     <header>
       Listing Lists LDA.
-      <div id="username">
-      </div>
+      <div id="username"></div>
     </header>
-    
 
     <div id="notification-toast" class="toast">
       <div class="toast-header">
@@ -48,20 +45,17 @@
         <h2>Login</h2>
         <form id="login-form">
           <label for="login-email">Email:</label>
-          <input
-            type="email"
-            id="login-email"
-            required
-            placeholder="email" />
+          <input type="email" id="login-email" required placeholder="email" />
           <br />
           <label for="login-password">Password:</label>
           <input
             type="password"
             id="login-password"
             required
-            placeholder="password" />
+            placeholder="password"
+          />
           <br />
-          <input type="submit" id="submit"/>
+          <input type="submit" id="submit" />
         </form>
       </div>
     </div>
@@ -74,7 +68,6 @@
         </h2>
         <button class="btn btn-outline-dark" id="share-button">Share</button>
       </div>
-      
 
       <div class="overlay" id="overlay-item"></div>
       <div class="popup" id="popup-item">
@@ -131,7 +124,11 @@
     <button id="floating-add-button" class="floating-add-button">
       <span>+</span>
     </button>
-    <button id="online-status" class="floating-add-button-left" style="display: inline; margin-left: 10+4px;">
+    <button
+      id="online-status"
+      class="floating-add-button-left"
+      style="display: inline; margin-left: 10+4px"
+    >
       <span id="online-indicator"></span>
       <span id="online-text">Online</span>
     </button>
