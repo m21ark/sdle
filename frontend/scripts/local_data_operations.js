@@ -71,46 +71,48 @@ function fetch_commits(list) {
     .catch((error) =>
       console.error(`Error fetching commits for ${list.name}: ${error}`)
     );
-
-  return;
 }
 
 function push_changes(list) {
-  if (list.hasChanges(list.commitTimeline[list.commitTimeline.length - 1])) {
-    let changes = new ShoppingList();
-    changes.name = list.name;
-    changes.products = list.dChanges;
+  // if there are no changes to push we can return
+  const hasChanges = list.hasChanges(
+    list.commitTimeline[list.commitTimeline.length - 1]
+  );
+  if (!hasChanges) return;
 
-    const data = {
-      username: document.getElementById("username").textContent,
-      data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
-    };
+  // If there are changes we need to push them to the server
+  let changes = new ShoppingList();
+  changes.name = list.name;
+  changes.products = list.dChanges;
 
-    list.commitChanges(list.commitHashGen(), changes);
+  const data = {
+    username: document.getElementById("username").textContent,
+    data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
+  };
 
-    const url = `http://localhost:5000/list/${list.name}/${
-      list.commitTimeline[list.commitTimeline.length - 1]
-    }`;
+  list.commitChanges(list.commitHashGen(), changes);
 
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+  const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
+  const url = `http://localhost:5000/list/${list.name}/${commitHash}`;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      response.json();
     })
-      .then((response) => {
-        response.json();
-      })
-      .then((data) => {
-        list.dChanges.clear();
-        list.dChanges = new Map();
-        cache_list_changes(list);
-      })
-      .catch((error) => {
-        // console.error('Error:', error);
-      });
-  }
+    .then((data) => {
+      list.dChanges.clear();
+      list.dChanges = new Map();
+      cache_list_changes(list);
+    })
+    .catch((error) => {
+      // console.error('Error:', error);
+    });
 }
 
 function toggleOnline() {
