@@ -258,7 +258,6 @@ function add_list_to_list() {
   newList.name = listName;
   LocalData._shoppingLists.push(newList);
   LocalData.cache_changes();
-  // clear the input
 
   const listContainer = document.getElementById("lists");
 
@@ -275,7 +274,7 @@ function add_list_to_list() {
   listNameElement.dataset.name = listName;
 
   listNameElement.addEventListener("click", () => {
-    document.getElementById("current-list-name").textContent = uniqueId;
+    document.getElementById("current-list-name").textContent = listNameId;
     document.getElementById("list-name-title").textContent = listName;
     toggle_view();
     render_list_items();
@@ -306,6 +305,25 @@ function add_list_to_list() {
   listNameInput.value = "";
 
   cache_list_changes();
+
+  addListToServer(newList);
+}
+
+function addListToServer(list) {
+  const url = `http://localhost:5000/list/${list.name}`;
+  const data = {
+    username: document.getElementById("username").textContent,
+  };
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => response.json())
+    .catch((error) => console.error("Error:", error));
 }
 
 function add_go_back_listener() {

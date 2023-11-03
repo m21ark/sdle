@@ -5,6 +5,8 @@ let cors = require("cors");
 
 let db = new sqlite3("./backend/db/database.db");
 
+db.pragma("foreign_keys = ON");
+
 let app = express();
 app.use(cors());
 app.use(bodyParser.json());
@@ -24,9 +26,39 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   const commitHash = req.params.commit_hash;
   const data = req.body;
 
+  // console.log( [data.username, listName, commitHash, data.data])
+
+  // const tmp = queryAll("Select * from todo_lists where name = ?", [listName]);
+
+  // console.log(tmp);
+
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
     [data.username, listName, commitHash, data.data]
+  );
+
+  res.status(200).json({});
+});
+
+app.post("/list/:list_name/", (req, res) => {
+  const listName = req.params.list_name;
+  const username = req.body.username;
+
+  let user_id = queryAll("SELECT id FROM users WHERE email = ?", [username]);
+
+  // user not found
+  if (user_id.length === 0) {
+    res.status(400).json({});
+    return;
+  }
+
+  user_id = user_id[0].id;
+
+  const list_id = listName + Date.now().toString();
+
+  queryRun(
+    "INSERT INTO todo_lists (user_id, name, internal_id) VALUES (?, ?, ?)",
+    [user_id, listName, list_id]
   );
 
   res.status(200).json({});

@@ -115,6 +115,8 @@ export function render_list_items() {
 
   let itemsHtml = "";
 
+  if(items === undefined) return;
+
   for (const [id, item] of items.products) {
     if (item.value() === 0) continue;
     itemsHtml += list_item_rendering(id, item);
