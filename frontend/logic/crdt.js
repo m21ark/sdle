@@ -30,23 +30,13 @@ export class GCounter {
     return res;
   }
 
-  joinOld(other) {
-    // Reset Map (not recursive)
-    for (const [id, count] of other.counts) {
-      if (!this.counts.has(id)) this.counts.set(id, 0);
-      const currentCount = this.counts.get(id);
-      this.counts.set(id, currentCount + count);
-    }
-  }
 
   join(other) {
     // Recursive Reset Map
     for (const [id, count] of other.counts) {
       if (!this.counts.has(id)) this.counts.set(id, 0);
-      else {
-        const currentCount = this.counts.get(id);
-        this.counts.set(id, currentCount + count);
-      }
+      const currentCount = this.counts.get(id);
+      this.counts.set(id, currentCount + count);
     }
   }
 }

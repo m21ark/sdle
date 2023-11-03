@@ -94,7 +94,7 @@ function commit_changes(list) {
       data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
     };
 
-    list.commitChanges(list.commitHash(), changes);
+    list.commitChanges(list.commitHashGen(), changes);
 
     const url = `http://localhost:5000/list/${list.name}/${
       list.commitTimeline[list.commitTimeline.length - 1]
@@ -152,3 +152,4 @@ setInterval(() => {
 load_previous_lists();
 load_name();
 switchOnline();
+console.log(_shoppingLists);
