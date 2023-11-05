@@ -45,7 +45,7 @@ function add_list_by_url() {
   const listId = urlParams.get("get_id");
 
   // check if there is already a list with that id
-  const lists = LocalData._shoppingLists;
+  const lists = [...LocalData._shoppingLists.values()];
   const listExists = lists.find((list) => list.name === listId);
   //from lists remove the ones with name equal to empty string
 
@@ -68,7 +68,7 @@ function add_list_by_url() {
           s.mergeDeltaChanges(row["commit_hash"], temp);
         }
 
-        LocalData._shoppingLists.push(s);
+        LocalData._shoppingLists.set(listId, s);
         LocalData.cache_changes();
         // change url and take the get_id
         window.history.pushState({}, null, window.location.pathname);
@@ -91,9 +91,9 @@ function add_list_item() {
 
     const currList = document.getElementById("current-list-name").textContent;
 
-    cache_list_changes(
-      LocalData._shoppingLists.find((list) => list.name === currList)
-    );
+    if (LocalData._shoppingLists.has(currList)) {
+      cache_list_changes(LocalData._shoppingLists.get(currList));
+    } else console.error("List does not exist");
   }
 
   function removeItem(event) {
@@ -115,9 +115,13 @@ function add_list_item() {
     return;
   }
   const currList = document.getElementById("current-list-name").textContent;
-  const listObj = LocalData._shoppingLists.find(
-    (list) => list.name === currList
-  );
+  let listObj = null;
+  if (LocalData._shoppingLists.has(currList))
+    listObj = LocalData._shoppingLists.get(currList);
+  else {
+    console.error("List does not exist");
+    return;
+  }
 
   listObj.addProduct(itemName, itemQuantity);
   LocalData.cache_list_changes(listObj);
@@ -256,7 +260,7 @@ function add_list_to_list() {
 
   const newList = new ShoppingList();
   newList.name = listName;
-  LocalData._shoppingLists.push(newList);
+  LocalData._shoppingLists.set(listName, newList);
   LocalData.cache_changes();
 
   const listContainer = document.getElementById("lists");

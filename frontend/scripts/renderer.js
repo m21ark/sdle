@@ -55,7 +55,7 @@ function list_rendering(list) {
 }
 
 function render_lists() {
-  let lists = LocalData._shoppingLists;
+  let lists = [...LocalData._shoppingLists.values()];
 
   const list_container = document.getElementById("lists");
 
@@ -111,11 +111,16 @@ export function render_list_items() {
 
   if (currList === "") return;
 
-  const items = LocalData._shoppingLists.find((list) => list.name === currList);
+  let items = null;
 
   let itemsHtml = "";
 
-  if(items === undefined) return;
+  if (LocalData._shoppingLists.has(currList)) {
+    items = LocalData._shoppingLists.get(currList);
+  } else {
+    console.error("List does not exist");
+    return;
+  }
 
   for (const [id, item] of items.products) {
     if (item.value() === 0) continue;
@@ -138,13 +143,11 @@ export function render_list_items() {
 
       const currList = document.getElementById("current-list-name").textContent;
 
-      const listObj = LocalData._shoppingLists.find(
-        (list) => list.name === currList
-      );
-
-      listObj.removeFromList(itemNameElement.textContent);
-
-      LocalData.cache_list_changes(listObj);
+      if (LocalData._shoppingLists.has(currList)) {
+        const listObj = LocalData._shoppingLists.get(currList);
+        listObj.removeFromList(itemNameElement.textContent);
+        LocalData.cache_list_changes(listObj);
+      } else console.warn("List does not exist");
     });
   });
 

@@ -26,12 +26,6 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   const commitHash = req.params.commit_hash;
   const data = req.body;
 
-  // console.log( [data.username, listName, commitHash, data.data])
-
-  // const tmp = queryAll("Select * from todo_lists where name = ?", [listName]);
-
-  // console.log(tmp);
-
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
     [data.username, listName, commitHash, data.data]

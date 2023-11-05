@@ -1,6 +1,6 @@
 import { ShoppingList } from "../logic/shopping_list.js";
 
-export let _shoppingLists = []; // TODO: should be a map of list names to list
+export let _shoppingLists = new Map(); // <list_name, ShoppingList>
 export let _username = "";
 export let online = true;
 
@@ -12,7 +12,7 @@ function load_previous_lists() {
       let s = new ShoppingList();
       s.name = list;
       s.fromJSON(localStorage.getItem(list));
-      _shoppingLists.push(s);
+      _shoppingLists.set(list, s);
     });
   }
 }
@@ -29,7 +29,7 @@ export function load_name() {
 export function cache_list_changes(list) {
   localStorage.setItem(
     "shoppingLists",
-    JSON.stringify(_shoppingLists.map((list) => list.name))
+    JSON.stringify([..._shoppingLists.keys()])
   );
   localStorage.setItem(list.name, JSON.stringify(list));
 }
@@ -37,7 +37,7 @@ export function cache_list_changes(list) {
 export function cache_changes() {
   localStorage.setItem(
     "shoppingLists",
-    JSON.stringify(_shoppingLists.map((list) => list.name))
+    JSON.stringify([..._shoppingLists.keys()])
   );
 
   _shoppingLists.forEach((list) => {
@@ -46,7 +46,8 @@ export function cache_changes() {
 }
 
 export function remove_list(listName) {
-  _shoppingLists = _shoppingLists.filter((list) => list.name !== listName);
+  if (myMap.has(listName)) _shoppingLists.delete(listName);
+  else console.error("List does not exist");
   localStorage.removeItem(listName);
   cache_changes();
 }
@@ -136,10 +137,10 @@ function switchOnline() {
 // set a timeout that call the sync function every 5 seconds
 setInterval(() => {
   if (online) {
-    _shoppingLists.forEach((list) => {
-      fetch_commits(list);
-      push_changes(list);
-    });
+    for (const [_, value] of _shoppingLists) {
+      fetch_commits(value);
+      push_changes(value);
+    }
   }
 }, 5000);
 
