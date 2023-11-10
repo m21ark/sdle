@@ -8,7 +8,8 @@ INSERT INTO users (email, password) VALUES
 INSERT INTO todo_lists (user_id, name, internal_id) VALUES
     (1, 'Grocery List', 'grocery-1'),
     (1, 'Work Tasks', 'work-1'),
-    (2, 'Personal Goals', 'personal-1');
+    (2, 'Personal Goals', 'personal-1'),
+    (3, 'MAA', 'temp-1');
 
 -- Insert mock data into the 'list_items' table
 INSERT INTO list_items (todo_list_id, name, quantity, quantity_left, crossed) VALUES

@@ -55,7 +55,7 @@ function list_rendering(list) {
 }
 
 function render_lists() {
-  let lists = LocalData._shoppingLists;
+  let lists = [...LocalData._shoppingLists.values()];
 
   const list_container = document.getElementById("lists");
 
@@ -100,7 +100,11 @@ function list_item_rendering(id, item) {
   //<button class="btn btn-danger delete-button">X</button> \
   return `<div class="item">\ 
     <span>${id}</span> \
+    <div>
+    <span class="quantity__minus">-</span> \
     <span class="quantity">${item.value()}</span> \
+    <span class="quantity__plus">+</span> \
+    </div>
     <input type="checkbox" /> \
     </div>`;
 }
@@ -111,9 +115,16 @@ export function render_list_items() {
 
   if (currList === "") return;
 
-  const items = LocalData._shoppingLists.find((list) => list.name === currList);
+  let items = null;
 
   let itemsHtml = "";
+
+  if (LocalData._shoppingLists.has(currList)) {
+    items = LocalData._shoppingLists.get(currList);
+  } else {
+    console.error("List does not exist");
+    return;
+  }
 
   for (const [id, item] of items.products) {
     if (item.value() === 0) continue;
@@ -129,22 +140,58 @@ export function render_list_items() {
 
   checkboxes.forEach((checkbox) => {
     checkbox.addEventListener("change", function (event) {
-      const itemNameElement =
-        event.target.previousElementSibling.previousElementSibling;
+      const itemNameElement = (event.target)
+                .parentElement.children[0];
+
       if (event.target.checked) itemNameElement.classList.add("completed");
       else itemNameElement.classList.remove("completed");
 
       const currList = document.getElementById("current-list-name").textContent;
 
-      const listObj = LocalData._shoppingLists.find(
-        (list) => list.name === currList
-      );
-
-      listObj.removeFromList(itemNameElement.textContent);
-
-      LocalData.cache_list_changes(listObj);
+      if (LocalData._shoppingLists.has(currList)) {
+        const listObj = LocalData._shoppingLists.get(currList);
+        listObj.removeFromList(itemNameElement.textContent);
+        LocalData.cache_list_changes(listObj);
+      } else console.warn("List does not exist");
     });
   });
+
+  const plusButtons = document.querySelectorAll(".quantity__plus");
+    plusButtons.forEach((button) => {
+        button.addEventListener("click", function (event) {
+            const itemNameElement = event.target.parentElement.parentElement.children[0];
+
+            const currList = document.getElementById("current-list-name").textContent;
+            
+            if (LocalData._shoppingLists.has(currList)) {
+              const listObj = LocalData._shoppingLists.get(currList);
+              listObj.addProduct(itemNameElement.textContent, 1);
+              LocalData.cache_list_changes(listObj);
+              render_list_items();
+            } else console.warn("List does not exist");
+        });
+    });
+
+    const minusButtons = document.querySelectorAll(".quantity__minus");
+    minusButtons.forEach((button) => {
+        button.addEventListener("click", function (event) {
+            const itemNameElement = event.target.parentElement.parentElement.children[0];
+
+            const currList = document.getElementById("current-list-name").textContent;
+           
+            if (LocalData._shoppingLists.has(currList)) {
+              const listObj = LocalData._shoppingLists.get(currList);
+              // check if item value is bigger than 0
+              if (listObj.getQuantityToBuy(itemNameElement.textContent) > 0) {
+                listObj.removeProduct(itemNameElement.textContent, 1);
+                LocalData.cache_list_changes(listObj);
+                render_list_items();
+              }
+            } else console.warn("List does not exist");
+
+        });
+    });
+
 
   // const deleteButtons = document.querySelectorAll(".delete-button");
   // deleteButtons.forEach((button) => {
@@ -170,4 +217,3 @@ export function render_list_items() {
 }
 
 render_lists();
-console.log("renderer.js loaded");

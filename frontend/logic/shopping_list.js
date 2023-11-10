@@ -1,6 +1,6 @@
 import { PNCounter } from "./crdt.js";
 
-export class ShoppingList {
+class ShoppingList {
   constructor(products, commits, commitTimeline, name) {
     // Setting the name of the list
     if (name != undefined) this.name = name;
@@ -98,16 +98,9 @@ export class ShoppingList {
       console.log(`${productName}: ${quantity.value()} qnt`);
   }
 
-  getCommitsBefore(commitHash) {
-    // Return a list of all commits until the given commit hash
-    const index = this.commitTimeline.indexOf(commitHash);
-    return this.commitTimeline.slice(0, index + 1);
-  }
-
-  getCommitsAfter(commitHash) {
-    // Return a list of all commits after the given commit hash
-    const index = this.commitTimeline.indexOf(commitHash);
-    return this.commitTimeline.slice(index + 1);
+  hasChanges(commitHash) {
+    // Return true if dchanges has values inside it more recent than the given commit hash
+    return this.dChanges.size > 0;
   }
 
   getProductChanges(commitHashList) {
@@ -133,37 +126,38 @@ export class ShoppingList {
     return productsList;
   }
 
-  hasChanges(commitHash) {
-    // Return true if dchanges has values inside it more recent than the given commit hash
-    const changes = this.changesAfter(commitHash);
-    return changes.products.size > 0;
+  getCommitsUntil(commitHash) {
+    // Return a list of all commits until the given commit hash
+    const index = this.commitTimeline.indexOf(commitHash);
+    return this.commitTimeline.slice(0, index + 1);
+  }
+
+  getCommitsAfter(commitHash) {
+    // Return a list of all commits after the given commit hash
+    const index = this.commitTimeline.indexOf(commitHash);
+    return this.commitTimeline.slice(index + 1);
   }
 
   changesAfter(commitHash) {
-    // Return a new ShoppingList with the changes after the given
-    // commit hash in relation to the current shopping list
+    // Return a new ShoppingList with the changes after the given commit hash
     const newShoppingList = new ShoppingList();
+    let commitsUnitl = this.getCommitsUntil(commitHash);
 
-    const commitsUntil = this.getCommitsBefore(commitHash); // TODO: Shouldn't this be getCommitsAfter?
-    const commitedList = this.getProductChanges(commitsUntil);
+    const commitedList = this.getProductChanges(commitsUnitl);
 
-    // Create a new shopping list based on the current list but
-    // with the changes after the given commit hash incorporated
     for (const [productName, counter] of this.products) {
-      if (!commitedList.has(productName))
-        // If there is no commit for this product, it means it is a new product not yet commited
+      if (!commitedList.has(productName)) {
         newShoppingList.products.set(productName, counter);
-      else {
-        // If there is a commit for this product, we need to check if the counter is different
+      } else {
         const commitedCounter = commitedList.get(productName);
         const diff = counter.value() - commitedCounter.value();
-
-        // If the counter is different, we need to update it in new shopping list
         if (diff !== 0) {
-          // Calculate the new counter value based on the difference
           const newCounter = new PNCounter();
-          if (diff > 0) newCounter.increment(diff);
-          else newCounter.decrement(-diff);
+          if (diff > 0) {
+            newCounter.increment(diff);
+          } else {
+            newCounter.decrement(-diff);
+          }
 
           newShoppingList.products.set(productName, newCounter);
         }
@@ -225,76 +219,6 @@ export class ShoppingList {
     this.commitTimeline.push(commitHash);
     this.commits.set(commitHash, dChangeList);
     // TODO: Should we reset dChanges here?
-  }
-
-  merge(other) {
-    // TODO: this function is a mess... cant understand it
-
-    // Merge product counters from another ShoppingList
-    let newChanges = this.changesAfter(
-      this.commitTimeline[this.commitTimeline.length - 1]
-    ); // the new changes are the ones after the last commit
-    // check if other has changes after the last commit
-    let commitHash = this.commitHashGen();
-    let commitAgreement = false;
-    let otherChanges;
-
-    if (
-      other.commitTimeline[other.commitTimeline.length - 1] ==
-      this.commitTimeline[this.commitTimeline.length - 1]
-    ) {
-      otherChanges = other.changesAfter(
-        other.commitTimeline[other.commitTimeline.length - 1]
-      ); // the other changes are the ones after the last commit
-    } else {
-      otherChanges = other.getAllChanges(
-        this.commitTimeline[this.commitTimeline.length - 1]
-      ); // the other changes are the ones after the last commit
-      commitHash = other.commitTimeline[other.commitTimeline.length - 1]; // set the history to the other commit hash recent one
-      commitAgreement = true;
-    }
-
-    let newHash = this.commitHashGen();
-    if (commitAgreement) {
-      other.commitChanges(newHash, newChanges); // WE COMMIT the other changes TO THE OTHER
-      this.commitChanges(commitHash, otherChanges); // WE COMMIT the other changes TO OURSELVES
-      this.commitChanges(newHash, newChanges); // WE COMMIT our changes TO OURSELVES
-    } else {
-      this.commitChanges(commitHash, newChanges); // WE COMMIT our changes TO OURSELVES
-    }
-    for (const [productName, counter] of otherChanges.products) {
-      if (!this.products.has(productName)) {
-        this.products.set(productName, new PNCounter());
-      }
-      const productCounter = this.products.get(productName);
-      productCounter.join(counter);
-    }
-  }
-
-  sync() {
-    // Sync the shopping list with the server
-    // check the server last commit hash ... if there are local changes send them to the server so it can merge them ... merge the server changes with the local ones
-
-    // TODO: end this function
-
-    // if (hasChanges(serverLastHash))
-
-    if (this.hasChanges(this.commitTimeline[this.commitTimeline.length - 1])) {
-      // NOTE: this is only true if there is no p2p
-      // send changes to server
-      const changes = this.changesAfter(
-        this.commitTimeline[this.commitTimeline.length - 1]
-      );
-      // ...
-    }
-    // get server changes
-    let serverHasChanges =
-      this.requestLastCommitHash() ==
-      this.commitTimeline[this.commitTimeline.length - 1];
-    if (serverHasChanges) {
-      // merge server changes
-      // ... request server changes since the last commit hash
-    }
   }
 
   fromJSON(json) {
@@ -368,8 +292,9 @@ export class ShoppingList {
   serialize() {
     return JSON.stringify(this);
   }
-
   deserialize(serialized) {
     return this.fromJSON(serialized);
   }
 }
+
+export { ShoppingList };

@@ -1,16 +1,8 @@
 import { ShoppingList } from "../logic/shopping_list.js";
 
-export var _shoppingLists = []; // TODO: should be a map of list names to list
-export var _username = "";
-export var online = true;
-
-// let shoppingList = new ShoppingList();
-// shoppingList.name = "Big list";
-// shoppingList.addProduct("Banana", 10);
-// shoppingList.addProduct("Apple", 5);
-//
-// localStorage.setItem("shoppingLists", JSON.stringify([shoppingList.name]));
-// localStorage.setItem(shoppingList.name, JSON.stringify(shoppingList));
+export let _shoppingLists = new Map(); // <list_name, ShoppingList>
+export let _username = "";
+export let online = true;
 
 function load_previous_lists() {
   let lists = JSON.parse(localStorage.getItem("shoppingLists"));
@@ -20,7 +12,7 @@ function load_previous_lists() {
       let s = new ShoppingList();
       s.name = list;
       s.fromJSON(localStorage.getItem(list));
-      _shoppingLists.push(s);
+      _shoppingLists.set(list, s);
     });
   }
 }
@@ -37,7 +29,7 @@ export function load_name() {
 export function cache_list_changes(list) {
   localStorage.setItem(
     "shoppingLists",
-    JSON.stringify(_shoppingLists.map((list) => list.name))
+    JSON.stringify([..._shoppingLists.keys()])
   );
   localStorage.setItem(list.name, JSON.stringify(list));
 }
@@ -45,7 +37,7 @@ export function cache_list_changes(list) {
 export function cache_changes() {
   localStorage.setItem(
     "shoppingLists",
-    JSON.stringify(_shoppingLists.map((list) => list.name))
+    JSON.stringify([..._shoppingLists.keys()])
   );
 
   _shoppingLists.forEach((list) => {
@@ -54,7 +46,8 @@ export function cache_changes() {
 }
 
 export function remove_list(listName) {
-  _shoppingLists = _shoppingLists.filter((list) => list.name !== listName);
+  if (myMap.has(listName)) _shoppingLists.delete(listName);
+  else console.error("List does not exist");
   localStorage.removeItem(listName);
   cache_changes();
 }
@@ -79,46 +72,48 @@ function fetch_commits(list) {
     .catch((error) =>
       console.error(`Error fetching commits for ${list.name}: ${error}`)
     );
-
-  return;
 }
 
-function commit_changes(list) {
-  if (list.hasChanges(list.commitTimeline[list.commitTimeline.length - 1])) {
-    let changes = new ShoppingList();
-    changes.name = list.name;
-    changes.products = list.dChanges;
+function push_changes(list) {
+  // if there are no changes to push we can return
+  const hasChanges = list.hasChanges(
+    list.commitTimeline[list.commitTimeline.length - 1]
+  );
+  if (!hasChanges) return;
 
-    const data = {
-      username: document.getElementById("username").textContent,
-      data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
-    };
+  // If there are changes we need to push them to the server
+  let changes = new ShoppingList();
+  changes.name = list.name;
+  changes.products = list.dChanges;
 
-    list.commitChanges(list.commitHashGen(), changes);
+  const data = {
+    username: document.getElementById("username").textContent,
+    data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
+  };
 
-    const url = `http://localhost:5000/list/${list.name}/${
-      list.commitTimeline[list.commitTimeline.length - 1]
-    }`;
+  list.commitChanges(list.commitHashGen(), changes);
 
-    fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
+  const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
+  const url = `http://localhost:5000/list/${list.name}/${commitHash}`;
+
+  fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  })
+    .then((response) => {
+      response.json();
     })
-      .then((response) => {
-        response.json();
-      })
-      .then((data) => {
-        list.dChanges.clear();
-        list.dChanges = new Map();
-        cache_list_changes(list);
-      })
-      .catch((error) => {
-        // console.error('Error:', error);
-      });
-  }
+    .then((data) => {
+      list.dChanges.clear();
+      list.dChanges = new Map();
+      cache_list_changes(list);
+    })
+    .catch((error) => {
+      // console.error('Error:', error);
+    });
 }
 
 function toggleOnline() {
@@ -142,10 +137,10 @@ function switchOnline() {
 // set a timeout that call the sync function every 5 seconds
 setInterval(() => {
   if (online) {
-    _shoppingLists.forEach((list) => {
-      fetch_commits(list);
-      commit_changes(list);
-    });
+    for (const [_, value] of _shoppingLists) {
+      fetch_commits(value);
+      push_changes(value);
+    }
   }
 }, 5000);
 

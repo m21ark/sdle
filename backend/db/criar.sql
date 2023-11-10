@@ -3,7 +3,6 @@ DROP TABLE IF EXISTS shared_lists;
 DROP TABLE IF EXISTS list_items;
 DROP TABLE IF EXISTS todo_lists;
 DROP TABLE IF EXISTS users;
-DROP TABLE IF EXISTS list;
 DROP TABLE IF EXISTS commitChanges;
 
 -- Create the 'users' table to store user information
@@ -12,27 +11,6 @@ CREATE TABLE users (
     email TEXT NOT NULL UNIQUE,
     password TEXT NOT NULL
 );
-
-CREATE TABLE list (
-    name TEXT PRIMARY KEY
-);
-
-INSERT INTO list (name) VALUES ('fruits');
-INSERT INTO list (name) VALUES ('Big list');
-INSERT INTO list (name) VALUES ('MAA');
-INSERT INTO list (name) VALUES ('OLA');
-
-
-CREATE TABLE commitChanges (
-    id INTEGER PRIMARY KEY,
-    user_name TEXT NOT NULL,
-    list_name INTEGER NOT NULL,
-    commit_hash TEXT NOT NULL,
-    commit_data TEXT NOT NULL,
-    FOREIGN KEY (list_name) REFERENCES list(name) ON DELETE CASCADE
-);
-
--- ====================================================================================================
 
 
 -- Create the 'todo_lists' table to store the user's to-do lists
@@ -43,6 +21,21 @@ CREATE TABLE todo_lists (
     internal_id TEXT NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
+
+
+
+CREATE TABLE commitChanges (
+    id INTEGER PRIMARY KEY,
+    user_name TEXT NOT NULL,
+    list_name TEXT NOT NULL,
+    commit_hash TEXT NOT NULL,
+    commit_data TEXT NOT NULL--,
+    --FOREIGN KEY (list_name) REFERENCES todo_lists(name) ON DELETE CASCADE
+);
+
+-- ====================================================================================================
+
+
 
 -- Create the 'list_items' table to store individual items in a to-do list
 CREATE TABLE list_items (

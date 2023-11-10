@@ -30,7 +30,6 @@ export class GCounter {
     return res;
   }
 
-
   join(other) {
     // Recursive Reset Map
     for (const [id, count] of other.counts) {
@@ -48,7 +47,6 @@ export class PNCounter {
   }
 
   clone() {
-    // Return a deep copy of the PNCounter
     const newCounter = new PNCounter();
     newCounter.positive = this.positive.clone();
     newCounter.negative = this.negative.clone();
@@ -65,11 +63,6 @@ export class PNCounter {
     this.negative.increment(quantity);
   }
 
-  local() {
-    // Return the local value of the PNCounter
-    return this.positive.local() - this.negative.local();
-  }
-
   join(other) {
     // Merge the positive and negative counts from another PNCounter
     this.positive.join(other.positive);
@@ -78,6 +71,6 @@ export class PNCounter {
 
   value() {
     // Return the value of the PNCounter
-    return this.local();
+    return this.positive.value() - this.negative.value();
   }
 }
