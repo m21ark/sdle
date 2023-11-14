@@ -3,7 +3,10 @@ let sqlite3 = require("better-sqlite3");
 let bodyParser = require("body-parser");
 let cors = require("cors");
 
-let db = new sqlite3("./backend/db/database.db");
+// default port 5000 or the one passed as argument
+const port = process.argv[2] || 5000;
+
+let db = new sqlite3(`./backend/db/database_${port}.db`);
 
 db.pragma("foreign_keys = ON");
 
@@ -90,4 +93,4 @@ app.get("/ping", (req, res) => {
   res.send("pong");
 });
 
-app.listen(5000);
+app.listen(port);
