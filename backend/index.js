@@ -3,8 +3,7 @@ let sqlite3 = require("better-sqlite3");
 let bodyParser = require("body-parser");
 let cors = require("cors");
 
-// default port 5000 or the one passed as argument
-const port = process.argv[2] || 5000;
+const port = process.argv[2]; // port is passed as an argument
 
 let db = new sqlite3(`./backend/db/database_${port}.db`);
 
