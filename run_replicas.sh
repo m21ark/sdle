@@ -11,14 +11,12 @@ base_port=5000
 i=0
 while [ "$i" -lt "$num_instances" ]; do
   port=$((base_port + i))
-  db_file="./backend/db/database_${port}.db"
+  db_file="./db/replicas/database_${port}.db"
 
-  # Create the SQLite database using schema.sql
-  sqlite3 $db_file < ./backend/schema.sql
+  sqlite3 $db_file <./db/schema.sql
 
-  # Start your Node.js application with the generated database file
-  npx nodemon ./backend/index.js $port 2>&1 &
-  
+  npx nodemon ./db/index.js $port 2>&1 &
+
   i=$((i + 1))
 done
 
