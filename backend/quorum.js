@@ -1,5 +1,5 @@
 class Quorum {
-  constructor(quorumSize, replicaPorts) {
+  constructor(quorumSize, replicaPorts = []) {
     this.replicaPorts = replicaPorts;
     this.quorumSize = quorumSize;
   }
@@ -18,6 +18,10 @@ class Quorum {
 
   setReplicaPorts(replicaPorts) {
     this.replicaPorts = replicaPorts;
+  }
+
+  getReplicaActiveCount() {
+    return this.replicaPorts.length;
   }
 
   async sendRequestToReplica(port, data) {
@@ -82,6 +86,47 @@ class Quorum {
         throw error;
       });
   }
+
+  discoverActiveReplicas(minPort, maxPort) {
+    async function _replicaDiscoverability(basePort, maxPort) {
+      const activePorts = [];
+
+      for (let port = basePort; port <= maxPort; port++) {
+        try {
+          const response = await fetch(`http://127.0.0.1:${port}/ping`);
+          if (response.ok) {
+            const data = await response.json();
+            if (data.message === "pong") {
+              // The port is reachable, add it to the active list
+              if (!activePorts.includes(port)) activePorts.push(port);
+            }
+          }
+        } catch (error) {
+          // The port is not reachable, remove it from the active list
+          const index = activePorts.indexOf(port);
+          if (index !== -1) {
+            activePorts.splice(index, 1);
+            console.log(`Port ${port} is no longer active`);
+          }
+        }
+      }
+
+      return activePorts;
+    }
+
+    _replicaDiscoverability(minPort, maxPort)
+      .then((activePorts) => {
+        this.replicaPorts = activePorts;
+        return activePorts ?? [];
+      })
+      .catch((error) => {
+        console.error("Error during replica discoverability:", error.message);
+        this.replicaPorts = [];
+        return [];
+      });
+  }
 }
 
-module.exports = Quorum;
+module.exports = {
+  Quorum,
+};

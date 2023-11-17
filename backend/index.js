@@ -1,7 +1,8 @@
-const Quorum = require("./quorum");
+const { Quorum } = require("./quorum");
 const express = require("express");
-let bodyParser = require("body-parser");
-let cors = require("cors");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const net = require("net");
 
 const port = process.argv[2]; // port is passed as an argument
 
@@ -15,13 +16,20 @@ app.use(cors());
 app.use(bodyParser.json());
 
 const quorumSize = 2; // TO-DO: make this variable
-const replicaPorts = [5000, 5001, 5002]; // TO-DO make this dynamic using discovery
-const quorum = new Quorum(quorumSize, replicaPorts);
+const quorum = new Quorum(quorumSize);
 
 // Endpoint to handle incoming requests
 app.get("/handleRequest", (req, res) => {
   // const requestData = req.body;
   const requestData = true; // TO-DO: remove this line and make requests work
+
+  if (quorum.getReplicaActiveCount() === 0) {
+    res.status(500).json({ success: false, error: "No active replicas" });
+    return;
+  } else if (quorum.getReplicaActiveCount() < quorumSize) {
+    res.status(500).json({ success: false, error: "Quorum can't be reached" });
+    return;
+  }
 
   if (requestData) {
     quorum
@@ -45,3 +53,10 @@ app.get("/ping", (_, res) => {
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });
+
+function updateActiveReplicas() {
+  quorum.discoverActiveReplicas(5000, 5100); // TO-DO Make these configs
+  console.log("Active replicas:", quorum.getReplicaPorts());
+}
+
+setInterval(updateActiveReplicas, 10000);
