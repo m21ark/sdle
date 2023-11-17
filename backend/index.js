@@ -1,68 +1,47 @@
-class QuorumConsensus {
-  constructor() {
-    this.replicaPorts = [5000, 5001, 5002];
-    this.quorumSize = 2;
-  }
+const Quorum = require("./quorum");
+const express = require("express");
+let bodyParser = require("body-parser");
+let cors = require("cors");
 
-  async sendRequestToReplica(port, data) {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        const url = `http://localhost:${port}/ping`;
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // body: JSON.stringify(data), // body only for POST, PUT
-        })
-          .then((response) => resolve(response.json()))
-          .catch((error) => {
-            // console.error(error);
-            reject(new Error(`Request to replica ${port} failed`));
-          });
-      }, 500);
-    });
-  }
+const port = process.argv[2]; // port is passed as an argument
 
-  async performQuorumConsensus(data) {
-    const responses = [];
-
-    for (const port of this.replicaPorts) {
-      try {
-        const response = await this.sendRequestToReplica(port, data);
-        responses.push(response);
-
-        // Check if quorum size is reached
-        if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses)) return responses;
-          console.error("Inconsistent responses");
-          continue;
-        }
-      } catch (error) {
-        console.error(error.message);
-        // Continue with the next replica in case of failure
-      }
-    }
-
-    throw new Error("Quorum not reached");
-  }
-
-  areResponsesConsistent(responses) {
-    // to-do: implement this with state-based replication (hash comparison?)
-    console.log("Responses:", responses);
-    return responses.every(
-      (response) => response.message === responses[0].message
-    );
-  }
+if (!port) {
+  console.error("Port not specified");
+  process.exit(1);
 }
 
-const quorumConsensus = new QuorumConsensus();
+const app = express();
+app.use(cors());
+app.use(bodyParser.json());
 
-quorumConsensus
-  .performQuorumConsensus({ message: "Hello world" })
-  .then((result) => {
-    console.log("Operation successful:", result);
-  })
-  .catch((error) => {
-    console.error("Operation failed:", error.message);
-  });
+const quorumSize = 2; // TO-DO: make this variable
+const replicaPorts = [5000, 5001, 5002]; // TO-DO make this dynamic using discovery
+const quorum = new Quorum(quorumSize, replicaPorts);
+
+// Endpoint to handle incoming requests
+app.get("/handleRequest", (req, res) => {
+  // const requestData = req.body;
+  const requestData = true; // TO-DO: remove this line and make requests work
+
+  if (requestData) {
+    quorum
+      .consensus(requestData.data)
+      .then((result) => {
+        res.json({ success: true, result });
+      })
+      .catch((error) => {
+        res.status(500).json({ success: false, error: error.message });
+      });
+  } else {
+    res.status(400).json({ success: false, error: "Invalid request type" });
+  }
+});
+
+app.get("/ping", (_, res) => {
+  res.json({ success: true });
+});
+
+// Start the web worker server
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});

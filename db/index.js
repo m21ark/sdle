@@ -93,4 +93,6 @@ app.get("/ping", (req, res) => {
   res.send(json);
 });
 
-app.listen(port);
+app.listen(port, () => {
+  console.log(`Replica is listening on port ${port}`);
+});
