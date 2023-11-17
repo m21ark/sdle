@@ -17,7 +17,7 @@ class QuorumConsensus {
         })
           .then((response) => resolve(response.json()))
           .catch((error) => {
-            console.error(error);
+            // console.error(error);
             reject(new Error(`Request to replica ${port} failed`));
           });
       }, 500);
@@ -32,9 +32,11 @@ class QuorumConsensus {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
 
+        // Check if quorum size is reached
         if (responses.length >= this.quorumSize) {
-          console.log("Quorum reached:", responses);
-          return responses;
+          if (this.areResponsesConsistent(responses)) return responses;
+          console.error("Inconsistent responses");
+          continue;
         }
       } catch (error) {
         console.error(error.message);
@@ -43,6 +45,14 @@ class QuorumConsensus {
     }
 
     throw new Error("Quorum not reached");
+  }
+
+  areResponsesConsistent(responses) {
+    // to-do: implement this with state-based replication (hash comparison?)
+    console.log("Responses:", responses);
+    return responses.every(
+      (response) => response.message === responses[0].message
+    );
   }
 }
 
