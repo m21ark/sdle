@@ -1,37 +1,51 @@
-const zeromq = require("zeromq");
+const express = require("express");
+const bodyParser = require("body-parser");
+const cors = require("cors");
+const request = require("request");
 
-// WARNING THIS IS NOT WORKING FOR NOW
+const app = express();
+const PORT = 5800; // Port for clients
 
-const proxy = new zeromq.Router(); // Use Router instead of raw socket type
-proxy.bind("tcp://127.0.0.1:6000");
-console.log("Backend proxy bound to port 6000");
+// Array of backend ports
+const backendPorts = [5500, 5501, 5502]; // TODO: HARDCODED FOR NOW
 
-const num_instances = 1; // TODO: HARD-CODED FOR NOW
-const base_port = 5000; // TODO: HARD-CODED FOR NOW
+app.use(bodyParser.json());
+app.use(cors());
 
-const backendWorkers = [];
-
-// Connect to backend workers
-for (let i = 0; i < num_instances; i++) {
-  const backendWorker = new zeromq.Dealer(); // Use Dealer instead of raw socket type
-  const port = base_port + i;
-  backendWorker.connect(`tcp://127.0.0.1:${port}`);
-  console.log(`Connected to backend worker on port ${port}`);
-
-  // Forward messages from the proxy to the worker
-  proxy.on("message", (identity, ...frames) => {
-    backendWorker.send([identity, "", ...frames]);
-  });
-
-  // Forward messages from the worker to the proxy
-  backendWorker.on("message", (...frames) => {
-    proxy.send([frames[0], "", ...frames.slice(1)]);
-  });
-
-  backendWorkers.push(backendWorker);
+// Simple load balancing function (picks a backend port randomly)
+function loadBalancerPort() {
+  const randomIndex = Math.floor(Math.random() * backendPorts.length);
+  return backendPorts[randomIndex];
 }
 
-// Handle proxy errors
-proxy.on("error", (err) => {
-  console.error(`Proxy error: ${err}`);
+// basic heartbeat endpoint
+app.get("/ping", (_, res) => {
+  res.json({ success: true });
+});
+
+// Proxy route
+app.all("/*", (req, res) => {
+  console.log("Request:", req.originalUrl);
+
+  const path = req.originalUrl.replace(/^\/api/, "");
+
+  console.log("Path:", path);
+
+  const backendPort = loadBalancerPort();
+  const backendURL = `http://localhost:${backendPort}${path}`;
+
+  console.log("Backend URL:", backendURL);
+
+  if (req == undefined) {
+    console.log("Request is undefined");
+    return;
+  }
+
+  // Proxy the request to the backend
+  req.pipe(request({ url: backendURL })).pipe(res);
+});
+
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Proxy server listening on port ${PORT}`);
 });
