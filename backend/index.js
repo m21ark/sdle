@@ -13,8 +13,8 @@ if (!port) {
 }
 
 const app = express();
-app.use(cors());
 app.use(bodyParser.json());
+app.use(cors());
 
 const quorumSize = 2; // TODO: make this variable
 const quorum = new Quorum(quorumSize);
@@ -28,8 +28,7 @@ app.get("/ping", (_, res) => {
 
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {
-  if (req.path.includes('/list')) console.log("PASSOU AQUI")
-
+  console.log("Request:", req.originalUrl);
   if (quorum.getReplicaActiveCount() === 0) {
     res.status(500).json({ success: false, error: "No active replicas" });
     return;

@@ -51,7 +51,6 @@ class Quorum {
 
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const url = `http://localhost:${port}${path}`;
 
         fetch(url, requestOptions)
           .then((response) => resolve(response.json()))
