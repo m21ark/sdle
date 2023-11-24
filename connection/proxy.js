@@ -41,8 +41,12 @@ app.all("/*", (req, res) => {
     return;
   }
 
-  // Proxy the request to the backend
-  req.pipe(request({ url: backendURL })).pipe(res);
+  try {
+    // Proxy the request to the backend
+    req.pipe(request({ url: backendURL })).pipe(res);
+  } catch (error) {
+    console.error("Connection failed to backend: " + backendURL);
+  }
 });
 
 // Start the server
