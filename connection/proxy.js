@@ -25,12 +25,12 @@ function loadBalancerPort() {
 
 // basic heartbeat endpoint
 app.get("/ping", (_, res) => {
-  res.json({ success: true });
+  const json = { message: "pong" };
+  res.send(json);
 });
 
 // Proxy route
 app.all("/*", (req, res) => {
-  console.log("Request:", req.originalUrl);
 
   const path = req.originalUrl.replace(/^\/api/, "");
 
@@ -39,7 +39,10 @@ app.all("/*", (req, res) => {
   const backendPort = loadBalancerPort();
   const backendURL = `http://localhost:${backendPort}${path}`;
 
-  if (req == undefined) {
+  console.log("Backend responsible for this request: ", backendPort)
+
+  if (req == undefined || backendPort == undefined) {
+    res.status(500).json({ success: false, error: "No active replicas" });
     console.log("Request is undefined");
     return;
   }
@@ -58,7 +61,7 @@ app.listen(PORT, () => {
 });
 
 
-function discoverActiveServer(minPort, maxPort) {
+function discoverActiveServer() {
   async function serverDiscoverability(basePort, maxPort) {
     const activePorts = [];
 

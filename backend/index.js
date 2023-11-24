@@ -20,11 +20,15 @@ const quorumSize = 2; // TODO: make this variable
 const quorum = new Quorum(quorumSize);
 let consistentHashing = null;
 
+app.get("/ping", (_, res) => {
+  const json = { message: "pong" };
+  res.send(json);
+});
+
+
 // Endpoint to handle incoming requests
-app.get("/handleRequest", (req, res) => {
-  const requestData2 = req.body;
-  console.log(requestData2);
-  const requestData = true; // TODO: remove this line and make requests work
+app.get("/*", (req, res) => {
+  // const requestData = true; // TODO: remove this line and make requests work
 
   if (quorum.getReplicaActiveCount() === 0) {
     res.status(500).json({ success: false, error: "No active replicas" });
@@ -34,9 +38,9 @@ app.get("/handleRequest", (req, res) => {
     return;
   }
 
-  if (requestData) {
+  if (req) {
     quorum
-      .consensus(requestData.data)
+      .consensus(req)
       .then((result) => {
         res.json({ success: true, result });
       })
@@ -46,11 +50,6 @@ app.get("/handleRequest", (req, res) => {
   } else {
     res.status(400).json({ success: false, error: "Invalid request type" });
   }
-});
-
-app.get("/ping", (_, res) => {
-  const json = { message: "pong" };
-  res.send(json);
 });
 
 // Start the web worker server

@@ -25,16 +25,32 @@ class Quorum {
   }
 
   async sendRequestToReplica(port, data) {
+    const path = data.originalUrl.replace(/^\/api/, "");
+
+    const url = `http://localhost:${port}${path}`;
+
+    const requestOptions = {
+      method: data.method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    if (data.method === "GET") {
+      requestOptions.method = "GET";
+    } else {
+      console.log("Sending request to replica:", url);
+      console.log(requestOptions.method)
+      requestOptions.method = "POST";
+      requestOptions.body = JSON.stringify(data.body);
+
+    }
+
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        const url = `http://localhost:${port}/ping`;
-        fetch(url, {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          // body: JSON.stringify(data), // body only for POST, PUT
-        })
+        const url = `http://localhost:${port}${path}`;
+
+        fetch(url, requestOptions)
           .then((response) => resolve(response.json()))
           .catch((error) => {
             // console.error(error);

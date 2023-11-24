@@ -55,13 +55,13 @@ function add_list_by_url() {
   }
 
   if (listId) {
-    const url = `http://localhost:5000/list/${listId}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${listId}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
         let s = new ShoppingList();
         s.name = listId;
-
+ 
         for (let row of data) {
           let temp = new ShoppingList();
           temp.deserialize(row["commit_data"]);
@@ -314,7 +314,7 @@ function add_list_to_list() {
 }
 
 function addListToServer(list) {
-  const url = `http://localhost:5000/list/${list.name}`;
+  const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${list.name}`;
   const data = {
     username: document.getElementById("username").textContent,
   };

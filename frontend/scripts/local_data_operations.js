@@ -4,6 +4,10 @@ export let _shoppingLists = new Map(); // <list_name, ShoppingList>
 export let _username = "";
 export let online = true;
 
+export const PROXY_DOMAIN = "localhost";
+export const PROXY_PORT = "4000";
+
+
 function load_previous_lists() {
   let lists = JSON.parse(localStorage.getItem("shoppingLists"));
 
@@ -54,7 +58,7 @@ export function remove_list(listName) {
 
 function fetch_commits(list) {
   const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
-  const url = `http://localhost:5000/commits/${list.name}/${lastCommit}`;
+  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${list.name}/${lastCommit}`;
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
@@ -94,7 +98,7 @@ function push_changes(list) {
   list.commitChanges(list.commitHashGen(), changes);
 
   const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
-  const url = `http://localhost:5000/list/${list.name}/${commitHash}`;
+  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${list.name}/${commitHash}`;
 
   fetch(url, {
     method: "POST",

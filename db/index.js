@@ -33,7 +33,7 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
     [data.username, listName, commitHash, data.data]
   );
 
-  res.status(200).json({});
+  res.status(200).json({success: true});
 });
 
 app.post("/list/:list_name/", (req, res) => {
@@ -64,7 +64,7 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
 
-  // TODO: its possible to have a better query/logic
+  // TODO: its possible to have a better query/logic ... use last read commit hash
   // this logic has a problem ... the last commit from the client can be outdated with the last read commit
   // in other words ... after fetching some other user can have commited and the client will not know about it
 
@@ -84,6 +84,14 @@ app.get("/list/:list_name", (req, res) => {
     "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
     [listName]
   );
+
+  let all_lists = queryAll(
+    "SELECT commit_hash, commit_data FROM commitChanges"
+  );
+
+  console.log("all lists", all_lists);
+
+  console.log("response", response);
 
   res.status(200).json(response);
 });
