@@ -6,15 +6,17 @@ class Comparator {
     if (a === b) {
       return 0;
     }
-    return a < b ? -1 : 0;
+    return a < b ? -1 : 1;
   }
 }
 
 class ConsistentHashing {
   constructor(nodes = [], replicas = 3) {
-    this.nodes = nodes;
+    this.nodes = nodes.map(([node, _]) => node);
+    this.virtualNodes = nodes.map(([_, weight]) => weight);
     this.replicas = replicas;
     this.hashRing = new RBTree((a, b) => Comparator.defaultCompare(a, b)); // Use RBTree for sorted order
+    this.mappedNodes = new Map();
 
     this.buildHashRing();
   }
@@ -25,19 +27,23 @@ class ConsistentHashing {
   }
 
   buildHashRing() {
+    let count = 0;
     for (const node of this.nodes) {
-      // for (let i = 0; i < this.replicas; i++) {
-      const virtualNode = `${node}`;
-      const hash = this.hashString(virtualNode);
-      console.log(`Node : ${node} - Hash : ${hash}`)
-      this.hashRing.insert(hash, node);
-      // }
+      for (let i = 0; i < this.virtualNodes[count]; i++) {
+        const virtualNode = `${node}_${i}`;
+        const hash = this.hashString(virtualNode);
+        console.log(`Node : ${virtualNode} - Hash : ${hash}`)
+        this.hashRing.insert(hash);
+        this.mappedNodes.set(hash, node);
+      }
+      count++;
     }
   }
 
   getNode(key) {
     const hash = this.hashString(key);
     const nodeHash = this.findClosestNode(hash);
+    console.log(`Key : ${key} - Hash : ${hash} - Node Hash : ${nodeHash}`)
     return this.hashRing.find(nodeHash);
   }
 
@@ -46,9 +52,9 @@ class ConsistentHashing {
 
     if (!nodeHash) {
       // If the hash is greater than all nodes, loop back to the first node
-      nodeHash = this.hashRing.begin;
+      nodeHash = this.hashRing.iterator().next();
     }
-    return nodeHash.data;
+    return nodeHash.data();
   }
 
   addNode(node) {
@@ -99,6 +105,10 @@ class ConsistentHashing {
     }
   }
 
+  getNodeFromHash(hash) {
+    return this.mappedNodes.get(hash);
+  }
+
   printRingNodes() {
     console.log('Nodes and Respective Hashes on the Ring:');
     var it = this.hashRing.iterator(), item;
@@ -109,12 +119,12 @@ class ConsistentHashing {
 }
 
 // Example usage
-const nodes = ['Server-1', 'Server-2', 'Server-3'];
+const nodes = [['Server-1', 1], ['Server-2', 1], ['Server-3', 1]];
 const consistentHashing = new ConsistentHashing(nodes);
 
-consistentHashing.printRingNodes();
+// consistentHashing.printRingNodes();
 
-console.log(consistentHashing.getNode('Server-2'))
-
-consistentHashing.showNodeRanges();
+let hash2 = consistentHashing.getNode('key-2');
+console.log(`Node for key-2(${hash2}): ${consistentHashing.getNodeFromHash(hash2)}`);
+// consistentHashing.showNodeRanges();
 
