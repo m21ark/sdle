@@ -15,13 +15,13 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-const quorumSize = 2; // TO-DO: make this variable
+const quorumSize = 2; // TODO: make this variable
 const quorum = new Quorum(quorumSize);
 
 // Endpoint to handle incoming requests
 app.get("/handleRequest", (req, res) => {
   // const requestData = req.body;
-  const requestData = true; // TO-DO: remove this line and make requests work
+  const requestData = true; // TODO: remove this line and make requests work
 
   if (quorum.getReplicaActiveCount() === 0) {
     res.status(500).json({ success: false, error: "No active replicas" });
@@ -55,7 +55,7 @@ app.listen(port, () => {
 });
 
 function updateActiveReplicas() {
-  quorum.discoverActiveReplicas(5000, 5100); // TO-DO Make these configs
+  quorum.discoverActiveReplicas(5000, 5100); // TODO Make these configs
   console.log("Active replicas:", quorum.getReplicaPorts());
 }
 

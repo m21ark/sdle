@@ -54,7 +54,7 @@ class Quorum {
 
         // Check if quorum size is reached
         if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses)) return responses; // TO-DO: return the result of the operation
+          if (this.areResponsesConsistent(responses)) return responses; // TODO: return the result of the operation
           console.error("Inconsistent responses");
           continue;
         }
@@ -68,7 +68,7 @@ class Quorum {
   }
 
   areResponsesConsistent(responses) {
-    // to-do: implement this with state-based replication (hash comparison?)
+    // TODO: implement this with state-based replication (hash comparison?)
     console.log("Responses:", responses);
     return responses.every(
       (response) => response.message === responses[0].message
