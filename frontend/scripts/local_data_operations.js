@@ -116,7 +116,7 @@ function push_changes(list) {
       cache_list_changes(list);
     })
     .catch((error) => {
-      // console.error('Error:', error);
+      console.error('Error:', error);
     });
 }
 

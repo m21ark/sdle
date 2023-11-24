@@ -27,8 +27,8 @@ app.get("/ping", (_, res) => {
 
 
 // Endpoint to handle incoming requests
-app.get("/*", (req, res) => {
-  // const requestData = true; // TODO: remove this line and make requests work
+app.all("/*", (req, res) => {
+  if (req.path.includes('/list')) console.log("PASSOU AQUI")
 
   if (quorum.getReplicaActiveCount() === 0) {
     res.status(500).json({ success: false, error: "No active replicas" });

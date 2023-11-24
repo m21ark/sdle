@@ -19,7 +19,7 @@ app.use(cors());
 
 // Simple load balancing function (picks a backend port randomly)
 function loadBalancerPort() {
-  const randomIndex = Math.floor( Math.random() << 3) % backendPorts.length;
+  const randomIndex = Math.floor( Math.random() * 100) % backendPorts.length;
   return backendPorts[randomIndex];
 }
 
@@ -34,7 +34,6 @@ app.all("/*", (req, res) => {
 
   const path = req.originalUrl.replace(/^\/api/, "");
 
-  console.log("Path:", path);
 
   const backendPort = loadBalancerPort();
   const backendURL = `http://localhost:${backendPort}${path}`;
@@ -49,7 +48,10 @@ app.all("/*", (req, res) => {
 
   try {
     // Proxy the request to the backend
-    req.pipe(request({ url: backendURL })).pipe(res);
+    if (path.includes("/list")) {
+      console.log("Path:", path);
+    }
+    req.pipe(request(backendURL)).pipe(res);
   } catch (error) {
     console.error("Connection failed to backend: " + backendURL);
   }

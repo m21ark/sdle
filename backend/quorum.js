@@ -39,8 +39,11 @@ class Quorum {
     if (data.method === "GET") {
       requestOptions.method = "GET";
     } else {
-      console.log("Sending request to replica:", url);
-      console.log(requestOptions.method)
+      // id url has /list in print it
+      if (path.includes("/list")) {
+        console.log("AQUI");
+        console.log("Path:", path);
+      }
       requestOptions.method = "POST";
       requestOptions.body = JSON.stringify(data.body);
 
