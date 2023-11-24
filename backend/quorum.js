@@ -95,7 +95,7 @@ class Quorum {
     return this.performQuorum(data)
       .then((result) => {
         console.log("Operation successful:", result);
-        return result;
+        return result[0];
       })
       .catch((error) => {
         console.error("Operation failed:", error.message);

@@ -42,7 +42,7 @@ app.get("/*", (req, res) => {
     quorum
       .consensus(req)
       .then((result) => {
-        res.json({ success: true, result });
+        res.json(result);
       })
       .catch((error) => {
         res.status(500).json({ success: false, error: error.message });
