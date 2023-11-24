@@ -8,6 +8,8 @@ const app = express();
 // Receive the port from the command line
 const PORT = process.argv[2] || 5800;
 // const PORT = 5800; // Port for clients
+const MIN_PORT = 5500; // Minimum port for backend servers
+const MAX_PORT = 5510; // Maximum port for backend servers
 
 // Array of backend ports
 let backendPorts = [5500, 5501, 5502]; // TODO: HARDCODED FOR NOW
@@ -17,7 +19,7 @@ app.use(cors());
 
 // Simple load balancing function (picks a backend port randomly)
 function loadBalancerPort() {
-  const randomIndex = Math.floor(Math.random() * backendPorts.length);
+  const randomIndex = Math.floor( Math.random() << 3) % backendPorts.length;
   return backendPorts[randomIndex];
 }
 
@@ -36,8 +38,6 @@ app.all("/*", (req, res) => {
 
   const backendPort = loadBalancerPort();
   const backendURL = `http://localhost:${backendPort}${path}`;
-
-  console.log("Backend URL:", backendURL);
 
   if (req == undefined) {
     console.log("Request is undefined");
@@ -85,9 +85,10 @@ function discoverActiveServer(minPort, maxPort) {
     return activePorts;
   };
 
-  serverDiscoverability(minPort, maxPort)
+  serverDiscoverability(MIN_PORT, MAX_PORT)
     .then((activePorts) => {
       backendPorts = activePorts;
+      console.log("Active ports:", activePorts);
       return activePorts ?? [];
     })
     .catch((error) => {

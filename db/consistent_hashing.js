@@ -57,19 +57,22 @@ class ConsistentHashing {
     return nodeHash.data();
   }
 
-  addNode(node) {
-    for (let i = 0; i < this.replicas; i++) {
+  addNode(node, weight = 1) {
+    for (let i = 0; i < weight; i++) {
       const virtualNode = `${node}_${i}`;
       const hash = this.hashString(virtualNode);
       this.hashRing.insert(hash, node);
+      this.mappedNodes.set(hash, node);
     }
   }
 
   removeNode(node) {
-    for (let i = 0; i < this.replicas; i++) {
+    const node0 = `${node}_0`;
+    for (let i = 0; i < this.mappedNodes.get(this.hashString(node0)); i++) {
       const virtualNode = `${node}_${i}`;
       const hash = this.hashString(virtualNode);
       this.hashRing.remove(hash);
+      this.mappedNodes.delete(hash);
     }
   }
 
@@ -118,13 +121,5 @@ class ConsistentHashing {
   }
 }
 
-// Example usage
-const nodes = [['Server-1', 1], ['Server-2', 1], ['Server-3', 1]];
-const consistentHashing = new ConsistentHashing(nodes);
-
-// consistentHashing.printRingNodes();
-
-let hash2 = consistentHashing.getNode('key-2');
-console.log(`Node for key-2(${hash2}): ${consistentHashing.getNodeFromHash(hash2)}`);
-// consistentHashing.showNodeRanges();
+module.exports = {ConsistentHashing};
 
