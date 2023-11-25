@@ -137,6 +137,10 @@ class ConsistentHashing {
     return this.mappedNodes.get(hash);
   }
 
+  getNodesFromHashes(hashes) {
+    return hashes.map(hash => this.mappedNodes.get(hash));
+  }
+
   printRingNodes() {
     console.log('Nodes and Respective Hashes on the Ring:');
     var it = this.hashRing.iterator(), item;

@@ -1,7 +1,12 @@
 class Quorum {
-  constructor(quorumSize, replicaPorts = []) {
+  constructor(quorumSize, consensusSize, replicaPorts = []) {
     this.replicaPorts = replicaPorts;
+    this.consensusSize = consensusSize;
     this.quorumSize = quorumSize;
+  }
+
+  setConsistentHashing(consistentHashing) {
+    this.consistentHashing = consistentHashing;
   }
 
   getQuorumSize() {
@@ -62,13 +67,19 @@ class Quorum {
   async performQuorum(data) {
     const responses = [];
 
-    for (const port of this.replicaPorts) {
+    if (this.consistentHashing === null || this.consistentHashing === undefined) return [0, 1, 2]; // todo change this
+
+    const responsibleReplicaHashes = this.consistentHashing.getNextNNodes(data, this.quorumSize);
+    const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(responsibleReplicaHashes);
+    console.log("Responsible replicas:", responsibleReplicaPorts);
+
+    for (const port of responsibleReplicaPorts) {
       try {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
 
         // Check if quorum size is reached
-        if (responses.length >= this.quorumSize) {
+        if (responses.length >= this.consensusSize) {
           if (this.areResponsesConsistent(responses)) return responses; // TODO: return the result of the operation
           console.error("Inconsistent responses");
           continue;
