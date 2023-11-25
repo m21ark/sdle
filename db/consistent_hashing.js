@@ -47,6 +47,13 @@ class ConsistentHashing {
     return this.hashRing.find(nodeHash);
   }
 
+  getNodeIt(key) {
+    // get the node iterator
+    const hash = this.hashString(key);
+    const nodeHash = this.findClosestNode(hash);
+    return this.hashRing.findIter(nodeHash);
+  }
+
   findClosestNode(hash) {
     let nodeHash = this.hashRing.upperBound(hash);
 
@@ -106,6 +113,24 @@ class ConsistentHashing {
       item = nextNode;
       nextNode = it.next();
     }
+  }
+
+  // n is the size of the quorum, it returns the next n nodes in the ring, starting from the node that is responsible for the key
+  getNextNNodes(key, n) { 
+    let principleNode = this.getNodeIt(key)
+    const nodes = [];
+
+    for (let i = 0; i < n; i++) {
+      let nextNode = principleNode.next();
+      if (nextNode === null) {
+        principleNode = this.hashRing.iterator();
+        nextNode = principleNode.next();
+      }
+      nodes.push(nextNode);
+    }
+
+    return nodes;
+
   }
 
   getNodeFromHash(hash) {

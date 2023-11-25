@@ -24,12 +24,10 @@ function queryRun(sql, params = []) {
 }
 
 app.post("/list/:list_name/:commit_hash", (req, res) => {
-  console.log("KDKDKD")
+
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
-
-  console.log("Received commit:", data);
 
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
