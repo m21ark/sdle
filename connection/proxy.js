@@ -64,19 +64,22 @@ app.all("/*", (req, res) => {
     if (path.includes("/list")) {
       console.log("Path:", path);
     }
-    req.pipe(request(backendURL)).pipe(res);
-
+    const backendRequest = request(backendURL);
+    req.pipe(backendRequest).pipe(res);
+    const startTime = new Date().getTime();
     // Update the average response time for the backend
-    const backend = backendPorts.find((backend) => backend.number === backendPort);
-    if (backend) {
-      const startTime = new Date().getTime();
-      request(backendURL, () => {
-        const endTime = new Date().getTime();
-        const responseTime = endTime - startTime;
+    backendRequest.on('response', () => {
+      // Calculate response time
+      const endTime = new Date().getTime();
+      const responseTime = endTime - startTime;
+
+      // Update the average response time for the backend
+      const backend = backendPorts.find((backend) => backend.number === backendPort);
+      if (backend) {
         backend.averageTime = (backend.averageTime + responseTime) / 2;
         console.log(`Average response time for backend ${backendPort}: ${backend.averageTime}`);
-      });
-    }
+      }
+    });
   } catch (error) {
     console.error("Connection failed to backend: " + backendURL);
   }
@@ -139,4 +142,4 @@ function discoverActiveServer() {
     });
 }
 
-setInterval(discoverActiveServer, 5000);
+setInterval(discoverActiveServer, 60000);
