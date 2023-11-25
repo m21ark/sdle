@@ -64,6 +64,7 @@ function fetch_commits(list) {
     .then((data) => {
       if (data.length > 0) {
         for (let row of data) {
+          if (list.commitTimeline.includes(row["commit_hash"])) continue;
           let temp = new ShoppingList();
           temp.deserialize(row["commit_data"]);
           list.mergeDeltaChanges(row["commit_hash"], temp);
@@ -94,13 +95,15 @@ function push_changes(list) {
     username: document.getElementById("username").textContent,
     data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
   };
-
-  list.commitChanges(list.commitHashGen(), changes);
+  let hash = list.commitHashGen();
+  console.log(hash);
+  list.commitChanges(hash, changes);
 
   const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${list.name}/${commitHash}`;
 
   console.log("Pushing changes to server");
+  console.log(changes);
 
   fetch(url, {
     method: "POST",

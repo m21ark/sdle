@@ -69,9 +69,12 @@ class Quorum {
 
     if (this.consistentHashing === null || this.consistentHashing === undefined) return [0, 1, 2]; // todo change this
 
-    const responsibleReplicaHashes = this.consistentHashing.getNextNNodes(data, this.quorumSize);
+    // get the second argument of data.originalUrl
+    let toHash = data.originalUrl.split("/")[2];
+
+    const responsibleReplicaHashes = this.consistentHashing.getNextNNodes(toHash, this.quorumSize);
     const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(responsibleReplicaHashes);
-    console.log("Responsible replicas:", responsibleReplicaPorts);
+    console.log("Responsible replicas:", responsibleReplicaPorts, "for hash:", toHash);
 
     for (const port of responsibleReplicaPorts) {
       try {

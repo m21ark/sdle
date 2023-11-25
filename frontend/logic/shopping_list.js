@@ -71,8 +71,13 @@ class ShoppingList {
     // Remove a product from the list
     if (this.products.has(productName))
       this.products.get(productName).decrement(quantity);
-    if (this.dChanges.has(productName))
+    if (this.dChanges.has(productName)) {
       this.dChanges.get(productName).decrement(quantity);
+    }
+    else {
+      this.dChanges.set(productName, new PNCounter());
+      this.dChanges.get(productName).decrement(quantity);
+    }
   }
 
   removeFromList(productName) {
