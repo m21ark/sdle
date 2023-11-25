@@ -72,22 +72,41 @@ class Quorum {
     // get the second argument of data.originalUrl
     let toHash = data.originalUrl.split("/")[2];
 
-    const responsibleReplicaHashes = this.consistentHashing.getNextNNodes(toHash, this.quorumSize);
-    const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(responsibleReplicaHashes);
+    const preferenceList = this.consistentHashing.getNextNNodes(toHash, this.quorumSize); // TODO: change for sloppy quorum
+    const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(preferenceList);
     console.log("Responsible replicas:", responsibleReplicaPorts, "for hash:", toHash);
+    /*
+      O stor disse uma coisa diferente do sloopy quorum. 
+      Disse para termos um quorum fixo e se n houvesse consenso para termos pena.
 
+
+      Aqui para fazer o sloopy quorum vamos ter de fazer:
+        - o preferenceList vai ter de ter mais réplicas do que 
+          ..... o quorumSize para ir buscar os nodes dps das falhas, talvez dé para fazer com iteradores da RBTree... ou passar um valor maior para o getNextNNodes
+        - aqui é que vamos ver se o servidor está down ou não, e temos de iterar sobre o preferenceList até termos o quorumSize
+        - Um nó que falhe vai ter de ser informado das mudanças que aconteceram pelo nó que o substitui enquanto ele esteve down
+        
+        
+        - "all read and write operations are performed on the first N healthy nodes from
+        the preference list, which may not always be the first N nodes
+        encountered while walking the consistent hashing ring." -> o pk de preferenceList ter de ter mais réplicas do que o quorumSize
+
+
+    */
     for (const port of responsibleReplicaPorts) {
       try {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
 
         // Check if quorum size is reached
-        if (responses.length >= this.consensusSize) {
-          if (this.areResponsesConsistent(responses)) return responses; // TODO: return the result of the operation
+        if (responses.length >= this.quorumSize) {
+          if (this.areResponsesConsistent(responses)) {return responses}; // TODO: return the result of the operation
           console.error("Inconsistent responses");
           continue;
         }
-      } catch (error) {
+      } catch (error) { 
+        // TODO: port that is falling should be informed of the changes occured while it was down,
+        // sloppy quorum should take the next node in the ring and use to store the data
         console.error(error.message);
         // Continue with the next replica in case of failure
       }
@@ -98,7 +117,7 @@ class Quorum {
 
   areResponsesConsistent(responses) {
     // TODO: implement this with state-based replication (hash comparison?)
-    // console.log("Responses:", responses);
+
     return responses.every(
       (response) => response.message === responses[0].message
     );

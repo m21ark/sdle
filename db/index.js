@@ -83,8 +83,6 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
       [listName, commitHash, commitHash]
     );
 
-    console.log(response);
-
     res.status(200).json(response);
   }
 });

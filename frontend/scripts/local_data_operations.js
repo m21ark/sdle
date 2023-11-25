@@ -50,7 +50,7 @@ export function cache_changes() {
 }
 
 export function remove_list(listName) {
-  if (myMap.has(listName)) _shoppingLists.delete(listName);
+  if (_shoppingLists.has(listName)) _shoppingLists.delete(listName);
   else console.error("List does not exist");
   localStorage.removeItem(listName);
   cache_changes();
