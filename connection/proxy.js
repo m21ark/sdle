@@ -14,8 +14,7 @@ const MAX_PORT = 5510; // Maximum port for backend servers
 // Array of backend ports
 let backendPorts = [5500, 5501, 5502]; // TODO: HARDCODED FOR NOW
 
-app.use(bodyParser.json());
-app.use(cors());
+
 
 // Simple load balancing function (picks a backend port randomly)
 function loadBalancerPort() {
@@ -56,6 +55,9 @@ app.all("/*", (req, res) => {
     console.error("Connection failed to backend: " + backendURL);
   }
 });
+
+app.use(bodyParser.json());
+app.use(cors());
 
 // Start the server
 app.listen(PORT, () => {

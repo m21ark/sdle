@@ -24,6 +24,8 @@ class Quorum {
     return this.replicaPorts.length;
   }
 
+  //middleware
+
   async sendRequestToReplica(port, data) {
     const path = data.originalUrl.replace(/^\/api/, "");
 
@@ -39,11 +41,6 @@ class Quorum {
     if (data.method === "GET") {
       requestOptions.method = "GET";
     } else {
-      // id url has /list in print it
-      if (path.includes("/list")) {
-        console.log("AQUI");
-        console.log("Path:", path);
-      }
       requestOptions.method = "POST";
       requestOptions.body = JSON.stringify(data.body);
 
@@ -87,16 +84,16 @@ class Quorum {
 
   areResponsesConsistent(responses) {
     // TODO: implement this with state-based replication (hash comparison?)
-    console.log("Responses:", responses);
+    // console.log("Responses:", responses);
     return responses.every(
       (response) => response.message === responses[0].message
     );
   }
 
-  consensus(data) {
+  async consensus(data) {
     return this.performQuorum(data)
       .then((result) => {
-        console.log("Operation successful:", result);
+        // console.log("Operation successful:", result);
         return result[0];
       })
       .catch((error) => {

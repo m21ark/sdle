@@ -100,6 +100,8 @@ function push_changes(list) {
   const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${list.name}/${commitHash}`;
 
+  console.log("Pushing changes to server");
+
   fetch(url, {
     method: "POST",
     headers: {
