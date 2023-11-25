@@ -11,28 +11,42 @@ const PORT = process.argv[2] || 5800;
 const MIN_PORT = 5500; // Minimum port for backend servers
 const MAX_PORT = 5510; // Maximum port for backend servers
 
+
 // Array of backend ports
-let backendPorts = [5500, 5501, 5502]; // TODO: HARDCODED FOR NOW
+let backendPorts = []; 
 
 
 
 // Simple load balancing function (picks a backend port randomly)
 function loadBalancerPort() {
-  const randomIndex = Math.floor( Math.random() * 100) % backendPorts.length;
-  return backendPorts[randomIndex];
+  if (backendPorts.length === 0) return undefined;
+  // Pick the backend with the lowest average response time, but give a chance to pick other random backend
+  if (Math.random() < 0.1) { // Can be changed
+    const randomIndex = Math.floor(Math.random() * backendPorts.length);
+    return backendPorts[randomIndex].number;
+  } else {
+    let minAverageTime = backendPorts[0].averageTime;
+    let minAverageTimeIndex = 0;
+    for (let i = 1; i < backendPorts.length; i++) {
+      if (backendPorts[i].averageTime < minAverageTime) {
+        minAverageTime = backendPorts[i].averageTime;
+        minAverageTimeIndex = i;
+      }
+    }
+    return backendPorts[minAverageTimeIndex].number;
+  }
 }
 
 // basic heartbeat endpoint
-app.get("/ping", (_, res) => {
-  const json = { message: "pong" };
-  res.send(json);
-});
+// app.get("/ping", (_, res) => {
+//   const json = { message: "pong" };
+//   res.send(json);
+// });
 
 // Proxy route
 app.all("/*", (req, res) => {
 
   const path = req.originalUrl.replace(/^\/api/, "");
-
 
   const backendPort = loadBalancerPort();
   const backendURL = `http://localhost:${backendPort}${path}`;
@@ -40,7 +54,7 @@ app.all("/*", (req, res) => {
   console.log("Backend responsible for this request: ", backendPort)
 
   if (req == undefined || backendPort == undefined) {
-    res.status(500).json({ success: false, error: "No active replicas" });
+    res.status(500).json({ success: false, error: "No active servers" });
     console.log("Request is undefined");
     return;
   }
@@ -51,6 +65,18 @@ app.all("/*", (req, res) => {
       console.log("Path:", path);
     }
     req.pipe(request(backendURL)).pipe(res);
+
+    // Update the average response time for the backend
+    const backend = backendPorts.find((backend) => backend.number === backendPort);
+    if (backend) {
+      const startTime = new Date().getTime();
+      request(backendURL, () => {
+        const endTime = new Date().getTime();
+        const responseTime = endTime - startTime;
+        backend.averageTime = (backend.averageTime + responseTime) / 2;
+        console.log(`Average response time for backend ${backendPort}: ${backend.averageTime}`);
+      });
+    }
   } catch (error) {
     console.error("Connection failed to backend: " + backendURL);
   }
@@ -94,9 +120,17 @@ function discoverActiveServer() {
 
   serverDiscoverability(MIN_PORT, MAX_PORT)
     .then((activePorts) => {
-      backendPorts = activePorts;
-      console.log("Active ports:", activePorts);
-      return activePorts ?? [];
+      // Check if the port is in backendPorts, if yes, the averageTime remains, else it is set to 0
+      backendPorts = activePorts.map((port) => {
+        const backendPort = backendPorts.find((backendPort) => backendPort.number === port);
+        if (backendPort) {
+          return backendPort;
+        } else {
+          return { number: port, averageTime: 0 };
+        }
+      });
+      console.log("Active ports:", backendPorts);
+      return backendPorts ?? [];
     })
     .catch((error) => {
       console.error("Error during server discoverability:", error.message);
@@ -105,4 +139,4 @@ function discoverActiveServer() {
     });
 }
 
-setInterval(discoverActiveServer, 10000);
+setInterval(discoverActiveServer, 5000);
