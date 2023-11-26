@@ -48,12 +48,10 @@ class Quorum {
     } else {
       requestOptions.method = "POST";
       requestOptions.body = JSON.stringify(data.body);
-
     }
 
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-
         fetch(url, requestOptions)
           .then((response) => resolve(response.json()))
           .catch((error) => {
@@ -67,14 +65,24 @@ class Quorum {
   async performQuorum(data) {
     const responses = [];
 
-    if (this.consistentHashing === null || this.consistentHashing === undefined) return [0, 1, 2]; // todo change this
+    if (this.consistentHashing === null || this.consistentHashing === undefined)
+      return [0, 1, 2]; // todo change this
 
     // get the second argument of data.originalUrl
     let toHash = data.originalUrl.split("/")[2];
 
-    const preferenceList = this.consistentHashing.getNextNNodes(toHash, this.quorumSize); // TODO: change for sloppy quorum
-    const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(preferenceList);
-    console.log("Responsible replicas:", responsibleReplicaPorts, "for hash:", toHash);
+    const preferenceList = this.consistentHashing.getNextNNodes(
+      toHash,
+      this.quorumSize
+    ); // TODO: change for sloppy quorum
+    const responsibleReplicaPorts =
+      this.consistentHashing.getNodesFromHashes(preferenceList);
+    console.log(
+      "Responsible replicas:",
+      responsibleReplicaPorts,
+      "for hash:",
+      toHash
+    );
     /*
       O stor disse uma coisa diferente do sloopy quorum. 
       Disse para termos um quorum fixo e se n houvesse consenso para termos pena.
@@ -100,11 +108,13 @@ class Quorum {
 
         // Check if quorum size is reached
         if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses)) {return responses}; // TODO: return the result of the operation
+          if (this.areResponsesConsistent(responses)) {
+            return responses;
+          } // TODO: return the result of the operation
           console.error("Inconsistent responses");
           continue;
         }
-      } catch (error) { 
+      } catch (error) {
         // TODO: port that is falling should be informed of the changes occured while it was down,
         // sloppy quorum should take the next node in the ring and use to store the data
         console.error(error.message);

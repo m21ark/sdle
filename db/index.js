@@ -24,7 +24,6 @@ function queryRun(sql, params = []) {
 }
 
 app.post("/list/:list_name/:commit_hash", (req, res) => {
-
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
@@ -34,7 +33,7 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
     [data.username, listName, commitHash, data.data]
   );
 
-  res.status(200).json({success: true});
+  res.status(200).json({ success: true });
 });
 
 app.post("/list/:list_name/", (req, res) => {

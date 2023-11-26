@@ -11,17 +11,15 @@ const PORT = process.argv[2] || 5800;
 const MIN_PORT = 5500; // Minimum port for backend servers
 const MAX_PORT = 5510; // Maximum port for backend servers
 
-
 // Array of backend ports
-let backendPorts = []; 
-
-
+let backendPorts = [];
 
 // Simple load balancing function (picks a backend port randomly)
 function loadBalancerPort() {
   if (backendPorts.length === 0) return undefined;
   // Pick the backend with the lowest average response time, but give a chance to pick other random backend
-  if (Math.random() < 0.1) { // Can be changed
+  if (Math.random() < 0.1) {
+    // Can be changed
     const randomIndex = Math.floor(Math.random() * backendPorts.length);
     return backendPorts[randomIndex].number;
   } else {
@@ -45,13 +43,12 @@ function loadBalancerPort() {
 
 // Proxy route
 app.all("/*", (req, res) => {
-
   const path = req.originalUrl.replace(/^\/api/, "");
 
   const backendPort = loadBalancerPort();
   const backendURL = `http://localhost:${backendPort}${path}`;
 
-  console.log("Backend responsible for this request: ", backendPort)
+  console.log("Backend responsible for this request: ", backendPort);
 
   if (req == undefined || backendPort == undefined) {
     res.status(500).json({ success: false, error: "No active servers" });
@@ -68,16 +65,20 @@ app.all("/*", (req, res) => {
     req.pipe(backendRequest).pipe(res);
     const startTime = new Date().getTime();
     // Update the average response time for the backend
-    backendRequest.on('response', () => {
+    backendRequest.on("response", () => {
       // Calculate response time
       const endTime = new Date().getTime();
       const responseTime = endTime - startTime;
 
       // Update the average response time for the backend
-      const backend = backendPorts.find((backend) => backend.number === backendPort);
+      const backend = backendPorts.find(
+        (backend) => backend.number === backendPort
+      );
       if (backend) {
         backend.averageTime = (backend.averageTime + responseTime) / 2;
-        console.log(`Average response time for backend ${backendPort}: ${backend.averageTime}`);
+        console.log(
+          `Average response time for backend ${backendPort}: ${backend.averageTime}`
+        );
       }
     });
   } catch (error) {
@@ -92,7 +93,6 @@ app.use(cors());
 app.listen(PORT, () => {
   console.log(`Proxy server listening on port ${PORT}`);
 });
-
 
 function discoverActiveServer() {
   async function serverDiscoverability(basePort, maxPort) {
@@ -119,13 +119,15 @@ function discoverActiveServer() {
     }
 
     return activePorts;
-  };
+  }
 
   serverDiscoverability(MIN_PORT, MAX_PORT)
     .then((activePorts) => {
       // Check if the port is in backendPorts, if yes, the averageTime remains, else it is set to 0
       backendPorts = activePorts.map((port) => {
-        const backendPort = backendPorts.find((backendPort) => backendPort.number === port);
+        const backendPort = backendPorts.find(
+          (backendPort) => backendPort.number === port
+        );
         if (backendPort) {
           return backendPort;
         } else {

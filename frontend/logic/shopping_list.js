@@ -73,8 +73,7 @@ class ShoppingList {
       this.products.get(productName).decrement(quantity);
     if (this.dChanges.has(productName)) {
       this.dChanges.get(productName).decrement(quantity);
-    }
-    else {
+    } else {
       this.dChanges.set(productName, new PNCounter());
       this.dChanges.get(productName).decrement(quantity);
     }

@@ -140,8 +140,7 @@ export function render_list_items() {
 
   checkboxes.forEach((checkbox) => {
     checkbox.addEventListener("change", function (event) {
-      const itemNameElement = (event.target)
-                .parentElement.children[0];
+      const itemNameElement = event.target.parentElement.children[0];
 
       if (event.target.checked) itemNameElement.classList.add("completed");
       else itemNameElement.classList.remove("completed");
@@ -157,41 +156,41 @@ export function render_list_items() {
   });
 
   const plusButtons = document.querySelectorAll(".quantity__plus");
-    plusButtons.forEach((button) => {
-        button.addEventListener("click", function (event) {
-            const itemNameElement = event.target.parentElement.parentElement.children[0];
+  plusButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      const itemNameElement =
+        event.target.parentElement.parentElement.children[0];
 
-            const currList = document.getElementById("current-list-name").textContent;
-            
-            if (LocalData._shoppingLists.has(currList)) {
-              const listObj = LocalData._shoppingLists.get(currList);
-              listObj.addProduct(itemNameElement.textContent, 1);
-              LocalData.cache_list_changes(listObj);
-              render_list_items();
-            } else console.warn("List does not exist");
-        });
+      const currList = document.getElementById("current-list-name").textContent;
+
+      if (LocalData._shoppingLists.has(currList)) {
+        const listObj = LocalData._shoppingLists.get(currList);
+        listObj.addProduct(itemNameElement.textContent, 1);
+        LocalData.cache_list_changes(listObj);
+        render_list_items();
+      } else console.warn("List does not exist");
     });
+  });
 
-    const minusButtons = document.querySelectorAll(".quantity__minus");
-    minusButtons.forEach((button) => {
-        button.addEventListener("click", function (event) {
-            const itemNameElement = event.target.parentElement.parentElement.children[0];
+  const minusButtons = document.querySelectorAll(".quantity__minus");
+  minusButtons.forEach((button) => {
+    button.addEventListener("click", function (event) {
+      const itemNameElement =
+        event.target.parentElement.parentElement.children[0];
 
-            const currList = document.getElementById("current-list-name").textContent;
-           
-            if (LocalData._shoppingLists.has(currList)) {
-              const listObj = LocalData._shoppingLists.get(currList);
-              // check if item value is bigger than 0
-              if (listObj.getQuantityToBuy(itemNameElement.textContent) > 0) {
-                listObj.removeProduct(itemNameElement.textContent, 1);
-                LocalData.cache_list_changes(listObj);
-                render_list_items();
-              }
-            } else console.warn("List does not exist");
+      const currList = document.getElementById("current-list-name").textContent;
 
-        });
+      if (LocalData._shoppingLists.has(currList)) {
+        const listObj = LocalData._shoppingLists.get(currList);
+        // check if item value is bigger than 0
+        if (listObj.getQuantityToBuy(itemNameElement.textContent) > 0) {
+          listObj.removeProduct(itemNameElement.textContent, 1);
+          LocalData.cache_list_changes(listObj);
+          render_list_items();
+        }
+      } else console.warn("List does not exist");
     });
-
+  });
 
   // const deleteButtons = document.querySelectorAll(".delete-button");
   // deleteButtons.forEach((button) => {
