@@ -167,7 +167,3 @@ class ConsistentHashing {
 }
 
 module.exports = { ConsistentHashing };
-<<<<<<< HEAD
-
-=======
->>>>>>> 0688b5806bcbbb475566e5b61f268901fd3f0254
