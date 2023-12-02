@@ -7,7 +7,6 @@ export let online = true;
 export const PROXY_DOMAIN = "localhost";
 export const PROXY_PORT = "4000";
 
-
 function load_previous_lists() {
   let lists = JSON.parse(localStorage.getItem("shoppingLists"));
 
@@ -121,7 +120,7 @@ function push_changes(list) {
       cache_list_changes(list);
     })
     .catch((error) => {
-      console.error('Error:', error);
+      console.error("Error:", error);
     });
 }
 

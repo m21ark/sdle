@@ -62,13 +62,13 @@ function updateActiveReplicas() {
   // add nodes to consistent hashing
   if (!consistentHashing && quorum.getReplicaActiveCount() > 0) {
     // weight is 1 for now, is good to have virtual nodes implemented but in our case there is not a real need for it
-    const nodes = quorum.getReplicaPorts().map((port) => [port, 1]); 
+    const nodes = quorum.getReplicaPorts().map((port) => [port, 1]);
     consistentHashing = new ConsistentHashing(nodes);
     quorum.setConsistentHashing(consistentHashing);
-  } // else ... lead with adds and removes ... note: teacher told us to not do this, as it implies to change the quorums 
-    // if the node is down then we pass to the following node in the quorum until an upper bound is reached 
-    // (example: 3 nodes in quorum, the first 2 are down, consensus of 2 is not reached and we abort)
-  
+  } // else ... lead with adds and removes ... note: teacher told us to not do this, as it implies to change the quorums
+  // if the node is down then we pass to the following node in the quorum until an upper bound is reached
+  // (example: 3 nodes in quorum, the first 2 are down, consensus of 2 is not reached and we abort)
+
   console.log("Active replicas:", quorum.getReplicaPorts());
 }
 

@@ -61,8 +61,8 @@ function add_list_by_url() {
       .then((data) => {
         let s = new ShoppingList();
         s.name = listId;
-        
-        console.log(data)
+
+        console.log(data);
         for (let row of data) {
           let temp = new ShoppingList();
           temp.deserialize(row["commit_data"]);

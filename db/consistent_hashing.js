@@ -1,5 +1,5 @@
-const { RBTree } = require('bintrees');
-const md5 = require('md5');
+const { RBTree } = require("bintrees");
+const md5 = require("md5");
 
 class Comparator {
   static defaultCompare(a, b) {
@@ -32,7 +32,7 @@ class ConsistentHashing {
       for (let i = 0; i < this.virtualNodes[count]; i++) {
         const virtualNode = `${node}_${i}`;
         const hash = this.hashString(virtualNode);
-        console.log(`Node : ${virtualNode} - Hash : ${hash}`)
+        console.log(`Node : ${virtualNode} - Hash : ${hash}`);
         this.hashRing.insert(hash);
         this.mappedNodes.set(hash, node);
       }
@@ -43,7 +43,7 @@ class ConsistentHashing {
   getNode(key) {
     const hash = this.hashString(key);
     const nodeHash = this.findClosestNode(hash);
-    console.log(`Key : ${key} - Hash : ${hash} - Node Hash : ${nodeHash}`)
+    console.log(`Key : ${key} - Hash : ${hash} - Node Hash : ${nodeHash}`);
     return this.hashRing.find(nodeHash);
   }
 
@@ -92,7 +92,7 @@ class ConsistentHashing {
   }
 
   showNodeRanges() {
-    console.log('Node Ranges:');
+    console.log("Node Ranges:");
     var it = this.hashRing.iterator(),
       item = it.next();
     const totalAvailableHashes = Math.pow(2, 128);
@@ -109,14 +109,22 @@ class ConsistentHashing {
 
       let rangePercentage;
       if (nextNodeHash >= nodeHash) {
-        rangePercentage = (((nextNodeHash - nodeHash) / totalAvailableHashes) * 100).toFixed(2);
+        rangePercentage = (
+          ((nextNodeHash - nodeHash) / totalAvailableHashes) *
+          100
+        ).toFixed(2);
       } else {
         const range1 = totalAvailableHashes - nodeHash;
         const range2 = nextNodeHash;
-        rangePercentage = (((range1 + range2) / totalAvailableHashes) * 100).toFixed(2);
+        rangePercentage = (
+          ((range1 + range2) / totalAvailableHashes) *
+          100
+        ).toFixed(2);
       }
 
-      console.log(`Node: ${node} - Range: [${nodeHash}, ${nextNodeHash}) - Percentage: ${rangePercentage}%`);
+      console.log(
+        `Node: ${node} - Range: [${nodeHash}, ${nextNodeHash}) - Percentage: ${rangePercentage}%`
+      );
 
       item = nextNode;
       nextNode = it.next();
@@ -125,7 +133,7 @@ class ConsistentHashing {
 
   // n is the size of the quorum, it returns the next n nodes in the ring, starting from the node that is responsible for the key
   getNextNNodes(key, n) {
-    let principleNode = this.getNodeIt(key)
+    let principleNode = this.getNodeIt(key);
     const nodes = [];
     for (let i = 0; i < n; i++) {
 
@@ -138,7 +146,6 @@ class ConsistentHashing {
     }
 
     return nodes;
-
   }
 
   getNodeFromHash(hash) {
@@ -146,12 +153,13 @@ class ConsistentHashing {
   }
 
   getNodesFromHashes(hashes) {
-    return hashes.map(hash => this.mappedNodes.get(hash));
+    return hashes.map((hash) => this.mappedNodes.get(hash));
   }
 
   printRingNodes() {
-    console.log('Nodes and Respective Hashes on the Ring:');
-    var it = this.hashRing.iterator(), item;
+    console.log("Nodes and Respective Hashes on the Ring:");
+    var it = this.hashRing.iterator(),
+      item;
     while ((item = it.next()) !== null) {
       console.log(`Node Hash: ${item}`);
     }
@@ -159,4 +167,7 @@ class ConsistentHashing {
 }
 
 module.exports = { ConsistentHashing };
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0688b5806bcbbb475566e5b61f268901fd3f0254
