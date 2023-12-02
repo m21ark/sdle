@@ -28,7 +28,8 @@ app.get("/ping", (_, res) => {
 
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {
-  //console.log("Request:", req.originalUrl);
+  //if (req.originalUrl.includes("FIRST"))
+  console.log("Request:", req.originalUrl);
   if (quorum.getReplicaActiveCount() === 0) {
     res.status(500).json({ success: false, error: "No active replicas" });
     return;

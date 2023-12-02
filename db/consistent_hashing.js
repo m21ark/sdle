@@ -50,7 +50,14 @@ class ConsistentHashing {
   getNodeIt(key) {
     // get the node iterator
     const hash = this.hashString(key);
-    const nodeHash = this.findClosestNode(hash);
+
+    let nodeHash = this.findClosestNode(hash);
+    if (nodeHash === null) {
+      let it = this.hashRing.iterator();
+      it.next();
+      nodeHash = it.data();
+    }
+
     return this.hashRing.findIter(nodeHash);
   }
 
@@ -61,7 +68,8 @@ class ConsistentHashing {
       // If the hash is greater than all nodes, loop back to the first node
       nodeHash = this.hashRing.iterator().next();
     }
-    return nodeHash.data();
+
+    return nodeHash.data() ;
   }
 
   addNode(node, weight = 1) {
@@ -116,11 +124,11 @@ class ConsistentHashing {
   }
 
   // n is the size of the quorum, it returns the next n nodes in the ring, starting from the node that is responsible for the key
-  getNextNNodes(key, n) { 
+  getNextNNodes(key, n) {
     let principleNode = this.getNodeIt(key)
     const nodes = [];
-
     for (let i = 0; i < n; i++) {
+
       let nextNode = principleNode.next();
       if (nextNode === null) {
         principleNode = this.hashRing.iterator();
@@ -150,5 +158,5 @@ class ConsistentHashing {
   }
 }
 
-module.exports = {ConsistentHashing};
+module.exports = { ConsistentHashing };
 

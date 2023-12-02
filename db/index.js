@@ -34,6 +34,9 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
     [data.username, listName, commitHash, data.data]
   );
 
+  console.log("Port:", port);
+  console.log("Commit received:", data);
+
   res.status(200).json({success: true});
 });
 

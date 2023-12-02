@@ -68,13 +68,15 @@ class Quorum {
     const responses = [];
 
     if (this.consistentHashing === null || this.consistentHashing === undefined) return [0, 1, 2]; // todo change this
-
+    
+    
     // get the second argument of data.originalUrl
     let toHash = data.originalUrl.split("/")[2];
-
+    
     const preferenceList = this.consistentHashing.getNextNNodes(toHash, this.quorumSize); // TODO: change for sloppy quorum
     const responsibleReplicaPorts = this.consistentHashing.getNodesFromHashes(preferenceList);
     console.log("Responsible replicas:", responsibleReplicaPorts, "for hash:", toHash);
+    console.log("Preference list:", this.quorumSize);
     /*
       O stor disse uma coisa diferente do sloopy quorum. 
       Disse para termos um quorum fixo e se n houvesse consenso para termos pena.
