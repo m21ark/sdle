@@ -125,6 +125,52 @@ class Quorum {
     throw new Error("Quorum not reached");
   }
 
+  async sendHandoffUpdateRequest(recipientNode, updateData) {
+    const handoffPort = 5600;
+    try {
+      const response = await fetch(`http://localhost:${handoffPort}/update`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientNode,
+          updateData,
+        }),
+      });
+
+      const data = await response.json();
+      if (!data.success)
+        console.error("Handoff update request was not success:", data.error);
+    } catch (error) {
+      console.error("Error sending update request:", error.message);
+    }
+  }
+
+  async sendHandoffDeliverHintsRequest(recipientNode) {
+    const handoffPort = 5600;
+    try {
+      const response = await fetch(
+        `http://localhost:${handoffPort}/deliver_hints`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            recipientNode,
+          }),
+        }
+      );
+
+      const data = await response.json();
+      if (!data.success)
+        console.error("Handoff delivery response was not success:", data.error);
+    } catch (error) {
+      console.error("Error sending deliver hints request:", error.message);
+    }
+  }
+
   areResponsesConsistent(responses) {
     // TODO: implement this with state-based replication (hash comparison?)
 

@@ -32,7 +32,7 @@ class HintedHandoff {
   // Simulate the delivery process (you may replace this with your actual delivery logic)
   makeNodeDelivery(recipientNode, hints) {
     console.log(`Delivering hints to node ${recipientNode}:`, hints);
-    return true;
+    return true; // TODO: fazer o delivery de verdade
   }
 }
 

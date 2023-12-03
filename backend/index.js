@@ -21,8 +21,6 @@ const quorumSize = 3; // TODO: make this variable
 let consistentHashing = null;
 const quorum = new Quorum(quorumSize, consensusSize);
 
-const handoffPort = 5600;
-
 app.get("/ping", (_, res) => {
   const json = { message: "pong" };
   res.send(json);
@@ -37,7 +35,10 @@ app.all("/*", (req, res) => {
     res.status(500).json({ success: false, error: "No active replicas" });
     return;
   } else if (quorum.getReplicaActiveCount() < consensusSize) {
-    res.status(500).json({ success: false, error: "Quorum can't be reached" });
+    res.status(500).json({
+      success: false,
+      error: "Quorum can't be reached with so few active replicas",
+    });
     return;
   }
 
@@ -68,50 +69,6 @@ function updateActiveReplicas() {
   // (example: 3 nodes in quorum, the first 2 are down, consensus of 2 is not reached and we abort)
 
   console.log("Active replicas:", quorum.getReplicaPorts());
-}
-
-async function sendHandoffUpdateRequest(recipientNode, updateData) {
-  try {
-    const response = await fetch(`http://localhost:${handoffPort}/update`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        recipientNode,
-        updateData,
-      }),
-    });
-
-    const data = await response.json();
-    if (!data.success)
-      console.error("Handoff update request was not success:", data.error);
-  } catch (error) {
-    console.error("Error sending update request:", error.message);
-  }
-}
-
-async function sendHandoffDeliverHintsRequest(recipientNode) {
-  try {
-    const response = await fetch(
-      `http://localhost:${handoffPort}/deliver_hints`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientNode,
-        }),
-      }
-    );
-
-    const data = await response.json();
-    if (!data.success)
-      console.error("Handoff delivery response was not success:", data.error);
-  } catch (error) {
-    console.error("Error sending deliver hints request:", error.message);
-  }
 }
 
 setInterval(updateActiveReplicas, 10000);
