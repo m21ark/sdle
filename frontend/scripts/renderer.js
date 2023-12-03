@@ -97,7 +97,7 @@ function render_lists() {
   });
 }
 
-function list_item_rendering(id, item) {
+export function list_item_rendering(id, item) {
   //<button class="btn btn-danger delete-button">X</button> \
   return `<div class="item">\ 
     <span>${id}</span> \

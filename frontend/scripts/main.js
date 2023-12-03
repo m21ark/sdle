@@ -127,30 +127,7 @@ function add_list_item() {
   listObj.addProduct(itemName, itemQuantity);
   LocalData.cache_list_changes(listObj);
 
-  const itemDiv = document.createElement("div");
-  itemDiv.className = "item";
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.addEventListener("change", toggleCompleted);
-
-  const itemNameElement = document.createElement("span");
-  itemNameElement.textContent = `${itemName} \t (Qnt: ${itemQuantity})`;
-
-  //const deleteButton = document.createElement("button");
-  //deleteButton.className = "btn btn-danger delete-button";
-  //deleteButton.textContent = "X";
-  //deleteButton.addEventListener("click", removeItem);
-  //
-  //itemDiv.appendChild(deleteButton);
-  itemDiv.appendChild(itemNameElement);
-  itemDiv.appendChild(checkbox);
-
-  itemsContainer.appendChild(itemDiv);
-
-  itemNameInput.value = "";
-  itemQuantityInput.value = "";
-
+  render_list_items();
   cache_item_changes();
 }
 
