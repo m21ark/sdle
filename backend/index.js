@@ -21,6 +21,8 @@ const quorumSize = 3; // TODO: make this variable
 let consistentHashing = null;
 const quorum = new Quorum(quorumSize, consensusSize);
 
+const handoffPort = 5600;
+
 app.get("/ping", (_, res) => {
   const json = { message: "pong" };
   res.send(json);
@@ -28,6 +30,7 @@ app.get("/ping", (_, res) => {
 
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {
+  // console.log("METHODE:", req.method);
   //if (req.originalUrl.includes("FIRST"))
   console.log("Request:", req.originalUrl);
   if (quorum.getReplicaActiveCount() === 0) {
@@ -52,11 +55,6 @@ app.all("/*", (req, res) => {
   }
 });
 
-// Start the web worker server
-app.listen(port, () => {
-  console.log(`Server is listening on port ${port}`);
-});
-
 function updateActiveReplicas() {
   quorum.discoverActiveReplicas(5000, 5100); // TODO Make these configs
   // add nodes to consistent hashing
@@ -72,4 +70,53 @@ function updateActiveReplicas() {
   console.log("Active replicas:", quorum.getReplicaPorts());
 }
 
+async function sendHandoffUpdateRequest(recipientNode, updateData) {
+  try {
+    const response = await fetch(`http://localhost:${handoffPort}/update`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        recipientNode,
+        updateData,
+      }),
+    });
+
+    const data = await response.json();
+    if (!data.success)
+      console.error("Handoff update request was not success:", data.error);
+  } catch (error) {
+    console.error("Error sending update request:", error.message);
+  }
+}
+
+async function sendHandoffDeliverHintsRequest(recipientNode) {
+  try {
+    const response = await fetch(
+      `http://localhost:${handoffPort}/deliver_hints`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          recipientNode,
+        }),
+      }
+    );
+
+    const data = await response.json();
+    if (!data.success)
+      console.error("Handoff delivery response was not success:", data.error);
+  } catch (error) {
+    console.error("Error sending deliver hints request:", error.message);
+  }
+}
+
 setInterval(updateActiveReplicas, 10000);
+
+// Start the web worker server
+app.listen(port, () => {
+  console.log(`Server is listening on port ${port}`);
+});
