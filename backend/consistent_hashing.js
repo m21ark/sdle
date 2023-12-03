@@ -69,7 +69,7 @@ class ConsistentHashing {
       nodeHash = this.hashRing.iterator().next();
     }
 
-    return nodeHash.data() ;
+    return nodeHash.data();
   }
 
   addNode(node, weight = 1) {
@@ -136,7 +136,6 @@ class ConsistentHashing {
     let principleNode = this.getNodeIt(key);
     const nodes = [];
     for (let i = 0; i < n; i++) {
-
       let nextNode = principleNode.next();
       if (nextNode === null) {
         principleNode = this.hashRing.iterator();

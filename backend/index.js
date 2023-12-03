@@ -1,5 +1,5 @@
 const { Quorum } = require("./quorum");
-const { ConsistentHashing } = require("../db/consistent_hashing");
+const { ConsistentHashing } = require("./consistent_hashing");
 const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
