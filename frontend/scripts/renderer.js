@@ -1,5 +1,6 @@
 import * as LocalData from "./local_data_operations.js";
 
+
 function addNoItemMessage() {
   const error = document.getElementById("todo-list");
   const errorP = document.createElement("p");
@@ -118,6 +119,8 @@ export function render_list_items() {
   let items = null;
 
   let itemsHtml = "";
+
+  console.log("Current list: ", currList);
 
   if (LocalData._shoppingLists.has(currList)) {
     items = LocalData._shoppingLists.get(currList);

@@ -82,6 +82,7 @@ app.all("/*", (req, res) => {
       }
     });
   } catch (error) {
+    console.error(error);
     console.error("Connection failed to backend: " + backendURL);
   }
 });
@@ -144,4 +145,4 @@ function discoverActiveServer() {
     });
 }
 
-setInterval(discoverActiveServer, 60000);
+setInterval(discoverActiveServer, 10000);
