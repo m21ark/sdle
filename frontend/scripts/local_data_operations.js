@@ -14,7 +14,12 @@ function load_previous_lists() {
     lists.forEach((list) => {
       let s = new ShoppingList();
       s.name = list;
-      s.fromJSON(localStorage.getItem(list));
+      const l = localStorage.getItem(list);
+      if (!l) {
+        console.error("List does not exist in local storage: ", list);
+        return;
+      }
+      s.fromJSON(l);
       _shoppingLists.set(list, s);
     });
   }
@@ -50,87 +55,29 @@ export function cache_changes() {
 
 export function remove_list(listName) {
   if (_shoppingLists.has(listName)) _shoppingLists.delete(listName);
-  else console.error("List does not exist");
+  else {
+    console.error("List does not exist: " + listName);
+    return;
+  }
   localStorage.removeItem(listName);
+
+  // update list counter
+  const listCounter = document.getElementById("list-list-count");
+  listCounter.textContent = `(${_shoppingLists.size})`;
+
+  if (_shoppingLists.size === 0) {
+    const error = document.getElementById("lists-list");
+    const errorP = document.createElement("p");
+    errorP.textContent = "No lists found";
+    errorP.className = "no_list_found";
+    error.appendChild(errorP);
+  }
+
   cache_changes();
 }
 
-function fetch_commits(list) {
-  console.log("Fetching commits for list: ", list.name);
-  const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
-  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${list.name}/${lastCommit}`;
-  fetch(url)
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.length > 0) {
-        for (let row of data) {
-          if (list.commitTimeline.includes(row["commit_hash"])) continue;
-          let temp = new ShoppingList();
-          temp.deserialize(row["commit_data"]);
-          list.mergeDeltaChanges(row["commit_hash"], temp);
-          cache_changes();
-          render_list_again();
-          // if active page list is the same as the list that was updated we need to update the page
-          // TODO: Add to the list view the new changes
-        }
-      } else console.log("No new commits found in fetch");
-    })
-    .catch((error) =>
-      console.error(`Error fetching commits for ${list.name}: ${error}`)
-    );
-}
-
-function push_changes(list) {
-  // if there are no changes to push we can return
-  const hasChanges = list.hasChanges(
-    list.commitTimeline[list.commitTimeline.length - 1]
-  );
-  if (!hasChanges) return;
-
-  console.log("Pushing new changes for list: ", list.name);
-
-  // If there are changes we need to push them to the server
-  let changes = new ShoppingList();
-  changes.name = list.name;
-  changes.products = list.dChanges;
-
-  const data = {
-    username: document.getElementById("username").textContent,
-    data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
-  };
-  let hash = list.commitHashGen();
-  console.log(hash);
-  list.commitChanges(hash, changes);
-
-  const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
-  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${list.name}/${commitHash}`;
-
-  console.log("Pushing changes to server");
-  console.log(changes);
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => {
-      response.json();
-    })
-    .then((data) => {
-      list.dChanges.clear();
-      list.dChanges = new Map();
-      cache_list_changes(list);
-    })
-    .catch((error) => {
-      console.error("Error:", error);
-    });
-}
-
 function toggleOnline() {
-  // ITS stupid to be in this file, but there are problems with the imports
-  console.log("toggle online");
+  // TODO: ITS stupid to be in this file, but there are problems with the imports
   online = !online;
   if (online) {
     document.getElementById("online-status").textContent = "Online";
@@ -164,12 +111,8 @@ function render_list_again() {
   const currList = document.getElementById("current-list-name").textContent;
 
   if (currList === "") return;
-
   let items = null;
-
   let itemsHtml = "";
-
-  console.log("Current list: ", currList);
 
   if (_shoppingLists.has(currList)) {
     items = _shoppingLists.get(currList);
@@ -255,17 +198,104 @@ function render_list_again() {
   //update_item_count();
 }
 
-// set a timeout that call the sync function every 5 seconds
-setInterval(() => {
-  if (online) {
-    for (const [_, value] of _shoppingLists) {
-      fetch_commits(value);
-      push_changes(value);
+// ======================== SYNCHRONIZATION ========================
+
+async function fetch_commits(list) {
+  // console.log("Fetching commits for list: ", list.name);
+  const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
+  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${encodeURIComponent(
+    list.name
+  )}/${lastCommit}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    if (data.length > 0) {
+      for (let row of data) {
+        if (list.commitTimeline.includes(row["commit_hash"])) continue;
+
+        console.log("Fetched new changes for list: ", list.name);
+        console.log(row);
+
+        let temp = new ShoppingList();
+        temp.deserialize(row["commit_data"]);
+        list.mergeDeltaChanges(row["commit_hash"], temp);
+        cache_changes();
+        render_list_again();
+        // if active page list is the same as the list that was updated we need to update the page
+        // TODO: Add to the list view the new changes
+      }
+    } //  else console.log("No new commits found in fetch for list: " + list.name);
+  } catch (e) {
+    console.error(`Error fetching commits for ${list.name}: ${e}`);
+  }
+}
+
+async function push_changes(list) {
+  // if there are no changes to push we can return
+  if (!list.hasChanges()) {
+    // console.log("No changes to push for list: " + list.name);
+    return;
+  }
+
+  // TODO: shouldnt we check for availability of the server here?
+  // because we are making a commit but if the server is not up
+  // the commit will still be made and the future iteration
+  // will not find any changes to push
+
+  // If there are changes we need to push them to the server
+  let changes = new ShoppingList();
+  changes.name = list.name;
+  changes.products = list.dChanges;
+
+  const data = {
+    username: document.getElementById("username").textContent,
+    data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
+  };
+  let hash = list.commitHashGen();
+  list.commitChanges(hash, changes);
+
+  const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
+  const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${encodeURIComponent(
+    list.name
+  )}/${commitHash}`;
+
+  console.log("Pushing new changes for list: ", list.name);
+  console.log(changes);
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+
+    const responseData = await response.json();
+
+    list.dChanges.clear();
+    list.dChanges = new Map();
+    cache_list_changes(list);
+  } catch (error) {
+    console.error(`Error pushing changes for list ${list.name}:`, error);
+  }
+}
+
+async function sync() {
+  if (!online) return;
+  for (const [_, value] of _shoppingLists) {
+    try {
+      await fetch_commits(value);
+      await push_changes(value);
+    } catch (e) {
+      console.log(e);
     }
   }
-}, 5000);
+}
 
+setInterval(sync, 5000);
 load_previous_lists();
 load_name();
 switchOnline();
-console.log(_shoppingLists);

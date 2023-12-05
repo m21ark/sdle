@@ -35,12 +35,6 @@ function loadBalancerPort() {
   }
 }
 
-// basic heartbeat endpoint
-// app.get("/ping", (_, res) => {
-//   const json = { message: "pong" };
-//   res.send(json);
-// });
-
 // Proxy route
 app.all("/*", (req, res) => {
   const path = req.originalUrl.replace(/^\/api/, "");
