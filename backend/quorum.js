@@ -49,7 +49,7 @@ class Quorum {
       requestOptions.method = "POST";
       requestOptions.body = JSON.stringify(data.body);
     }
-
+    console.log("Sending request to replica:", url);
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         fetch(url, requestOptions)
@@ -173,7 +173,8 @@ class Quorum {
 
   areResponsesConsistent(responses) {
     // TODO: implement this with state-based replication (hash comparison?)
-
+    console.log("Responses:", responses);
+    console.log("Message: ", responses[0].message)
     return responses.every(
       (response) => response.message === responses[0].message
     );
