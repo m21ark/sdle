@@ -6,16 +6,13 @@ if [ "$#" -ne 1 ]; then
 fi
 
 num_instances=$1
-base_port=5000
+base_port=5500
 
 i=0
 while [ "$i" -lt "$num_instances" ]; do
   port=$((base_port + i))
-  db_file="./db/replicas/database_${port}.db"
 
-  sqlite3 $db_file <./db/schema.sql
-
-  npx nodemon ./db/index.js $port 2>&1 &
+  npx nodemon ./index.js $port 2>&1 &
 
   i=$((i + 1))
 done

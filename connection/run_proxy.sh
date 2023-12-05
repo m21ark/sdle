@@ -14,7 +14,7 @@ i=0
 while [ "$i" -lt "$num_instances" ]; do
   port=$((base_port + i))
 
-  npx nodemon ./connection/proxy.js $port
+  npx nodemon ./proxy.js $port
 
   i=$((i + 1))
 done

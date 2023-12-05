@@ -9,7 +9,7 @@ export const PROXY_PORT = "4000";
 
 function load_previous_lists() {
   let lists = JSON.parse(localStorage.getItem("shoppingLists"));
-  
+
   if (lists) {
     lists.forEach((list) => {
       let s = new ShoppingList();
@@ -19,8 +19,6 @@ function load_previous_lists() {
     });
   }
 }
-
-
 
 export function cache_name(name) {
   localStorage.setItem("username", name);
@@ -57,8 +55,8 @@ export function remove_list(listName) {
   cache_changes();
 }
 
-
 function fetch_commits(list) {
+  console.log("Fetching commits for list: ", list.name);
   const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${list.name}/${lastCommit}`;
   fetch(url)
@@ -75,7 +73,7 @@ function fetch_commits(list) {
           // if active page list is the same as the list that was updated we need to update the page
           // TODO: Add to the list view the new changes
         }
-      }
+      } else console.log("No new commits found in fetch");
     })
     .catch((error) =>
       console.error(`Error fetching commits for ${list.name}: ${error}`)
@@ -88,6 +86,8 @@ function push_changes(list) {
     list.commitTimeline[list.commitTimeline.length - 1]
   );
   if (!hasChanges) return;
+
+  console.log("Pushing new changes for list: ", list.name);
 
   // If there are changes we need to push them to the server
   let changes = new ShoppingList();
@@ -254,7 +254,6 @@ function render_list_again() {
 
   //update_item_count();
 }
-
 
 // set a timeout that call the sync function every 5 seconds
 setInterval(() => {

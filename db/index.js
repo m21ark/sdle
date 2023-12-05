@@ -5,7 +5,7 @@ let cors = require("cors");
 
 const port = process.argv[2]; // port is passed as an argument
 
-let db = new sqlite3(`./db/replicas/database_${port}.db`);
+let db = new sqlite3(`./replicas/database_${port}.db`);
 
 db.pragma("foreign_keys = ON");
 
