@@ -288,24 +288,6 @@ function add_list_to_list() {
 
   cache_list_changes();
 
-  addListToServer(newList);
-}
-
-function addListToServer(list) {
-  const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${list.name}`;
-  const data = {
-    username: document.getElementById("username").textContent,
-  };
-
-  fetch(url, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(data),
-  })
-    .then((response) => response.json())
-    .catch((error) => console.error("Error:", error));
 }
 
 function add_go_back_listener() {

@@ -36,29 +36,6 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   res.status(200).json({ success: true });
 });
 
-app.post("/list/:list_name/", (req, res) => {
-  const listName = req.params.list_name;
-  const username = req.body.username;
-
-  let user_id = queryAll("SELECT id FROM users WHERE email = ?", [username]);
-
-  // user not found
-  if (user_id.length === 0) {
-    res.status(400).json({});
-    return;
-  }
-
-  user_id = user_id[0].id;
-
-  const list_id = listName + Date.now().toString();
-
-  queryRun(
-    "INSERT INTO todo_lists (user_id, name, internal_id) VALUES (?, ?, ?)",
-    [user_id, listName, list_id]
-  );
-
-  res.status(200).json({});
-});
 
 app.get("/commits/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
