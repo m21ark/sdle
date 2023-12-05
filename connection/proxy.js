@@ -56,6 +56,12 @@ app.all("/*", (req, res) => {
       console.log("Path:", path);
     }
     const backendRequest = request(backendURL);
+
+    backendRequest.on("error", (error) => {
+      console.error("Error in backend request:", error.message);
+      res.status(500).json({ success: false, error: "Error in backend request" });
+    });
+
     req.pipe(backendRequest).pipe(res);
     const startTime = new Date().getTime();
     // Update the average response time for the backend

@@ -127,6 +127,11 @@ export function render_list_items() {
     return;
   }
 
+  const list_counter = document.getElementById("list-item-count");
+  if (list_counter) {
+    list_counter.textContent = '(' + items.products.size + ')'
+  };
+  
   for (const [id, item] of items.products) {
     if (item.value() === 0) continue;
     itemsHtml += list_item_rendering(id, item);

@@ -46,7 +46,7 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
       "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
       [listName]
     );
-
+    console.log("FIRST", response);
     res.status(200).json(response);
   } else {
     // TODO: its possible to have a better query/logic ... use last read commit hash
@@ -58,7 +58,7 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
         "AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?",
       [listName, commitHash, commitHash]
     );
-
+    console.log("OTHER", response);
     res.status(200).json(response);
   }
 });
