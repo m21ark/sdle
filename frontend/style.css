@@ -165,6 +165,11 @@ header {
   font-weight: bold;
   display: flex;
   justify-content: space-between;
+  padding-left: 0.5em;
+}
+
+header span {
+  color: #007bff;
 }
 
 header button#logout-button {
@@ -178,8 +183,6 @@ header button#logout-button:hover {
 button#logout-button span {
   color: white;
 }
-
-
 
 .burger-icon {
   position: fixed;
