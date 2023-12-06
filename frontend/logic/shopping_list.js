@@ -1,10 +1,8 @@
 import { PNCounter } from "./crdt.js";
 
 class ShoppingList {
-  constructor(products, commits, commitTimeline, name) {
-    // Setting the name of the list
-    if (name != undefined) this.name = name;
-    else this.name = "default_name";
+  constructor(products, commits, commitTimeline, displayName = "default_name") {
+    this.name = this.genUniqueNameID(displayName);
 
     this.products = new Map(); // Map product names to PNCounters
     this.dChanges = new Map(); // Map product names to PNCounters ... used to store the changes before commiting them
@@ -38,6 +36,12 @@ class ShoppingList {
 
       this.commitTimeline.push("FIRST_COMMIT");
     }
+  }
+
+  genUniqueNameID(listName) {
+    const name = listName.replace("#", "").replace(" ", "");
+    const hash = Math.random().toString(36).substring(2, 15);
+    return `${name}#${hash}`;
   }
 
   clone() {

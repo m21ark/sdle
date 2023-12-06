@@ -1,6 +1,5 @@
 import * as LocalData from "./local_data_operations.js";
 
-
 function addNoItemMessage() {
   const error = document.getElementById("todo-list");
   const errorP = document.createElement("p");
@@ -49,10 +48,11 @@ export function toggle_view() {
 }
 
 function list_rendering(list) {
-  // TODO: add the list id
   return `<div class="list">\
     <button class="btn btn-danger delete-button-list">X</button> \
-    <a class="a-list-name" data-id="${list.name}" data-name="${list.name}">${list.name}</a></div>`;
+    <a class="a-list-name" data-name="${list.name}">${
+    list.name.split("#")[0]
+  }</a></div>`;
 }
 
 function render_lists() {
@@ -72,9 +72,9 @@ function render_lists() {
   for (let i = 0; i < list_href.length; i++)
     list_href[i].addEventListener("click", () => {
       document.getElementById("current-list-name").textContent =
-        list_href[i].dataset.id;
-      document.getElementById("list-name-title").textContent =
         list_href[i].dataset.name;
+      document.getElementById("list-name-title").textContent =
+        list_href[i].dataset.name.split("#")[0];
 
       toggle_view();
       render_list_items();
@@ -92,7 +92,7 @@ function render_lists() {
       const itemsContainer = document.getElementById("items");
       itemsContainer.innerHTML = "";
 
-      LocalData.remove_list(listDiv.lastChild.textContent);
+      LocalData.remove_list(listDiv.lastChild.dataset.name);
     });
   });
 }
@@ -111,16 +111,14 @@ export function list_item_rendering(id, item) {
 }
 
 export function render_list_items() {
+  // TODO: este codigo esta duplciado em local_data_operations.js
   const itemsContainer = document.getElementById("items");
   const currList = document.getElementById("current-list-name").textContent;
 
   if (currList === "") return;
 
   let items = null;
-
   let itemsHtml = "";
-
-  console.log("Current list: ", currList);
 
   if (LocalData._shoppingLists.has(currList)) {
     items = LocalData._shoppingLists.get(currList);
@@ -129,6 +127,11 @@ export function render_list_items() {
     return;
   }
 
+  const list_counter = document.getElementById("list-item-count");
+  if (list_counter) {
+    list_counter.textContent = '(' + items.products.size + ')'
+  };
+  
   for (const [id, item] of items.products) {
     if (item.value() === 0) continue;
     itemsHtml += list_item_rendering(id, item);
@@ -155,6 +158,9 @@ export function render_list_items() {
         listObj.removeFromList(itemNameElement.textContent);
         LocalData.cache_list_changes(listObj);
       } else console.warn("List does not exist");
+
+      event.stopPropagation();
+      event.preventDefault();
     });
   });
 
@@ -173,6 +179,9 @@ export function render_list_items() {
         LocalData.cache_list_changes(listObj);
         render_list_items();
       } else console.warn("List does not exist");
+
+      event.stopPropagation();
+      event.preventDefault();
     });
   });
 
