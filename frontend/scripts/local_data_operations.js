@@ -2,7 +2,6 @@ import { ShoppingList } from "../logic/shopping_list.js";
 
 export let _shoppingLists = new Map(); // <list_name, ShoppingList>
 export let _username = "";
-export let online = true;
 
 export const PROXY_DOMAIN = "localhost";
 export const PROXY_PORT = "4000";
@@ -74,23 +73,6 @@ export function remove_list(listName) {
   }
 
   cache_changes();
-}
-
-function toggleOnline() {
-  // TODO: ITS stupid to be in this file, but there are problems with the imports
-  online = !online;
-  if (online) {
-    document.getElementById("online-status").textContent = "Online";
-    document.getElementById("online-status").style.backgroundColor = "green";
-  } else {
-    document.getElementById("online-status").textContent = "Offline";
-    document.getElementById("online-status").style.backgroundColor = "red";
-  }
-}
-
-function switchOnline() {
-  const onlineSwitch = document.querySelector("#online-status");
-  onlineSwitch.addEventListener("click", toggleOnline);
 }
 
 function list_item_rendering(id, item) {
@@ -201,7 +183,7 @@ function render_list_again() {
 // ======================== SYNCHRONIZATION ========================
 
 async function fetch_commits(list) {
-  // console.log("Fetching commits for list: ", list.name);
+  console.log("Fetching commits for list: ", list.name);
   const lastCommit = list.lastCommit || "FIRST_COMMIT";
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${encodeURIComponent(
     list.name
@@ -212,7 +194,6 @@ async function fetch_commits(list) {
     const data = await response.json();
 
     if (data.length > 0) {
-      
       for (let row of data) {
         console.log("row: ", row);
         if (list.commitTimeline.includes(row["commit_hash"])) continue;
@@ -228,7 +209,6 @@ async function fetch_commits(list) {
         // if active page list is the same as the list that was updated we need to update the page
         // TODO: Add to the list view the new changes
         list.lastCommitRead = row["commit_hash"];
-
       }
     } //  else console.log("No new commits found in fetch for list: " + list.name);
   } catch (e) {
@@ -239,7 +219,7 @@ async function fetch_commits(list) {
 async function push_changes(list) {
   // if there are no changes to push we can return
   if (!list.hasChanges()) {
-    // console.log("No changes to push for list: " + list.name);
+    console.log("No changes to push for list: " + list.name);
     return;
   }
 
@@ -288,7 +268,13 @@ async function push_changes(list) {
 }
 
 async function sync() {
-  if (!online) return;
+  const onlineSwitch = document.querySelector("button#online-status");
+
+  document.getElementById("online-text").textContent = "...";
+  onlineSwitch.classList.add("clicked");
+
+  await new Promise((r) => setTimeout(r, 1000));
+
   for (const [_, value] of _shoppingLists) {
     try {
       await fetch_commits(value);
@@ -297,9 +283,18 @@ async function sync() {
       console.log(e);
     }
   }
+
+  document.getElementById("online-text").textContent = "Sync";
+  onlineSwitch.classList.remove("clicked");
 }
 
-setInterval(sync, 5000);
 load_previous_lists();
 load_name();
-switchOnline();
+
+// Sync button event listener
+const onlineSwitch = document.querySelector("button#online-status");
+onlineSwitch.addEventListener("click", (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  sync();
+});
