@@ -202,7 +202,7 @@ function render_list_again() {
 
 async function fetch_commits(list) {
   // console.log("Fetching commits for list: ", list.name);
-  const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
+  const lastCommit = list.lastCommit || "FIRST_COMMIT";
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${encodeURIComponent(
     list.name
   )}/${lastCommit}`;
@@ -212,7 +212,9 @@ async function fetch_commits(list) {
     const data = await response.json();
 
     if (data.length > 0) {
+      
       for (let row of data) {
+        console.log("row: ", row);
         if (list.commitTimeline.includes(row["commit_hash"])) continue;
 
         console.log("Fetched new changes for list: ", list.name);
