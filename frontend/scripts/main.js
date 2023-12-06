@@ -298,7 +298,7 @@ function login_modal() {
   const username = document.getElementById("username");
   // ask the user for the username
 
-  if (LocalData._username == "" || LocalData._username == null) {
+  while (LocalData._username == "" || LocalData._username == null) {
     username.value = prompt("Please enter your username");
     LocalData.cache_name(username.value);
   }
