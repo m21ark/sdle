@@ -5,7 +5,12 @@ export let _username = "";
 export let online = true;
 
 export const PROXY_DOMAIN = "localhost";
-export const PROXY_PORT = "4000";
+export let PROXY_PORT = "4000";
+
+fetch(`http://${PROXY_DOMAIN}:5900/endpoint`)
+  .then((response) => response.json())
+  .then((data) => {PROXY_PORT = data.proxyPort})
+  .catch((error) => console.warn(`Error in dns: ${error}), using default proxy`));
 
 function load_previous_lists() {
   let lists = JSON.parse(localStorage.getItem("shoppingLists"));
