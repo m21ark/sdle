@@ -101,7 +101,7 @@ div#appList {
   transform: translateX(-50%);
   min-width: 25em;
   border-radius: 5px;
-  z-index: 1000;
+  z-index: -1;
 }
 
 .floating-add-button {

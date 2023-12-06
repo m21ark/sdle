@@ -11,8 +11,13 @@ function generate_notification(text, type) {
   not_header.className = `toast-header ${type}`;
 
   toast.classList.add("show");
+
+  // move toast to front in z-index
+  toast.style.zIndex = 1000;
+
   setTimeout(() => {
     toast.classList.remove("show");
+    toast.style.zIndex = -1;
   }, 5000);
 }
 
@@ -21,7 +26,10 @@ function add_share_link_listener() {
     navigator.clipboard
       .writeText(shareableLink)
       .then(() => {
-        generate_notification("Copied to clipboard!", "bg-success");
+        generate_notification(
+          "Copied sharable link to clipboard!",
+          "bg-success"
+        );
       })
       .catch((error) => {
         console.error("Failed to copy text: ", error);
@@ -299,18 +307,30 @@ function login_modal() {
   // ask the user for the username
 
   while (LocalData._username == "" || LocalData._username == null) {
-    username.value = prompt("Please enter your username");
+    // ask user if he already has an account or not
+    const res = confirm("Do you have an account?");
 
-    if (username.value) {
+    if (res) {
+      username.value = prompt("Please enter your username");
+
+      if (username.value) {
+        let user = username.value.trim();
+
+        // TODO: CHECK IF THE USER EXISTS AND FETCH THEIR DATA BACK
+
+        LocalData.cache_name(user);
+      }
+    } else {
+      // create a new account
       const hash = Math.random().toString(36).substring(2, 10);
+      username.value = prompt("Please enter your username");
       LocalData.cache_name(`${username.value.trim().replace(" ", "")}#${hash}`);
     }
   }
 
-  username.textContent = LocalData._username.split("#")[0];
+  username.textContent = LocalData._username;
 }
 
-// logout button listener id=logout-button
 function logout_listener() {
   const logoutButton = document.getElementById("logout-button");
   logoutButton.addEventListener("click", () => {
@@ -319,6 +339,20 @@ function logout_listener() {
 
     localStorage.clear();
     window.location.href = "/";
+  });
+}
+
+function addListenersCopyUsername() {
+  const copyButton = document.getElementById("username");
+  copyButton.addEventListener("click", () => {
+    navigator.clipboard
+      .writeText(LocalData._username)
+      .then(() => {
+        generate_notification("Copied username to clipboard!", "bg-success");
+      })
+      .catch((error) => {
+        console.error("Failed to copy text: ", error);
+      });
   });
 }
 
@@ -331,3 +365,4 @@ add_share_link_listener();
 login_modal();
 add_list_by_url();
 logout_listener();
+addListenersCopyUsername();
