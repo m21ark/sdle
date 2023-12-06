@@ -2,7 +2,7 @@ import * as LocalData from "./local_data_operations.js";
 import { ShoppingList } from "../logic/shopping_list.js";
 import { toggle_view, render_list_items } from "./renderer.js";
 
-function generate_notification(text, type) {
+function generate_notification(text, type, timeout = 5000) {
   const toast = document.getElementById("notification-toast");
   const not_header = document.querySelector(".toast-header");
   const not_body = document.querySelector(".toast-body");
@@ -18,7 +18,7 @@ function generate_notification(text, type) {
   setTimeout(() => {
     toast.classList.remove("show");
     toast.style.zIndex = -1;
-  }, 5000);
+  }, timeout);
 }
 
 function add_share_link_listener() {
@@ -82,9 +82,12 @@ function add_list_by_url() {
         LocalData._shoppingLists.set(listId, s);
         LocalData.cache_changes();
         // change url and take the get_id
-        window.history.pushState({}, null, window.location.pathname);
-        location.reload();
-        generate_notification("List added!", "bg-success");
+        generate_notification("List is being added!", "bg-success");
+
+        setTimeout(() => {
+          window.history.pushState({}, null, window.location.pathname);
+          location.reload();
+        }, 2000);
       })
       .catch((error) =>
         console.error(`Error fetching list ${listId}: ${error}`)
@@ -317,14 +320,28 @@ function login_modal() {
         let user = username.value.trim();
 
         // TODO: CHECK IF THE USER EXISTS AND FETCH THEIR DATA BACK
+        // MAYBE THIS SHOULD GO TO THE local_data_operations.js
+        fetch(`http://localhost:4000/user_data/${encodeURIComponent(user)}`)
+          .then((response) => response.json())
+          .then((data) => {
+            console.log(data);
+            // TODO: parse the data here and add it to the local storage
+          })
+          .catch((error) => {
+            console.error(`Error fetching user ${user}: ${error}`);
+          });
 
+        // TODO: if the user doesnt exist, we cant cache the name here:
         LocalData.cache_name(user);
       }
     } else {
       // create a new account
       const hash = Math.random().toString(36).substring(2, 10);
       username.value = prompt("Please enter your username");
-      LocalData.cache_name(`${username.value.trim().replace(" ", "")}#${hash}`);
+      if (username.value)
+        LocalData.cache_name(
+          `${username.value.trim().replace(" ", "")}#${hash}`
+        );
     }
   }
 
@@ -348,7 +365,11 @@ function addListenersCopyUsername() {
     navigator.clipboard
       .writeText(LocalData._username)
       .then(() => {
-        generate_notification("Copied username to clipboard!", "bg-success");
+        generate_notification(
+          "Copied username to clipboard!",
+          "bg-success",
+          1500
+        );
       })
       .catch((error) => {
         console.error("Failed to copy text: ", error);

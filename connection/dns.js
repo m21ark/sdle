@@ -46,7 +46,7 @@ app.all("/*", (req, res) => {
   }
 
   // Send the proxy port to the client
-    res.status(200).json({ proxyPort: proxyPort });
+  res.status(200).json({ proxyPort: proxyPort });
 });
 
 app.use(bodyParser.json());
@@ -87,7 +87,7 @@ function discoverActiveServer() {
   serverDiscoverability(MIN_PORT, MAX_PORT)
     .then((activePorts) => {
       // Check if the port is in proxyPorts, if yes, the averageTime remains, else it is set to 0
-      proxyPorts = activePorts
+      proxyPorts = activePorts;
       console.log("Active ports of proxies:", proxyPorts);
       return proxyPorts ?? [];
     })

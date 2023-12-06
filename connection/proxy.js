@@ -65,7 +65,9 @@ app.all("/*", (req, res) => {
 
     backendRequest.on("error", (error) => {
       console.error("Error in backend request:", error.message);
-      res.status(500).json({ success: false, error: "Error in backend request" });
+      res
+        .status(500)
+        .json({ success: false, error: "Error in backend request" });
     });
 
     req.pipe(backendRequest).pipe(res);
