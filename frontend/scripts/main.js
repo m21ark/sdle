@@ -124,8 +124,8 @@ function add_list_item() {
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
 
-  if (itemName === "" || itemQuantity === "") {
-    generate_notification("Please enter a name and quantity!", "bg-danger");
+  if (itemName === "" || itemQuantity === "" || itemQuantity <= 0 ) {
+    generate_notification("Please enter a valid name and quantity!", "bg-danger");
     return;
   }
   const currList = document.getElementById("current-list-name").textContent;
