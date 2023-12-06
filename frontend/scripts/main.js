@@ -300,10 +300,14 @@ function login_modal() {
 
   while (LocalData._username == "" || LocalData._username == null) {
     username.value = prompt("Please enter your username");
-    LocalData.cache_name(username.value);
+
+    if (username.value) {
+      const hash = Math.random().toString(36).substring(2, 10);
+      LocalData.cache_name(`${username.value.trim().replace(" ", "")}#${hash}`);
+    }
   }
 
-  username.textContent = LocalData._username;
+  username.textContent = LocalData._username.split("#")[0];
 }
 
 // logout button listener id=logout-button
