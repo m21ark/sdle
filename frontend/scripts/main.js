@@ -33,7 +33,9 @@ function add_share_link_listener() {
   shareButton.addEventListener("click", function () {
     const uniqueId = document.getElementById("current-list-name").textContent;
     const currentUrl = window.location.href;
-    const shareableLink = `${currentUrl}?get_id=${encodeURIComponent(uniqueId)}`;
+    const shareableLink = `${currentUrl}?get_id=${encodeURIComponent(
+      uniqueId
+    )}`;
 
     add_to_clipboard(shareableLink);
   });
@@ -75,7 +77,6 @@ function add_list_by_url() {
         window.history.pushState({}, null, window.location.pathname);
         location.reload();
         generate_notification("List added!", "bg-success");
-        
       })
       .catch((error) =>
         console.error(`Error fetching list ${listId}: ${error}`)
@@ -124,7 +125,7 @@ function add_list_item() {
     console.error("List does not exist");
     return;
   }
-  
+
   listObj.addProduct(itemName, parseInt(itemQuantity));
   LocalData.cache_list_changes(listObj);
 
@@ -305,6 +306,18 @@ function login_modal() {
   username.textContent = LocalData._username;
 }
 
+// logout button listener id=logout-button
+function logout_listener() {
+  const logoutButton = document.getElementById("logout-button");
+  logoutButton.addEventListener("click", () => {
+    const res = confirm("Are you sure you want to logout?");
+    if (!res) return;
+
+    localStorage.clear();
+    window.location.href = "/";
+  });
+}
+
 add_go_back_listener();
 add_list_popup();
 add_item_popup();
@@ -313,3 +326,4 @@ update_list_count();
 add_share_link_listener();
 login_modal();
 add_list_by_url();
+logout_listener();

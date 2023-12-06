@@ -163,7 +163,23 @@ header {
   text-align: center;
   font-size: 1.5em;
   font-weight: bold;
+  display: flex;
+  justify-content: space-between;
 }
+
+header button#logout-button {
+  outline: 1px solid white;
+}
+
+header button#logout-button:hover {
+  background-color: darkgray;
+}
+
+button#logout-button span {
+  color: white;
+}
+
+
 
 .burger-icon {
   position: fixed;
