@@ -17,101 +17,101 @@ class GroceryList {
   }
 
 
-    addProduct(productName, quantity) {
+  addProduct(productName, quantity) {
 
-     if(this.doesProductExist(productName)){
-                console.error("ERROR: Trying to add item that already exists on list")
-                return this
-            }
+    if (this.doesProductExist(productName)) {
+      console.error("ERROR: Trying to add item that already exists on list")
+      return this
+    }
 
-      const addedChanges = this.currentChanges.changes.added;
-      const removedChanges = this.currentChanges.changes.removed;
-      const updatedChanges = this.currentChanges.changes.updated;
+    const addedChanges = this.currentChanges.changes.added;
+    const removedChanges = this.currentChanges.changes.removed;
+    const updatedChanges = this.currentChanges.changes.updated;
 
-      // Check if the product is marked for removal in the same commit
-      if (removedChanges && removedChanges.hasOwnProperty(productName)) {
-        const currentQuantity = this.products[productName] || 0;
+    // Check if the product is marked for removal in the same commit
+    if (removedChanges && removedChanges.hasOwnProperty(productName)) {
+      const currentQuantity = this.products[productName] || 0;
 
-        if (quantity !== currentQuantity) {
-          // If the quantity is different, treat it as an update in the updated changes
-          updatedChanges[productName] = {
-            oldQuantity: currentQuantity,
-            newQuantity: quantity
-          };
-        }
-
-        // Remove it from the removed changes
-        delete removedChanges[productName];
-      } else {
-       
-          // Otherwise, add the product to the added changes
-          addedChanges[productName] = quantity;
-        
+      if (quantity !== currentQuantity) {
+        // If the quantity is different, treat it as an update in the updated changes
+        updatedChanges[productName] = {
+          oldQuantity: currentQuantity,
+          newQuantity: quantity
+        };
       }
 
-      this.hasUnsavedChanges = true;
+      // Remove it from the removed changes
+      delete removedChanges[productName];
+    } else {
 
-      return this;
+      // Otherwise, add the product to the added changes
+      addedChanges[productName] = quantity;
+
     }
 
-    removeProduct(productName) {
+    this.hasUnsavedChanges = true;
 
-        if(!this.doesProductExist(productName)){
-            console.error("ERROR: Trying to remove item that is not on list")
-            return this
-        }
-
-      const addedChanges = this.currentChanges.changes.added;
-        const updatedChanges = this.currentChanges.changes.updated;
-      const removedChanges = this.currentChanges.changes.removed;
-
-      if (addedChanges && addedChanges.hasOwnProperty(productName)) {
-        // If the product is in the added changes, remove it from there
-        delete addedChanges[productName];
-      }else {
-        // Otherwise, mark it as removed in the removed changes
-        removedChanges[productName] = 0;
-      }
-
-    // if updates were queued to the item, just removed them because item it's being deleted
-     if (updatedChanges && updatedChanges.hasOwnProperty(productName)) {
-            // If the product is in the updated changes, remove it from there
-            delete updatedChanges[productName];
-          } 
-
-      this.hasUnsavedChanges = true;
-
-      return this;
-    }
-
-
-updateProductCount(productName, newQuantity) {
-
-    if(!this.doesProductExist(productName)){
-        console.error("ERROR: Trying to update item that is not on list")
-        return this
-    }
-
-
-  const addedChanges = this.currentChanges.changes.added;
-  const updatedChanges = this.currentChanges.changes.updated;
-
-  if (addedChanges && addedChanges.hasOwnProperty(productName)) {
-    // If the product is already added, update the quantity in the added section
-    addedChanges[productName] = newQuantity;
-  } else {
-    // Otherwise, update the quantity in the updated section
-    const currentQuantity = this.products[productName] || 0;
-    updatedChanges[productName] = {
-      oldQuantity: currentQuantity,
-      newQuantity
-    };
+    return this;
   }
 
-  this.hasUnsavedChanges = true;
+  removeProduct(productName) {
 
-  return this;
-}
+    if (!this.doesProductExist(productName)) {
+      console.error("ERROR: Trying to remove item that is not on list")
+      return this
+    }
+
+    const addedChanges = this.currentChanges.changes.added;
+    const updatedChanges = this.currentChanges.changes.updated;
+    const removedChanges = this.currentChanges.changes.removed;
+
+    if (addedChanges && addedChanges.hasOwnProperty(productName)) {
+      // If the product is in the added changes, remove it from there
+      delete addedChanges[productName];
+    } else {
+      // Otherwise, mark it as removed in the removed changes
+      removedChanges[productName] = 0;
+    }
+
+    // if updates were queued to the item, just removed them because item it's being deleted
+    if (updatedChanges && updatedChanges.hasOwnProperty(productName)) {
+      // If the product is in the updated changes, remove it from there
+      delete updatedChanges[productName];
+    }
+
+    this.hasUnsavedChanges = true;
+
+    return this;
+  }
+
+
+  updateProductCount(productName, newQuantity) {
+
+    if (!this.doesProductExist(productName)) {
+      console.error("ERROR: Trying to update item that is not on list")
+      return this
+    }
+
+
+    const addedChanges = this.currentChanges.changes.added;
+    const updatedChanges = this.currentChanges.changes.updated;
+
+    if (addedChanges && addedChanges.hasOwnProperty(productName)) {
+      // If the product is already added, update the quantity in the added section
+      addedChanges[productName] = newQuantity;
+    } else {
+      // Otherwise, update the quantity in the updated section
+      const currentQuantity = this.products[productName] || 0;
+      updatedChanges[productName] = {
+        oldQuantity: currentQuantity,
+        newQuantity
+      };
+    }
+
+    this.hasUnsavedChanges = true;
+
+    return this;
+  }
 
   startCommit() {
     this.currentChanges = {
@@ -164,10 +164,10 @@ updateProductCount(productName, newQuantity) {
         this.products[productName] = this.currentChanges.changes.updated[productName].newQuantity;
       });
 
-        // Remove the products that were marked as removed in the final commit
-        Object.keys(this.currentChanges.changes.removed).forEach((productName) => {
-          delete this.products[productName];
-        });
+      // Remove the products that were marked as removed in the final commit
+      Object.keys(this.currentChanges.changes.removed).forEach((productName) => {
+        delete this.products[productName];
+      });
 
       // Reset the current commit
       this.currentChanges = null;
@@ -183,29 +183,29 @@ updateProductCount(productName, newQuantity) {
     return this;
   }
 
-    readGroceryList() {
-      console.log(JSON.stringify(this, null, 2));
+  readGroceryList() {
+    console.log(JSON.stringify(this, null, 2));
+  }
+
+  doesProductExist(productName) {
+    // Check if the product exists in the current list
+    if (this.currentChanges) {
+      const current = this.currentChanges;
+      if (
+        current.changes.added.hasOwnProperty(productName) ||
+        current.changes.updated.hasOwnProperty(productName)
+      ) {
+        return true;
+      }
     }
 
- doesProductExist(productName) {
-  // Check if the product exists in the current list
-  if (this.currentChanges) {
-    const current = this.currentChanges;
-    if (
-      current.changes.added.hasOwnProperty(productName) ||
-      current.changes.updated.hasOwnProperty(productName)
-    ) {
+    // Check if the product exists in the current products
+    if (this.products && this.products.hasOwnProperty(productName)) {
       return true;
     }
-  }
 
-  // Check if the product exists in the current products
-  if (this.products && this.products.hasOwnProperty(productName)) {
-    return true;
+    return false;
   }
-
-  return false;
-}
 
 
 }

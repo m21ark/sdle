@@ -57,7 +57,7 @@ export function remove_list(listName) {
 
 function fetch_commits(list) {
   console.log("Fetching commits for list: ", list.name);
-  const lastCommit = list.commitTimeline[list.commitTimeline.length - 1] || 0;
+  const lastCommit = list.lastCommitRead || 0;
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/commits/${list.name}/${lastCommit}`;
   fetch(url)
     .then((response) => response.json())
@@ -72,6 +72,7 @@ function fetch_commits(list) {
           render_list_again();
           // if active page list is the same as the list that was updated we need to update the page
           // TODO: Add to the list view the new changes
+          list.lastCommitRead = row["commit_hash"];
         }
       } else console.log("No new commits found in fetch");
     })

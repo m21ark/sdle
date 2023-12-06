@@ -10,6 +10,7 @@ class ShoppingList {
     this.dChanges = new Map(); // Map product names to PNCounters ... used to store the changes before commiting them
     this.commits = new Map(); // Map commit hashes to ShoppingLists ... successfully identifying a merge
     this.commitTimeline = []; // List of commit hashes in chronological order
+    this.lastCommitRead = "FIRST_COMMIT";
 
     const boolDefined =
       products != undefined &&

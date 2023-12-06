@@ -123,8 +123,8 @@ function add_list_item() {
     console.error("List does not exist");
     return;
   }
-
-  listObj.addProduct(itemName, itemQuantity);
+  
+  listObj.addProduct(itemName, parseInt(itemQuantity));
   LocalData.cache_list_changes(listObj);
 
   render_list_items();

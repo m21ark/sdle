@@ -166,6 +166,7 @@ export function render_list_items() {
 
       const currList = document.getElementById("current-list-name").textContent;
 
+      
       if (LocalData._shoppingLists.has(currList)) {
         const listObj = LocalData._shoppingLists.get(currList);
         listObj.addProduct(itemNameElement.textContent, 1);
