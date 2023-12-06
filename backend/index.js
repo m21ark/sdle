@@ -26,6 +26,7 @@ app.get("/ping", (_, res) => {
   res.send(json);
 });
 
+// como nao precisa de consensus tem de ficar aqui... ou precisa...?
 app.get("/user_data/:username", (req, res) => {
   const username = req.params.username;
   // TODO: TEMPORARY

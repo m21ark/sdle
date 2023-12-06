@@ -54,10 +54,7 @@ class ShoppingList {
 
   commitHashGen() {
     // Generate a commit hash based on the current time
-    return (
-      Math.random().toString(36).substring(2, 15) +
-      Date.now().toString(36).substring(4, 15)
-    );
+    return Date.now().toString() + Math.random().toString(36).substring(2, 14);
   }
 
   addProduct(productName, quantity) {

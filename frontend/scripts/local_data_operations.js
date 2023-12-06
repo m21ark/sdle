@@ -1,4 +1,5 @@
 import { ShoppingList } from "../logic/shopping_list.js";
+import { PNCounter } from "../logic/crdt.js";
 
 export let _shoppingLists = new Map(); // <list_name, ShoppingList>
 export let _username = "";
@@ -110,7 +111,7 @@ function render_list_again() {
   if (_shoppingLists.has(currList)) {
     items = _shoppingLists.get(currList);
   } else {
-    console.error("List does not exist");
+    console.error("List does not exist: ", currList);
     return;
   }
 
@@ -206,14 +207,22 @@ async function fetch_commits(list) {
 
     if (data.length > 0) {
       for (let row of data) {
-        console.log("row: ", row);
         if (list.commitTimeline.includes(row["commit_hash"])) continue;
 
-        console.log("Fetched new changes for list: ", list.name);
-        console.log(row);
+        console.log("Fetched new changes for list: ", list.name, row);
+
+        let row_data = JSON.parse(row["commit_data"]);
 
         let temp = new ShoppingList();
-        temp.deserialize(row["commit_data"]);
+        let prods = new Map();
+        for (let [key, value] of Object.entries(row_data.delta)) {
+          let quantity = parseInt(value);
+          prods.set(key, new PNCounter());
+          if (quantity > 0) prods.get(key).increment(quantity);
+          else if (quantity < 0) prods.get(key).decrement(-quantity);
+        }
+        temp.products = prods;
+
         list.mergeDeltaChanges(row["commit_hash"], temp);
         cache_changes();
         render_list_again();
@@ -221,7 +230,7 @@ async function fetch_commits(list) {
         // TODO: Add to the list view the new changes
         list.lastCommitRead = row["commit_hash"];
       }
-    } //  else console.log("No new commits found in fetch for list: " + list.name);
+    } else console.log("No new commits found in fetch for list: " + list.name);
   } catch (e) {
     console.error(`Error fetching commits for ${list.name}: ${e}`);
   }
@@ -240,24 +249,28 @@ async function push_changes(list) {
   // will not find any changes to push
 
   // If there are changes we need to push them to the server
-  let changes = new ShoppingList();
-  changes.name = list.name;
-  changes.products = list.dChanges;
+
+  let temp = {};
+  for (let [key, value] of list.dChanges) temp[key] = JSON.stringify(value);
 
   const data = {
     username: document.getElementById("username").textContent,
-    data: JSON.stringify(changes), // TODO: we only need to pass the changes map but something in the serialization is not working
+    data: JSON.stringify({ delta: temp }),
   };
+
+  let tmp = new ShoppingList();
+  tmp.name = list.name;
+  tmp.products = list.dChanges;
+
   let hash = list.commitHashGen();
-  list.commitChanges(hash, changes);
+  list.commitChanges(hash, tmp);
 
   const commitHash = list.commitTimeline[list.commitTimeline.length - 1];
   const url = `http://${PROXY_DOMAIN}:${PROXY_PORT}/list/${encodeURIComponent(
     list.name
   )}/${commitHash}`;
 
-  console.log("Pushing new changes for list: ", list.name);
-  console.log(changes);
+  console.log("Pushing new changes for list: ", list.name, data);
 
   try {
     const response = await fetch(url, {

@@ -73,4 +73,8 @@ export class PNCounter {
     // Return the value of the PNCounter
     return this.positive.value() - this.negative.value();
   }
+
+  toJSON() {
+    return this.value();
+  }
 }

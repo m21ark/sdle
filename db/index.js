@@ -28,6 +28,9 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   const commitHash = req.params.commit_hash;
   const data = req.body;
 
+  console.log("POST", listName, commitHash, data.username);
+  console.log("POST", data.data);
+
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
     [data.username, listName, commitHash, data.data]
@@ -35,7 +38,6 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
 
   res.status(200).json({ success: true });
 });
-
 
 app.get("/commits/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
