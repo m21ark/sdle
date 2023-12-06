@@ -6,7 +6,7 @@ const request = require("request");
 const app = express();
 
 // Receive the port from the command line
-const PORT = process.argv[2] || 5800;
+const PORT = process.argv[2] || 4000;
 // const PORT = 5800; // Port for clients
 const MIN_PORT = 5500; // Minimum port for backend servers
 const MAX_PORT = 5510; // Maximum port for backend servers
@@ -34,6 +34,12 @@ function loadBalancerPort() {
     return backendPorts[minAverageTimeIndex].number;
   }
 }
+
+// basic heartbeat endpoint
+app.get("/ping", (_, res) => {
+  const json = { message: "pong" };
+  res.send(json);
+});
 
 // Proxy route
 app.all("/*", (req, res) => {
