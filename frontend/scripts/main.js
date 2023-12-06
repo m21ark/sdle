@@ -33,7 +33,9 @@ function add_share_link_listener() {
   shareButton.addEventListener("click", function () {
     const uniqueId = document.getElementById("current-list-name").textContent;
     const currentUrl = window.location.href;
-    const shareableLink = `${currentUrl}?get_id=${uniqueId}`;
+    const shareableLink = `${currentUrl}?get_id=${encodeURIComponent(
+      uniqueId
+    )}`;
 
     add_to_clipboard(shareableLink);
   });
@@ -59,10 +61,10 @@ function add_list_by_url() {
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
+        console.log(data);
         let s = new ShoppingList();
         s.name = listId;
 
-        console.log(data);
         for (let row of data) {
           let temp = new ShoppingList();
           temp.deserialize(row["commit_data"]);
@@ -124,7 +126,7 @@ function add_list_item() {
     return;
   }
 
-  listObj.addProduct(itemName, itemQuantity);
+  listObj.addProduct(itemName, parseInt(itemQuantity));
   LocalData.cache_list_changes(listObj);
 
   render_list_items();
@@ -227,7 +229,7 @@ function add_list_popup() {
 
 function add_list_to_list() {
   const listNameInput = document.getElementById("list-name");
-  const listName = listNameInput.value.trim();
+  let listName = listNameInput.value.trim();
 
   listNameInput.value = "";
 
@@ -236,8 +238,8 @@ function add_list_to_list() {
     return;
   }
 
-  const newList = new ShoppingList();
-  newList.name = listName;
+  const newList = new ShoppingList(undefined, undefined, undefined, listName);
+  listName = newList.name; // update name with internal name changes
   LocalData._shoppingLists.set(listName, newList);
   LocalData.cache_changes();
 
@@ -247,17 +249,14 @@ function add_list_to_list() {
   listDiv.className = "list";
 
   const listNameElement = document.createElement("a");
-  listNameElement.textContent = listName;
+  listNameElement.textContent = listName.split("#")[0];
   listNameElement.className = "a-list-name";
-  let listNameId = listName.replace(/\s/g, "*");
-  const uniqueId =
-    "id_" + listNameId + "_" + Math.random().toString(36).substr(2, 9);
-  listNameElement.dataset.id = uniqueId;
   listNameElement.dataset.name = listName;
 
   listNameElement.addEventListener("click", () => {
-    document.getElementById("current-list-name").textContent = listNameId;
-    document.getElementById("list-name-title").textContent = listName;
+    document.getElementById("current-list-name").textContent = listName;
+    document.getElementById("list-name-title").textContent =
+      listName.split("#")[0];
     toggle_view();
     render_list_items();
   });
@@ -287,7 +286,6 @@ function add_list_to_list() {
   listNameInput.value = "";
 
   cache_list_changes();
-
 }
 
 function add_go_back_listener() {
@@ -300,12 +298,24 @@ function login_modal() {
   const username = document.getElementById("username");
   // ask the user for the username
 
-  if (LocalData._username == "" || LocalData._username == null) {
+  while (LocalData._username == "" || LocalData._username == null) {
     username.value = prompt("Please enter your username");
     LocalData.cache_name(username.value);
   }
 
   username.textContent = LocalData._username;
+}
+
+// logout button listener id=logout-button
+function logout_listener() {
+  const logoutButton = document.getElementById("logout-button");
+  logoutButton.addEventListener("click", () => {
+    const res = confirm("Are you sure you want to logout?");
+    if (!res) return;
+
+    localStorage.clear();
+    window.location.href = "/";
+  });
 }
 
 add_go_back_listener();
@@ -316,3 +326,4 @@ update_list_count();
 add_share_link_listener();
 login_modal();
 add_list_by_url();
+logout_listener();

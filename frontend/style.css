@@ -3,8 +3,6 @@ body {
   margin: auto;
 }
 
-
-
 .quantity__minus,
 .quantity__plus {
   display: inline-block;
@@ -20,7 +18,7 @@ body {
 .quantity__plus:hover {
   background: #575b71;
   color: #fff;
-} 
+}
 .quantity__minus {
   border-radius: 3px 0 0 3px;
 }
@@ -43,7 +41,7 @@ body {
 .quantity__minus:link,
 .quantity__plus:link {
   color: #8184a1;
-} 
+}
 .quantity__minus:visited,
 .quantity__plus:visited {
   color: #fff;
@@ -127,10 +125,10 @@ div#appList {
   position: fixed;
   bottom: 20px;
   left: 20px;
-  background-color: green;
+  background-color: #007bff;
   color: #fff;
   border: none;
-  border-radius: 23px; /* changed from 50% to 50px */
+  border-radius: 50px;
   width: 70px;
   height: 70px;
   cursor: pointer;
@@ -144,9 +142,18 @@ div#appList {
   background-color: #0069d9;
 }
 
+#online-status.clicked {
+  background-color: green;
+  /* Add any other styles you want for the "clicked" state */
+}
+
 .floating-add-button > span {
   font-weight: bold;
   font-size: 2em;
+}
+
+#online-status:focus {
+  outline: none;
 }
 
 header {
@@ -156,7 +163,23 @@ header {
   text-align: center;
   font-size: 1.5em;
   font-weight: bold;
+  display: flex;
+  justify-content: space-between;
 }
+
+header button#logout-button {
+  outline: 1px solid white;
+}
+
+header button#logout-button:hover {
+  background-color: darkgray;
+}
+
+button#logout-button span {
+  color: white;
+}
+
+
 
 .burger-icon {
   position: fixed;
@@ -221,6 +244,7 @@ header {
   background: #fff;
   padding: 20px;
   width: 80%;
+  max-width: 30em;
   height: 22em;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
