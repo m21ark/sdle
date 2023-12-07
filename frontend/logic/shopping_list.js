@@ -85,8 +85,13 @@ class ShoppingList {
     // TODO: What is the difference between this and removeProduct?
     let decrement = this.products.get(productName).value();
     this.products.get(productName).decrement(decrement);
-    this.dChanges.set(productName, new PNCounter());
-    this.dChanges.get(productName).decrement(decrement);
+
+    if (this.dChanges.has(productName)) {
+      this.dChanges.get(productName).decrement(decrement);
+    } else {
+      this.dChanges.set(productName, new PNCounter());
+      this.dChanges.get(productName).decrement(decrement);
+    }
   }
 
   getQuantityToBuy(productName) {

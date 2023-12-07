@@ -13,9 +13,9 @@ restart_replica() {
 
 
 # Run replicas in the background
-sh ./run_backend.sh 5 &
-sh ./run_replicas.sh 5 &
-sh ./run_proxy.sh 4000 1 &
+sh ./backend/run_backend.sh 5 &
+sh ./db/run_replicas.sh 5 &
+sh ./connection/run_proxy.sh 4000 1 &
 
 
 sleep 10
