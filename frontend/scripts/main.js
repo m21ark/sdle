@@ -49,6 +49,43 @@ function add_share_link_listener() {
   });
 }
 
+function reload_list(listId) {
+  const lists = [...LocalData._shoppingLists.values()];
+  const listExists = lists.find((list) => list.name === listId);
+  //from lists remove the ones with name equal to empty string
+
+  if (listExists) {
+    generate_notification("List already exists!", "bg-danger");
+    return;
+  }
+
+  if (listId) {
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${listId}`;
+    fetch(url)
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(data);
+        let s = new ShoppingList();
+        s.name = listId;
+
+        for (let row of data) {
+          let temp = new ShoppingList();
+          temp.deserialize(row["commit_data"]);
+          s.mergeDeltaChanges(row["commit_hash"], temp);
+        }
+
+        LocalData._shoppingLists.set(listId, s);
+        LocalData.cache_changes();
+        // change url and take the get_id
+        generate_notification("List is being added!", "bg-success");
+
+      })
+      .catch((error) =>
+        console.error(`Error fetching list ${listId}: ${error}`)
+      );
+  }
+}
+
 function add_list_by_url() {
   // if url has argument get_id then create a list with that id
   const urlParams = new URLSearchParams(window.location.search);
@@ -327,13 +364,12 @@ function login_modal() {
             console.log(data);
             // for every list visit the url with ?get_id=<list_name>
             for (let list of data) {
-              // fetch(`http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/?get_id=${encodeURIComponent(list.list_name)}`)
-              //window.location.href = `http://${LocalData.PROXY_DOMAIN}:$/?get_id=${encodeURIComponent(list.list_name)}`;
-              // add parameter to the window location
-              window.location.search = `?get_id=${encodeURIComponent(list.list_name)}`;
-              add_list_by_url();
+              reload_list(list.list_name);
             }
-            
+            setTimeout(() => {
+              window.history.pushState({}, null, window.location.pathname);
+              location.reload();
+            }, 2000);
           })
           .catch((error) => {
             console.error(`Error fetching user ${user}: ${error}`);
