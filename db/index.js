@@ -23,6 +23,15 @@ function queryRun(sql, params = []) {
   return stmt.run(...params);
 }
 
+app.get("/user_data/:username", (req, res) => {
+  const username = req.params.username;
+
+  let response = queryAll("SELECT list_name FROM userLists WHERE user_name = ?", [username]);
+
+  res.status(200).json(response);
+  
+});
+
 app.post("/list/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
@@ -30,6 +39,12 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
 
   console.log("POST", listName, commitHash, data.username);
   console.log("POST", data.data);
+
+  // insert into userLists if pair (username, listName) does not exist
+  queryRun(
+    "INSERT INTO userLists (user_name, list_name) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM userLists WHERE user_name = ? AND list_name = ?)",
+    [data.username, listName, data.username, listName]
+  );
 
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",

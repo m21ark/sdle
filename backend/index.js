@@ -26,14 +26,6 @@ app.get("/ping", (_, res) => {
   res.send(json);
 });
 
-// como nao precisa de consensus tem de ficar aqui... ou precisa...?
-app.get("/user_data/:username", (req, res) => {
-  const username = req.params.username;
-  // TODO: TEMPORARY
-  if (username === "J#mglmtt5p") res.status(200).json("User found");
-  else res.status(200).json("User not found");
-  // res.status(200).json(quorum.getUserData());
-});
 
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {

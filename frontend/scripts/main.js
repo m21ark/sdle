@@ -124,7 +124,7 @@ function add_list_item() {
   const itemName = itemNameInput.value.trim();
   const itemQuantity = itemQuantityInput.value.trim();
 
-  if (itemName === "" || itemQuantity === "" || itemQuantity <= 0 ) {
+  if (itemName === "" || itemQuantity === "" || itemQuantity <= 0) {
     generate_notification("Please enter a valid name and quantity!", "bg-danger");
     return;
   }
@@ -321,11 +321,19 @@ function login_modal() {
 
         // TODO: CHECK IF THE USER EXISTS AND FETCH THEIR DATA BACK
         // MAYBE THIS SHOULD GO TO THE local_data_operations.js
-        fetch(`http://localhost:4000/user_data/${encodeURIComponent(user)}`)
+        fetch(`http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/user_data/${encodeURIComponent(user)}`)
           .then((response) => response.json())
           .then((data) => {
             console.log(data);
-            // TODO: parse the data here and add it to the local storage
+            // for every list visit the url with ?get_id=<list_name>
+            for (let list of data) {
+              // fetch(`http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/?get_id=${encodeURIComponent(list.list_name)}`)
+              //window.location.href = `http://${LocalData.PROXY_DOMAIN}:$/?get_id=${encodeURIComponent(list.list_name)}`;
+              // add parameter to the window location
+              window.location.search = `?get_id=${encodeURIComponent(list.list_name)}`;
+              add_list_by_url();
+            }
+            
           })
           .catch((error) => {
             console.error(`Error fetching user ${user}: ${error}`);
