@@ -50,7 +50,7 @@ function add_share_link_listener() {
   });
 }
 
-function reload_list(listId) {
+async function reload_list(listId) {
   const lists = [...LocalData._shoppingLists.values()];
   const listExists = lists.find((list) => list.name === listId);
   //from lists remove the ones with name equal to empty string
@@ -364,6 +364,12 @@ function add_go_back_listener() {
   burger.addEventListener("click", toggle_view);
 }
 
+async function setLists(data) {
+  for (let list of data) {
+    reload_list(list.list_name);
+  }
+}
+
 function login_modal() {
   // // add the username to the navbar
   const username = document.getElementById("username");
@@ -379,20 +385,17 @@ function login_modal() {
       if (username.value) {
         let user = username.value.trim();
 
-        // TODO: CHECK IF THE USER EXISTS AND FETCH THEIR DATA BACK
-        // MAYBE THIS SHOULD GO TO THE local_data_operations.js
         fetch(`http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/user_data/${encodeURIComponent(user)}`)
           .then((response) => response.json())
           .then((data) => {
             console.log(data);
             // for every list visit the url with ?get_id=<list_name>
-            for (let list of data) {
-              reload_list(list.list_name);
-            }
-            setTimeout(() => {
-              window.history.pushState({}, null, window.location.pathname);
-              location.reload();
-            }, 2000);
+            setLists(data).then(() => {
+              setTimeout(() => {
+                window.history.pushState({}, null, window.location.pathname);
+                location.reload();
+              }, 2000);
+            });
           })
           .catch((error) => {
             console.error(`Error fetching user ${user}: ${error}`);
