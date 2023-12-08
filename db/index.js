@@ -23,22 +23,57 @@ function queryRun(sql, params = []) {
   return stmt.run(...params);
 }
 
+// endpoint to get all lists from the database
+app.get("/lists", (_, res) => {
+  let response = queryAll("SELECT DISTINCT list_name FROM commitChanges");
+
+  res.status(200).json(response);
+});
+
+// endpoint to remove given hashes from the database and
+// add a new commit with the merged data
+// this endpoint will be called by the garbage collector
+app.post("/list/:list_name", (req, res) => {
+  const listName = req.params.list_name;
+  const data = req.body;
+  const common_hashes = data.common_hashes;
+  const mergedCommit = data.data;
+
+  // remove commits with common_hashes
+  for (const hash of common_hashes)
+    queryRun("DELETE FROM commitChanges WHERE commit_hash = ?", [hash]);
+
+  // Parse and stringify the commit_data without quotes around property names
+  const parsedData = JSON.parse(mergedCommit.commit_data);
+  let obj = {};
+  for (const key in parsedData.delta) obj[`${key}`] = parsedData.delta[key];
+
+  const stringifiedItems = JSON.stringify(obj);
+  const merged = `{delta: ${stringifiedItems} }`;
+
+  queryRun(
+    "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
+    ["garbageCollector", listName, mergedCommit.commit_hash, merged]
+  );
+
+  res.status(200).json({ success: true });
+});
+
 app.get("/user_data/:username", (req, res) => {
   const username = req.params.username;
 
-  let response = queryAll("SELECT list_name FROM userLists WHERE user_name = ?", [username]);
+  let response = queryAll(
+    "SELECT list_name FROM userLists WHERE user_name = ?",
+    [username]
+  );
 
   res.status(200).json(response);
-  
 });
 
 app.post("/list/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
-
-  console.log("POST", listName, commitHash, data.username);
-  console.log("POST", data.data);
 
   // insert into userLists if pair (username, listName) does not exist
   queryRun(
