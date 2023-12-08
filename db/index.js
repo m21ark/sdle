@@ -71,9 +71,16 @@ app.get("/user_data/:username", (req, res) => {
 });
 
 app.post("/handoff", (req, res) => {
-  const data = req.body;
+  const data = req.body.data;
 
-  console.log("handoff: ", data);
+  for (const commit of data) {
+    const toStore = `{delta: ${JSON.stringify(commit.commit_data.delta)} }`;
+
+    queryRun(
+      "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
+      [commit.username, commit.listName, commit.commitHash, toStore]
+    );
+  }
 
   res.status(200).json({ success: true });
 });
@@ -82,7 +89,6 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
-
 
   console.log("POST", data.username, listName, commitHash, data.data);
 
