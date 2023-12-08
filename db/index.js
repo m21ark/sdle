@@ -80,9 +80,30 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
   }
 });
 
+app.get("/list/:list_name/:username", (req, res) => {
+  const listName = req.params.list_name;
+  const username = req.params.username;
+
+  console.log("GET", listName, username);
+  if (username) {
+    // insert into userLists if pair (username, listName) does not exist
+    queryRun(
+      "INSERT INTO userLists (user_name, list_name) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM userLists WHERE user_name = ? AND list_name = ?)",
+      [username, listName, username, listName]
+    );
+  }
+
+  let response = queryAll(
+    "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
+    [listName]
+  );
+
+  res.status(200).json(response);
+});
+
 app.get("/list/:list_name", (req, res) => {
   const listName = req.params.list_name;
-
+  
   let response = queryAll(
     "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
     [listName]

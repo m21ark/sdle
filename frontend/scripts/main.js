@@ -1,6 +1,7 @@
 import * as LocalData from "./local_data_operations.js";
 import { ShoppingList } from "../logic/shopping_list.js";
 import { toggle_view, render_list_items } from "./renderer.js";
+import { PNCounter } from "../logic/crdt.js";
 
 function generate_notification(text, type, timeout = 5000) {
   const toast = document.getElementById("notification-toast");
@@ -60,7 +61,7 @@ function reload_list(listId) {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${listId}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${encodeURIComponent(listId)}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -69,10 +70,21 @@ function reload_list(listId) {
         s.name = listId;
 
         for (let row of data) {
+          let row_data = JSON.parse(row["commit_data"]);
+          let prods = new Map();
           let temp = new ShoppingList();
-          temp.deserialize(row["commit_data"]);
+
+
+          for (let [key, value] of Object.entries(row_data.delta)) {
+            let quantity = parseInt(value);
+            prods.set(key, new PNCounter());
+            if (quantity > 0) prods.get(key).increment(quantity);
+            else if (quantity < 0) prods.get(key).decrement(-quantity);
+          }
+          temp.products = prods;
           s.mergeDeltaChanges(row["commit_hash"], temp);
         }
+
 
         LocalData._shoppingLists.set(listId, s);
         LocalData.cache_changes();
@@ -102,7 +114,8 @@ function add_list_by_url() {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${listId}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${encodeURIComponent(listId)}/${encodeURIComponent(LocalData._username)}`;
+    console.log(url);
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -111,8 +124,18 @@ function add_list_by_url() {
         s.name = listId;
 
         for (let row of data) {
+          let row_data = JSON.parse(row["commit_data"]);
+          let prods = new Map();
           let temp = new ShoppingList();
-          temp.deserialize(row["commit_data"]);
+
+
+          for (let [key, value] of Object.entries(row_data.delta)) {
+            let quantity = parseInt(value);
+            prods.set(key, new PNCounter());
+            if (quantity > 0) prods.get(key).increment(quantity);
+            else if (quantity < 0) prods.get(key).decrement(-quantity);
+          }
+          temp.products = prods;
           s.mergeDeltaChanges(row["commit_hash"], temp);
         }
 
