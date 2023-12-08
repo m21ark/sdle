@@ -72,10 +72,14 @@ class Quorum {
     // get the second argument of data.originalUrl
     let toHash = data.originalUrl.split("/")[2];
 
+    // remove the part after the first %
+    toHash = toHash.split("%")[0];
+
     const preferenceList = this.consistentHashing.getNextNNodes(
       toHash,
       this.quorumSize
     ); // TODO: change for sloppy quorum
+
     const responsibleReplicaPorts =
       this.consistentHashing.getNodesFromHashes(preferenceList);
     console.log(
