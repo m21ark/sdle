@@ -2,6 +2,8 @@
 const express = require('express');
 const { exec } = require('child_process');
 const cors = require('cors')
+const fs = require('fs');
+const path = require('path');
 
 const app = express();
 const port = 3000;
@@ -23,6 +25,41 @@ app.get('/kill-proxy/:port', (req, res) => {
         }
     });
 
+});
+
+app.get('/check-replicas', (req, res) => {
+    const replicasDir = path.join(__dirname, '../db/replicas');
+    fs.readdir(replicasDir, (err, replicas) => {
+        if (err) {
+            console.error(`Error: ${err}`);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        let results = [];
+
+        replicas.forEach(replica => {
+            console.log(path.join(replicasDir, replica))
+            if (!replica.endsWith('.db')) {
+                return;
+            }
+            exec(`du -sh ${path.join(replicasDir, replica)} && sqlite3 ${path.join(replicasDir, replica)} "SELECT COUNT(*) FROM commitChanges"`, (error, stdout, stderr) => {
+                if (error) {
+                    console.error(`Error: ${stderr}`);
+                    res.status(500).send('Internal Server Error');
+                    return;
+                }
+
+                let [diskSpace, entries] = stdout.split('\n');
+                diskSpace = diskSpace.split('\t')[0];
+                results.push({replica, diskSpace, entries});
+
+                if (results.length === replicas.length - 1) {
+                    res.send(results);
+                }
+            });
+        });
+    });
 });
 
 app.get('/start-proxy/:port', (req, res) => {

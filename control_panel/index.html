@@ -21,9 +21,9 @@
 
         .node-list {
             position: absolute;
-            left: 20px;
+            left: 7em;
             /* Adjust the left position as needed */
-            top: 50%;
+            top: 25%;
             transform: translateY(-50%);
             display: flex;
             flex-direction: column;
@@ -166,6 +166,8 @@
     </div>
     <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
+    <div id="replicas-container" style="position: fixed; top: 20em; left: 1em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;"></div>
+
     <script>
 
         // Create a new div element
@@ -219,6 +221,31 @@
         }
 
         setInterval(updateHintsData, 3000);
+
+        function createReplicasTable() {
+            fetch('http://localhost:3000/check-replicas')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    let table = '<table><tr><th>Replica ID</th><th>Disk Space</th><th>Entries</th></tr>';
+
+                    data.forEach(replica => {
+                        table += `<tr><td>${replica.replica}</td><td>${replica.diskSpace}</td><td>${replica.entries}</td></tr>`;
+                    });
+
+                    table += '</table>';
+
+                    const replicasContainer = document.getElementById('replicas-container');
+                    replicasContainer.innerHTML = table;
+                })
+                .catch(error => console.error(error));
+        }
+
+        setInterval(createReplicasTable, 3000);
 
         // Append the div to the body
         document.body.appendChild(hintsWindow);
