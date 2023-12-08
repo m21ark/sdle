@@ -19,6 +19,35 @@
             background-color: #f4f4f4;
         }
 
+        .node-list {
+            position: absolute;
+            left: 20px;
+            /* Adjust the left position as needed */
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+            /* Ensure the nodes are above the ring */
+        }
+
+        .list-node {
+            margin-bottom: 10px;
+            /* Adjust the margin as needed */
+            cursor: pointer;
+            background-color: #3498db;
+            border-radius: 5px;
+            padding: 5px;
+            color: white;
+        }
+        .list-node.active {
+
+            background-color: #ec0b0b;
+
+        }
+
         div#garbage-collection {
             position: fixed;
             bottom: 20px;
@@ -101,6 +130,14 @@
             <strong class="mr-auto text-white">Notification</strong>
         </div>
         <div class="toast-body">Link copied to clipboard!</div>
+    </div>
+
+    <div class="node-list">
+        <!-- List of nodes to the left -->
+        <div class="list-node" data-name="4000">Proxy 4000</div>
+        <div class="list-node" data-name="4001">Proxy 4001</div>
+        <div class="list-node" data-name="4002">Proxy 4002</div>
+        <!-- Add more nodes as needed -->
     </div>
 
     <div id="ring-container">
@@ -232,6 +269,42 @@
                 })
                 .then(data => console.log(data))
                 .catch(error => console.error(error));
+        });
+
+        const proxyList = document.querySelectorAll('.list-node');
+        proxyList.forEach(proxy => {
+
+            proxy.addEventListener('click', () => {
+                const proxyId = proxy.getAttribute('data-name');
+                
+                proxy.classList.toggle('active');
+                
+
+                if (proxy.classList.contains('active')) {
+                    // Make an appropriate call to kill the proxy on the backend
+                    fetch(`http://localhost:3000/kill-proxy/${proxyId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(data => console.log(data))
+                        .catch(error => console.error(error));
+                } else {
+                    // Make an appropriate call to start the proxy on the backend
+                    // Replace the following URL with your actual start-proxy endpoint
+                    fetch(`http://localhost:3000/start-proxy/${proxyId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(data => console.log(data))
+                        .catch(error => console.error(error));
+                }
+            });
         });
 
     </script>

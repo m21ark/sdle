@@ -9,11 +9,44 @@ const port = 3000;
 app.use(express.static('public')); // Serve the HTML and other static files
 app.use(cors())
 
+app.get('/kill-proxy/:port', (req, res) => {
+    const port = req.params.port;
+    console.log(port);
+
+    exec(`cd ../connection/ && kill -9 $(lsof -ti:${port}) && cd ../control_panel/`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${stderr}`);
+            res.status(500).send('Internal Server Error');
+        } else {
+            console.log(`Process on port ${port} killed and control_panel directory changed`);
+            res.send('Process killed successfully');
+        }
+    });
+
+});
+
+app.get('/start-proxy/:port', (req, res) => {
+    const port = req.params.port;
+    console.log(port);
+
+    exec(`cd ../connection/ && node proxy.js && cd ../control_panel/`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${stderr}`);
+            res.status(500).send('Internal Server Error');
+        } else {
+            console.log(`Process on port ${port} killed and control_panel directory changed`);
+            res.send('Process started successfully');
+        }
+    });
+
+
+});
+
 app.get('/kill-process/:port', (req, res) => {
     const port = req.params.port;
     console.log(port);
 
-    exec(`cd ../db/ && kill -9 $(lsof -t -i:${port}) && cd ../control_panel/`, (error, stdout, stderr) => {
+    exec(`cd ../db/ && kill -9 $(lsof -ti:${port}) && cd ../control_panel/`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${stderr}`);
             res.status(500).send('Internal Server Error');
@@ -33,7 +66,6 @@ app.get('/garbage-collection', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             console.log(`Garbage collection done and control_panel directory changed`);
-
             res.send('Garbage collection done successfully');
         }
     });
@@ -54,8 +86,8 @@ app.get('/start-process/:port', (req, res) => {
             console.log(`Process on port ${port} restarted and control_panel directory changed`);
             res.send('Process restarted successfully');
         }
-    });
 
+    });
 
 });
 
