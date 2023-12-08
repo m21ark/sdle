@@ -42,6 +42,7 @@
             padding: 5px;
             color: white;
         }
+
         .list-node.active {
 
             background-color: #ec0b0b;
@@ -121,6 +122,16 @@
             font-weight: bold;
 
         }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            border: 1px solid black;
+            padding: 5px;
+        }
     </style>
 </head>
 
@@ -156,6 +167,96 @@
     <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
     <script>
+
+        // Create a new div element
+        let hintsWindow = document.createElement('div');
+
+        // Style the div to appear in the right corner of the page
+        hintsWindow.style.position = 'fixed';
+        hintsWindow.style.right = '0';
+        hintsWindow.style.top = '0';
+        hintsWindow.style.width = '500px';
+        hintsWindow.style.height = '500px';
+        hintsWindow.style.overflow = 'auto'; // Add this line to make it scrollable
+        hintsWindow.style.backgroundColor = '#f8f8f8';
+        hintsWindow.style.border = '1px solid #ccc';
+        hintsWindow.style.padding = '10px';
+
+        // Populate the div with the hints data
+        let hintsData = {
+            "hints": {
+                "5000": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ],
+                "5001": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ],
+                "5002": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ],"5003": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ]
+                ,"5004": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ],
+                "5005": [
+                    {
+                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
+                        "username": "USER",
+                        "listName": "List#123",
+                        "commitHash": "100#ABC"
+                    }
+                ]
+            }
+        };
+
+        function simplifyHintsData(hintsData) {
+            let simplifiedData = '<table><tr><th>Replica</th><th>Hint</th><th>Username</th><th>List Name</th><th>Changes</th><th>Commit Hash</th></tr>';
+
+            for (let key in hintsData.hints) {
+                console.log(key);
+                hintsData.hints[key].forEach((hint, index) => {
+                    let changes = Object.entries(hint.commit_data.delta).map(([item, count]) => `${item}: ${count}`).join(', ');
+                    simplifiedData += `<tr><td>${key}</td><td>${index + 1}</td><td>${hint.username}</td><td>${hint.listName}</td><td>${changes}</td><td>${hint.commitHash}</td></tr>`;
+                });
+            }
+
+            simplifiedData += '</table>';
+
+            return simplifiedData;
+        }
+
+        let simplifiedData = simplifyHintsData(hintsData);
+
+        hintsWindow.innerHTML = simplifiedData;
+
+        // Append the div to the body
+        document.body.appendChild(hintsWindow);
         // You can use JavaScript to dynamically manage the nodes based on your data
         // For example, you can add event listeners to the nodes for interaction.
         const ringContainer = document.getElementById('ring-container');
@@ -276,9 +377,9 @@
 
             proxy.addEventListener('click', () => {
                 const proxyId = proxy.getAttribute('data-name');
-                
+
                 proxy.classList.toggle('active');
-                
+
 
                 if (proxy.classList.contains('active')) {
                     // Make an appropriate call to kill the proxy on the backend
