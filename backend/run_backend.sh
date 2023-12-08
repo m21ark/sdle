@@ -17,5 +17,7 @@ while [ "$i" -lt "$num_instances" ]; do
   i=$((i + 1))
 done
 
+  npx nodemon ./hinted_handoff.js 2>&1 &
+
 # Wait for all background processes to finish
 wait

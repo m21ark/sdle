@@ -183,77 +183,42 @@
         hintsWindow.style.padding = '10px';
 
         // Populate the div with the hints data
-        let hintsData = {
-            "hints": {
-                "5000": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
+        function updateHintsData() {
+            let hintsData = fetch('http://localhost:5600/hints')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
                     }
-                ],
-                "5001": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
-                    }
-                ],
-                "5002": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
-                    }
-                ],"5003": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
-                    }
-                ]
-                ,"5004": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
-                    }
-                ],
-                "5005": [
-                    {
-                        "commit_data": { "delta": { "item1": 3, "item2": 5, "item3": 5 } },
-                        "username": "USER",
-                        "listName": "List#123",
-                        "commitHash": "100#ABC"
-                    }
-                ]
-            }
-        };
+                    return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    return data;
+                })
+                .catch(error => console.error(error));
 
-        function simplifyHintsData(hintsData) {
-            let simplifiedData = '<table><tr><th>Replica</th><th>Hint</th><th>Username</th><th>List Name</th><th>Changes</th><th>Commit Hash</th></tr>';
+            function simplifyHintsData(hintsData) {
+                let simplifiedData = '<table><tr><th>Replica</th><th>Hint</th><th>Username</th><th>List Name</th><th>Changes</th><th>Commit Hash</th></tr>';
 
-            for (let key in hintsData.hints) {
-                console.log(key);
-                hintsData.hints[key].forEach((hint, index) => {
-                    let changes = Object.entries(hint.commit_data.delta).map(([item, count]) => `${item}: ${count}`).join(', ');
-                    simplifiedData += `<tr><td>${key}</td><td>${index + 1}</td><td>${hint.username}</td><td>${hint.listName}</td><td>${changes}</td><td>${hint.commitHash}</td></tr>`;
-                });
+                for (let key in hintsData.hints) {
+                    console.log(key);
+                    hintsData.hints[key].forEach((hint, index) => {
+                        let changes = Object.entries(hint.commit_data.delta).map(([item, count]) => `${item}: ${count}`).join(', ');
+                        simplifiedData += `<tr><td>${key}</td><td>${index + 1}</td><td>${hint.username}</td><td>${hint.listName}</td><td>${changes}</td><td>${hint.commitHash}</td></tr>`;
+                    });
+                }
+
+                simplifiedData += '</table>';
+
+                return simplifiedData;
             }
 
-            simplifiedData += '</table>';
+            let simplifiedData = simplifyHintsData(hintsData);
 
-            return simplifiedData;
+            hintsWindow.innerHTML = simplifiedData;
         }
 
-        let simplifiedData = simplifyHintsData(hintsData);
-
-        hintsWindow.innerHTML = simplifiedData;
+        setInterval(updateHintsData, 3000);
 
         // Append the div to the body
         document.body.appendChild(hintsWindow);

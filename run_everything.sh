@@ -21,43 +21,10 @@ sh ./run_backend.sh 5 &
 cd ../db/
 sh ./run_replicas.sh 5 &
 cd ../connection/
-sh ./run_proxy.sh 4000 1 &
-
+sh ./run_proxy.sh 4000 3 &
+cd ../control_panel/
+node ./kill_proccess_backend.js 2>&1 &
 cd ..
 
 
-sleep 10
-
-# # Run indefinitely
-# while true; do
-#     # Generate a random number between 1 and 5
-#     random_replica=$(shuf -i 0-4 -n 1)
-#     echo "Stopping a random replica: $random_replica"
-
-#     port_number=$((random_replica + 5000))
-
-#     # Find the process ID (PID) using the specified port
-#     pid=$(lsof -t -i :$port_number)
-    
-#     # Check if a process was found
-#     if [ -n "$pid" ]; then
-#         # Kill the process
-#         kill $pid
-#         echo "Process on port $port_number killed successfully."
-#     else
-#         echo "No process found on port $port_number."
-#     fi
-
-#     # Wait for some time (e.g., 10 seconds) before restarting the replica
-#     sleep 10
-
-#     # Restart the stopped replica
-#     restart_replica $random_replica
-
-#     sleep 10
-# done
-
-
-
-# Wait for background processes
 wait
