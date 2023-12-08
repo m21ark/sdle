@@ -29,7 +29,7 @@ app.get('/start-proxy/:port', (req, res) => {
     const port = req.params.port;
     console.log(port);
 
-    exec(`cd ../connection/ && node proxy.js && cd ../control_panel/`, (error, stdout, stderr) => {
+    exec(`cd ../connection/ && node proxy.js ${port} && cd ../control_panel/`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${stderr}`);
             res.status(500).send('Internal Server Error');

@@ -128,27 +128,32 @@ function discoverActiveServer() {
     return activePorts;
   }
 
-  serverDiscoverability(MIN_PORT, MAX_PORT)
-    .then((activePorts) => {
-      // Check if the port is in backendPorts, if yes, the averageTime remains, else it is set to 0
-      backendPorts = activePorts.map((port) => {
-        const backendPort = backendPorts.find(
-          (backendPort) => backendPort.number === port
-        );
-        if (backendPort) {
-          return backendPort;
-        } else {
-          return { number: port, averageTime: 0 };
-        }
+  try {
+    serverDiscoverability(MIN_PORT, MAX_PORT)
+      .then((activePorts) => {
+        // Check if the port is in backendPorts, if yes, the averageTime remains, else it is set to 0
+        backendPorts = activePorts.map((port) => {
+          const backendPort = backendPorts.find(
+            (backendPort) => backendPort.number === port
+          );
+          if (backendPort) {
+            return backendPort;
+          } else {
+            return { number: port, averageTime: 0 };
+          }
+        });
+        console.log("Active ports:", backendPorts);
+        return backendPorts ?? [];
+      })
+      .catch((error) => {
+        console.error("Error during server discoverability:", error.message);
+        backendPorts = [];
+        return [];
       });
-      console.log("Active ports:", backendPorts);
-      return backendPorts ?? [];
-    })
-    .catch((error) => {
-      console.error("Error during server discoverability:", error.message);
-      backendPorts = [];
-      return [];
-    });
+  }
+  catch (error) {
+    console.log("Error in serverDiscoverability: ", error.message);
+  }
 }
 
 setInterval(discoverActiveServer, 10000);

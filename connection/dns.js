@@ -84,18 +84,23 @@ function discoverActiveServer() {
     return activePorts;
   }
 
-  serverDiscoverability(MIN_PORT, MAX_PORT)
-    .then((activePorts) => {
-      // Check if the port is in proxyPorts, if yes, the averageTime remains, else it is set to 0
-      proxyPorts = activePorts;
-      console.log("Active ports of proxies:", proxyPorts);
-      return proxyPorts ?? [];
-    })
-    .catch((error) => {
-      console.error("Error during server discoverability:", error.message);
-      proxyPorts = [];
-      return [];
-    });
+  try {
+    serverDiscoverability(MIN_PORT, MAX_PORT)
+      .then((activePorts) => {
+        // Check if the port is in proxyPorts, if yes, the averageTime remains, else it is set to 0
+        proxyPorts = activePorts;
+        console.log("Active ports of proxies:", proxyPorts);
+        return proxyPorts ?? [];
+      })
+      .catch((error) => {
+        console.error("Error during server discoverability:", error.message);
+        proxyPorts = [];
+        return [];
+      });
+  }
+  catch (error) {
+    console.log("Error in serverDiscoverability: ", error.message);
+  }
 }
 
 setInterval(discoverActiveServer, 4000);

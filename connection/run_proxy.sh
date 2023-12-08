@@ -22,7 +22,7 @@ while [ "$i" -lt "$num_instances" ]; do
 done
 
 echo "Starting DNS server"
-npx nodemon ./dns.js 2>&1 &
+npx pm2 start ./dns.js 2>&1 &
 
 # Wait for all background processes to finish
 wait
