@@ -70,10 +70,21 @@ app.get("/user_data/:username", (req, res) => {
   res.status(200).json(response);
 });
 
+app.post("/handoff", (req, res) => {
+  const data = req.body;
+
+  console.log("handoff: ", data);
+
+  res.status(200).json({ success: true });
+});
+
 app.post("/list/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
+
+
+  console.log("POST", data.username, listName, commitHash, data.data);
 
   // insert into userLists if pair (username, listName) does not exist
   queryRun(
@@ -138,7 +149,7 @@ app.get("/list/:list_name/:username", (req, res) => {
 
 app.get("/list/:list_name", (req, res) => {
   const listName = req.params.list_name;
-  
+
   let response = queryAll(
     "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
     [listName]

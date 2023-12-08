@@ -26,7 +26,6 @@ app.get("/ping", (_, res) => {
   res.send(json);
 });
 
-
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {
   // console.log("METHODE:", req.method);
