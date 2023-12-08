@@ -32,6 +32,7 @@ class Quorum {
   //middleware
 
   async sendRequestToReplica(port, data) {
+    console.log("Data:", data.body)
     const path = data.originalUrl.replace(/^\/api/, "");
 
     const url = `http://localhost:${port}${path}`;
@@ -64,7 +65,7 @@ class Quorum {
 
   async performQuorum(data) {
     const responses = [];
-
+    data.replicaPorts = [];
     if (this.consistentHashing === null || this.consistentHashing === undefined)
       return [0, 1, 2]; // todo change this
 
@@ -83,32 +84,15 @@ class Quorum {
       "for hash:",
       toHash
     );
-    /*
-      O stor disse uma coisa diferente do sloopy quorum. 
-      Disse para termos um quorum fixo e se n houvesse consenso para termos pena.
 
-
-      Aqui para fazer o sloopy quorum vamos ter de fazer:
-        - o preferenceList vai ter de ter mais réplicas do que 
-          ..... o quorumSize para ir buscar os nodes dps das falhas, talvez dé para fazer com iteradores da RBTree... ou passar um valor maior para o getNextNNodes
-        - aqui é que vamos ver se o servidor está down ou não, e temos de iterar sobre o preferenceList até termos o quorumSize
-        - Um nó que falhe vai ter de ser informado das mudanças que aconteceram pelo nó que o substitui enquanto ele esteve down
-        
-        
-        - "all read and write operations are performed on the first N healthy nodes from
-        the preference list, which may not always be the first N nodes
-        encountered while walking the consistent hashing ring." -> o pk de preferenceList ter de ter mais réplicas do que o quorumSize
-
-
-    */
     for (const port of responsibleReplicaPorts) {
       try {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
-
+        data.replicaPorts.push(port);
         // Check if quorum size is reached
         if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses)) {
+          if (this.areResponsesConsistent(responses, responsibleReplicaPorts)) {
             return responses;
           } // TODO: return the result of the operation
           console.error("Inconsistent responses");
@@ -116,7 +100,7 @@ class Quorum {
         }
       } catch (error) {
         // TODO: port that is falling should be informed of the changes occured while it was down,
-        // sloppy quorum should take the next node in the ring and use to store the data
+        // const response = await this.sendHandoffUpdateRequest(port, data); Inform the handoff like this?
         console.error(error.message);
         // Continue with the next replica in case of failure
       }
@@ -171,13 +155,59 @@ class Quorum {
     }
   }
 
-  areResponsesConsistent(responses) {
+  areResponsesConsistent(responses, ports) {
     // TODO: implement this with state-based replication (hash comparison?)
-    console.log("Responses:", responses);
-    console.log("Message: ", responses[0].message)
-    return responses.every(
-      (response) => response.message === responses[0].message
-    );
+    console.log("Quorum Responses:", responses);
+    if (responses[0].success) return true; // TODO: Check why there are times that it receives a success response with no data
+    
+    // Create a set to keep track of unique commit hashes
+    const uniqueCommits = {};
+
+    // Iterate through each response and add unique commit hashes to the set
+    responses.forEach((response) => {
+      response.forEach((commit) => {
+        uniqueCommits[commit.commit_hash] = commit.commit_data;
+      });
+    });
+
+    // Create a new list for each response with the commits that are not in the original response
+    const missingCommits = responses.map((response) => {
+      const newCommits = Object.keys(uniqueCommits).filter(
+        (commitHash) => !response.some((commit) => commit.commit_hash === commitHash)
+      );
+    
+      return newCommits.map((commitHash) => ({
+        commit_hash: commitHash,
+        commit_data: uniqueCommits[commitHash] || '',
+      }));
+    });
+
+    // Output the results
+    console.log("Unique Commits Set:", Array.from(uniqueCommits));
+    console.log("List of Lists with Unique Commits:", missingCommits);
+
+    // If there are at least this.consensusSize lists that are empty, means that they are updated and there is consensus
+    const numberOfEmptyLists = missingCommits.filter((list) => list.length === 0).length;
+    if (numberOfEmptyLists >= this.consensusSize) {
+      console.log("Consensus reached");
+      return true;
+    }
+
+    // Else, we need to update the replicas with the missing commits
+    console.log("Consensus not reached, updating replicas");
+    
+    // Iterate through each list of missing commits
+    for (let i = 0; i < missingCommits.length; i++) {
+      const missingCommitsList = missingCommits[i];
+      const port = ports[i];
+
+      // If the list is empty, means that there is consensus for this list
+      if (missingCommitsList.length === 0) continue;
+
+      // Else, we need to update the replica with the missing commits
+      console.log(`Updating replica ${port} with missing commits:`, missingCommitsList);
+      //await this.sendHandoffUpdateRequest(port, missingCommitsList);
+    }
   }
 
   async consensus(data) {
