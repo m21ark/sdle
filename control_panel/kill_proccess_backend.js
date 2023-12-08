@@ -19,10 +19,11 @@ app.get('/kill-process/:port', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             console.log(`Process on port ${port} killed and control_panel directory changed`);
+            res.send('Process killed successfully');
         }
     });
 
-    res.send('Process killed successfully');
+
 });
 
 app.get('/garbage-collection', (req, res) => {
@@ -32,11 +33,12 @@ app.get('/garbage-collection', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             console.log(`Garbage collection done and control_panel directory changed`);
+
+            res.send('Garbage collection done successfully');
         }
     });
 
-    res.send('Garbage collection done successfully');
-    
+
 });
 
 app.get('/start-process/:port', (req, res) => {
@@ -50,10 +52,11 @@ app.get('/start-process/:port', (req, res) => {
             res.status(500).send('Internal Server Error');
         } else {
             console.log(`Process on port ${port} restarted and control_panel directory changed`);
+            res.send('Process restarted successfully');
         }
     });
 
-    res.send('Process restarted successfully');
+
 });
 
 app.listen(port, () => {
