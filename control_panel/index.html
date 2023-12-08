@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ring-Based Data Replication</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+
+        #ring-container {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            border: 3px solid #333;
+            border-radius: 50%;
+        }
+
+        .ring-node:hover {
+            background-color: #b92929;
+        }
+
+        .ring-node {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            background-color: #3498db;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ring-node.active {
+            background-color: #ff0000;
+            /* Change the background color to red */
+        }
+
+        .ring-circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            border: 3px solid #333;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: bold;
+
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="ring-container">
+        <!-- Ring Circle -->
+        <!---- <div class="ring-circle">Ring Circle</div> -->
+
+        <!-- You can dynamically generate these nodes based on your data -->
+        <div class="ring-node" id="a35fe7f7fe8217b4369a0af4244d1fca" data-name="5000"></div>
+        <div class="ring-node" id="00a004c595403666634ac75d828439bc" data-name="5001"></div>
+        <!-- this hash is different only to make it more visible -->
+        <div class="ring-node" id="415585bd389b69659223807d77a96791" data-name="5002"></div>
+        <div class="ring-node" id="240ac9371ec2671ae99847c3ae2e6384" data-name="5003"></div>
+        <div class="ring-node" id="3202111cf90e7c816a472aaceb72b0df" data-name="5004"></div>
+        <!-- Add more nodes as needed -->
+
+        <!-- Add more nodes as needed -->
+    </div>
+
+    <script>
+        // You can use JavaScript to dynamically manage the nodes based on your data
+        // For example, you can add event listeners to the nodes for interaction.
+        const ringContainer = document.getElementById('ring-container');
+        const ringCircle = document.querySelector('.ring-circle');
+        const ringNodes = document.querySelectorAll('.ring-node');
+        const totalNodes = ringNodes.length;
+        const angle = 360 / totalNodes;
+
+        ringNodes.forEach((node, index) => {
+            const nodeId = node.id;
+            const nodeName = node.getAttribute('data-name');
+            const nodeAngle = angle * index;
+            const nodePosition = calculateNodePosition(nodeAngle, nodeId);
+            node.style.top = nodePosition.y + '%';
+            node.style.left = nodePosition.x + '%';
+            node.style.transform = 'translate(-50%, -50%)'; // Center the node within the container
+            node.innerHTML = nodeName; // Set the node name as its content
+        });
+
+        function calculateNodePosition(angle, nodeId) {
+            const radius = 50; // Adjust the radius as needed
+            const centerX = 50;
+            const centerY = 50;
+
+            // Calculate the hash value
+            let hashValue = 0;
+            for (let i = 0; i < nodeId.length; i++) {
+                hashValue += nodeId.charCodeAt(i);
+            }
+
+            // Adjust the angle based on the hash value
+            const adjustedAngle = angle + (hashValue % 360);
+
+            const radians = (adjustedAngle * Math.PI) / 180;
+            const x = centerX + radius * Math.cos(radians);
+            const y = centerY + radius * Math.sin(radians);
+
+            return { x, y };
+        }
+
+        ringNodes.forEach(node => {
+            node.addEventListener('click', () => {
+                // Toggle the node state (on/off) or perform any other action
+                node.classList.toggle('active');
+                const nodeId = node.getAttribute('data-name');;
+
+                // Check if the node is active
+                if (node.classList.contains('active')) {
+                    // Make an appropriate call to kill the process on the backend
+                    fetch(`http://localhost:3000/kill-process/${nodeId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(data => console.log(data))
+                        .catch(error => console.error(error));
+                } else {
+                    // Make an appropriate call to start the process on the backend
+                    // Replace the following URL with your actual start-process endpoint
+                    fetch(`http://localhost:3000/start-process/${nodeId}`)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error! Status: ${response.status}`);
+                            }
+                            return response.text();
+                        })
+                        .then(data => console.log(data))
+                        .catch(error => console.error(error));
+                }
+            });
+        });
+    </script>
+
+</body>
+
+</html>
