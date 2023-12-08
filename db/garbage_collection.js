@@ -140,6 +140,7 @@ class GarbageCollector {
             )
         );
         if (isCommonCommit) common_hashes.push(commitHashToCheck);
+        else break; // we found a commit that is not common to all replicas
       }
     }
 
