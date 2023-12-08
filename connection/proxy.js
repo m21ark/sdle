@@ -58,9 +58,7 @@ app.all("/*", (req, res) => {
 
   try {
     // Proxy the request to the backend
-    if (path.includes("/list")) {
-      console.log("Path:", path);
-    }
+
     const backendRequest = request(backendURL);
 
     backendRequest.on("error", (error) => {
