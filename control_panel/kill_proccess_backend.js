@@ -25,12 +25,26 @@ app.get('/kill-process/:port', (req, res) => {
     res.send('Process killed successfully');
 });
 
+app.get('/garbage-collection', (req, res) => {
+    exec(`cd ../db/ && node garbage_collection.js && cd ../control_panel/`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${stderr}`);
+            res.status(500).send('Internal Server Error');
+        } else {
+            console.log(`Garbage collection done and control_panel directory changed`);
+        }
+    });
+
+    res.send('Garbage collection done successfully');
+    
+});
+
 app.get('/start-process/:port', (req, res) => {
     const port = req.params.port;
     console.log(port);
 
     // Use a command to restart the process on the specified port
-    exec(`cd ../db/ && node index.js ${port} 2>&1 & && cd ../control_panel/`, (error, stdout, stderr) => {
+    exec(`cd ../db/ && node index.js ${port} && cd ../control_panel/`, (error, stdout, stderr) => {
         if (error) {
             console.error(`Error: ${stderr}`);
             res.status(500).send('Internal Server Error');

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+
     <title>Ring-Based Data Replication</title>
     <style>
         body {
@@ -15,6 +17,34 @@
             justify-content: center;
             height: 100vh;
             background-color: #f4f4f4;
+        }
+
+        div#garbage-collection {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 2em;
+            background-color: #00ff40;
+            color: #080808;
+            border: none;
+            border-radius: 20%;
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #notification-toast {
+            position: fixed;
+            top: 1em;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 25em;
+            border-radius: 5px;
+            z-index: -1;
         }
 
         #ring-container {
@@ -66,6 +96,12 @@
 </head>
 
 <body>
+    <div id="notification-toast" class="toast">
+        <div class="toast-header">
+            <strong class="mr-auto text-white">Notification</strong>
+        </div>
+        <div class="toast-body">Link copied to clipboard!</div>
+    </div>
 
     <div id="ring-container">
         <!-- Ring Circle -->
@@ -78,9 +114,9 @@
         <div class="ring-node" id="ba2f7128c0579980c4a29099810258eb" data-name="5003"></div>
         <div class="ring-node" id="e897d47648220a1f6d6fbd56e21a9297" data-name="5004"></div>
         <!-- Add more nodes as needed -->
-
         <!-- Add more nodes as needed -->
     </div>
+    <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
     <script>
         // You can use JavaScript to dynamically manage the nodes based on your data
@@ -156,6 +192,48 @@
                 }
             });
         });
+        function generate_notification(text, type, timeout = 5000) {
+            const toast = document.getElementById("notification-toast");
+            const not_header = document.querySelector(".toast-header");
+            const not_body = document.querySelector(".toast-body");
+
+            not_body.textContent = text;
+            not_header.className = `toast-header ${type}`;
+
+            toast.classList.add("show");
+
+            // move toast to front in z-index
+            toast.style.zIndex = 1000;
+
+            setTimeout(() => {
+                toast.classList.remove("show");
+                toast.style.zIndex = -1;
+            }, timeout);
+        }
+
+
+        // Garbage Collection
+        const garbageCollection = document.getElementById('garbage-collection');
+        garbageCollection.addEventListener('click', () => {
+            // Make an appropriate call to start the process on the backend
+            // Replace the following URL with your actual start-process endpoint
+            fetch(`http://localhost:3000/garbage-collection`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+
+                    // show notification with the response
+                    generate_notification(
+                        "Garbage Collection Done!",
+                        "bg-success"
+                    );
+                    return response.text();
+                })
+                .then(data => console.log(data))
+                .catch(error => console.error(error));
+        });
+
     </script>
 
 </body>
