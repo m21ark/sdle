@@ -11,6 +11,7 @@
         "express": "^4.17.1",
         "fs": "^0.0.1-security",
         "http-proxy-middleware": "^2.0.6",
+        "live-server": "^1.2.2",
         "md5": "^2.3.0",
         "path": "^0.12.7",
         "request": "^2.88.2",

@@ -51,6 +51,8 @@ class ConsistentHashing {
     // get the node iterator
     const hash = this.hashString(key);
 
+    console.log(`Key : ${key} - Hash : ${hash}`);
+
     let nodeHash = this.findClosestNode(hash);
     if (nodeHash === null) {
       let it = this.hashRing.iterator();

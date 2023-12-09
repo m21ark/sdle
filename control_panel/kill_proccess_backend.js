@@ -4,12 +4,54 @@ const { exec } = require('child_process');
 const cors = require('cors')
 const fs = require('fs');
 const path = require('path');
+const sqlite3 = require('better-sqlite3'); // Import the better-sqlite3 module
+const md5 = require("md5");
 
 const app = express();
 const port = 3000;
 
 app.use(express.static('public')); // Serve the HTML and other static files
 app.use(cors())
+
+app.get('/lists', (req, res) => {
+    const replicasDir = path.join(__dirname, '../db/replicas');
+
+    fs.readdir(replicasDir, (err, replicas) => {
+        if (err) {
+            console.error(`Error: ${err}`);
+            res.status(500).send('Internal Server Error');
+            return;
+        }
+
+        let results = [];
+
+        replicas.forEach(replica => {
+            
+            if (!replica.endsWith('.db')) {
+                return;
+            }
+
+            console.log(replica);
+            console.log(results);
+            const dbPath = path.join(replicasDir, replica);
+            const db = new sqlite3(dbPath); // Create a new database instance
+
+            db.transaction(() => {
+                const stmt = db.prepare('SELECT DISTINCT list_name FROM commitChanges');
+                const rows = stmt.all();
+
+                console.log(rows);
+                results.push({ replica, lists: rows.map(row => { return { list_name: row.list_name, md5: md5(row.list_name.split('#')[0]) } }) });
+
+                if (results.length === replicas.length - 1) {
+                    res.send(results);
+                }
+            })();
+
+            db.close(); // Close the database connection
+        });
+    });
+});
 
 app.get('/kill-proxy/:port', (req, res) => {
     const port = req.params.port;
@@ -39,7 +81,6 @@ app.get('/check-replicas', (req, res) => {
         let results = [];
 
         replicas.forEach(replica => {
-            console.log(path.join(replicasDir, replica))
             if (!replica.endsWith('.db')) {
                 return;
             }
@@ -52,7 +93,7 @@ app.get('/check-replicas', (req, res) => {
 
                 let [diskSpace, entries] = stdout.split('\n');
                 diskSpace = diskSpace.split('\t')[0];
-                results.push({replica, diskSpace, entries});
+                results.push({ replica, diskSpace, entries });
 
                 if (results.length === replicas.length - 1) {
                     res.send(results);
