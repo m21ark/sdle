@@ -1,4 +1,5 @@
 const { response } = require("express");
+const { parse } = require("path");
 
 class GarbageCollector {
   constructor() {
@@ -112,8 +113,11 @@ class GarbageCollector {
     const totalLists = listNames.length;
 
     let copy_of_port = [... this.replicaPorts];
+    copy_of_port.push(copy_of_port[0])
+    copy_of_port.push(copy_of_port[1])
+
     for (let i = 0; i < copy_of_port.length - 2; i += 1) {
-      
+
       this.replicaPorts = copy_of_port.slice(i, i + batchSize);
 
       console.log("Performing garbage collection on batch:", this.replicaPorts);
@@ -132,6 +136,8 @@ class GarbageCollector {
 
     // replicasCommits is a Map of the form: PORT => [ {commitHash: ..., commitData: ...} ]
     const replicasCommits = await this.getReplicasCommits(listName);
+
+    console.log("Found commits on replicas:", replicasCommits);
 
     // Sort commits by commit_hash
     const sortedReplicasCommits = new Map(
@@ -186,18 +192,18 @@ class GarbageCollector {
     const mergedCommitData = Array.from(commonCommitDataMap.values()).reduce(
       (merged, commitData) => {
         const commitDataObj = JSON.parse(
-          commitData.replace(/delta/g, '"delta"')
+          commitData.replace(/delta/g, 'delta')
         );
 
         for (const key in commitDataObj.delta) {
           if (merged.delta.hasOwnProperty(key))
-            merged.delta[key] += commitDataObj.delta[key];
-          else merged.delta[key] = commitDataObj.delta[key];
+            merged.delta[key] += parseInt(commitDataObj.delta[key]);
+          else merged.delta[key] = parseInt(commitDataObj.delta[key]);
         }
 
         return merged;
       },
-      { delta: {} }
+      { "delta": {} }
     );
 
     const lastCommonCommitHash = sortedReplicasCommits
@@ -222,6 +228,7 @@ class GarbageCollector {
   async sendMergedCommitToReplicas(listName, common_hashes, mergedCommit) {
     console.log("Sending merged commit to replicas: ", mergedCommit);
 
+    console.log("Replicas to send to:", JSON.stringify(mergedCommit).replace(/delta/g, '"delta"'));
     const sendRequests = this.replicaPorts.map(async (port) => {
       try {
         const response = await fetch(
@@ -231,16 +238,16 @@ class GarbageCollector {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               common_hashes: common_hashes,
-              data: mergedCommit,
+              data: mergedCommit
             }),
           }
         );
 
-        const data = await response.json();
+        // const data = await response.json();
 
-        if (response.status !== 200) {
-          console.log("Error sending merged commit to replica:", data);
-        }
+        // if (response.status !== 200) {
+        // console.log("Error sending merged commit to replica:", data);
+        // }
       } catch (error) {
         console.error(error);
       }
@@ -253,17 +260,4 @@ class GarbageCollector {
 const garbageCollector = new GarbageCollector();
 garbageCollector.performGarbageCollection(); // TODO Make this a cron job
 
-// using this endpoint, get all commits for a list
 
-/*
-app.get("/list/:list_name", (req, res) => {
-  const listName = req.params.list_name;
-
-  let response = queryAll(
-    "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
-    [listName]
-  );
-
-  res.status(200).json(response);
-});
-*/
