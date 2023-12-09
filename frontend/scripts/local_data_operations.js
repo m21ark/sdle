@@ -87,16 +87,23 @@ export function remove_list(listName) {
   cache_changes();
 }
 
-function list_item_rendering(id, item) {
-  //<button class="btn btn-danger delete-button">X</button> \
+export function list_item_rendering(id, item) {
+  let plusButtonDisplay = item.value() <= 0 ? 'hidden' : '';
+  let minusButtonDisplay = item.value() <= 1 ? 'hidden' : '';
+  let checkBox = '', completed = '';
+  if (item.value() === 0) {
+    checkBox = 'checked'
+    completed = 'completed'
+  }
+
   return `<div class="item">\ 
-    <span>${id}</span> \
+    <span class="${completed}">${id}</span> \
     <div>
-    <span class="quantity__minus">-</span> \
-    <span class="quantity">${item.value()}</span> \
-    <span class="quantity__plus">+</span> \
+    <span class="quantity__minus" ${minusButtonDisplay}>-</span> \
+    <span class="quantity ${completed}">${item.value()}</span> \
+    <span class="quantity__plus" ${plusButtonDisplay}>+</span> \
     </div>
-    <input type="checkbox" /> \
+    <input type="checkbox" ${checkBox}/> \
     </div>`;
 }
 
@@ -116,7 +123,7 @@ function render_list_again() {
   }
 
   for (const [id, item] of items.products) {
-    if (item.value() === 0) continue;
+    // if (item.value() === 0) continue;
     itemsHtml += list_item_rendering(id, item);
   }
 
@@ -130,17 +137,23 @@ function render_list_again() {
   checkboxes.forEach((checkbox) => {
     checkbox.addEventListener("change", function (event) {
       const itemNameElement = event.target.parentElement.children[0];
-
-      if (event.target.checked) itemNameElement.classList.add("completed");
-      else itemNameElement.classList.remove("completed");
-
       const currList = document.getElementById("current-list-name").textContent;
 
       if (_shoppingLists.has(currList)) {
         const listObj = _shoppingLists.get(currList);
-        listObj.removeFromList(itemNameElement.textContent);
+        if (event.target.checked) {
+          itemNameElement.classList.add("completed")
+          listObj.removeFromList(itemNameElement.textContent);
+        } else {
+          itemNameElement.classList.remove("completed")
+          listObj.addProduct(itemNameElement.textContent, 1);
+        };
+        
         cache_list_changes(listObj);
+        render_list_again();
       } else console.warn("List does not exist");
+      event.stopPropagation();
+      event.preventDefault();
     });
   });
 
@@ -226,6 +239,7 @@ async function fetch_commits(list) {
         list.mergeDeltaChanges(row["commit_hash"], temp);
         cache_changes();
         render_list_again();
+        
         // if active page list is the same as the list that was updated we need to update the page
         // TODO: Add to the list view the new changes
         list.lastCommitRead = row["commit_hash"];

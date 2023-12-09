@@ -13,6 +13,7 @@ body {
   text-decoration: none;
   text-align: center;
   line-height: 23px;
+  cursor: pointer;
 }
 .quantity__minus:hover,
 .quantity__plus:hover {
@@ -366,4 +367,8 @@ input[type="checkbox"] {
 .a-list-name:hover {
   color: #0069d9;
   text-decoration: none;
+}
+
+.hidden {
+  display: none;
 }
