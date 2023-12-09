@@ -202,8 +202,12 @@ function render_list_again() {
       checkbox.checked = true;
     }
   });
+}
 
-  //update_item_count();
+function update_item_count() {
+  const itemsContainer = document.getElementById("items");
+  const count = document.querySelector("#list-item-count");
+  count.textContent = `(${itemsContainer.children.length})`;
 }
 
 // ======================== SYNCHRONIZATION ========================
@@ -249,6 +253,8 @@ async function fetch_commits(list) {
   } catch (e) {
     console.error(`Error fetching commits for ${list.name}: ${e}`);
   }
+
+  update_item_count();
 }
 
 async function push_changes(list) {

@@ -41,7 +41,13 @@ function add_share_link_listener() {
 
   shareButton.addEventListener("click", function () {
     const uniqueId = document.getElementById("current-list-name").textContent;
-    const currentUrl = window.location.href;
+    let currentUrl = window.location.href;
+
+    // replacing port 9000 with 9001 and vice-versa for easier demo
+    const port = window.location.port;
+    if (port === "9000") currentUrl = currentUrl.replace("9000", "9001");
+    else if (port === "9001") currentUrl = currentUrl.replace("9001", "9000");
+
     const shareableLink = `${currentUrl}?get_id=${encodeURIComponent(
       uniqueId
     )}`;
