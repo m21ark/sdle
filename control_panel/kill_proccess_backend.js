@@ -41,7 +41,7 @@ app.get('/lists', (req, res) => {
                 const rows = stmt.all();
 
                 console.log(rows);
-                results.push({ replica, lists: rows.map(row => { return { list_name: row.list_name, md5: md5(row.list_name.split('%')[0]) } }) });
+                results.push({ replica, lists: rows.map(row => { return { list_name: row.list_name, md5: md5(row.list_name.split('#')[0]) } }) });
 
                 if (results.length === replicas.length - 1) {
                     res.send(results);

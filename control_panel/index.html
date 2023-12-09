@@ -289,24 +289,22 @@
 
         function calculateNodePosition(angle, nodeId) {
             const radius = 50; // Adjust the radius as needed
-            const centerX = 50;
-            const centerY = 50;
+            const centerX = 50; // Adjust the center X coordinate as needed
+            const centerY = 50; // Adjust the center Y coordinate as needed
+            
 
             // Calculate the hash value
-            let hashValue = 0;
-            for (let i = 0; i < nodeId.length; i++) {
-                hashValue += nodeId.charCodeAt(i);
-            }
+            let hashValue = parseInt(nodeId, 16);
 
             // Adjust the angle based on the hash value
-            const adjustedAngle = angle + (hashValue % 360);
+            const adjustedAngle = (hashValue % Math.pow(2, 128));
 
             const radians = (adjustedAngle * Math.PI) / 180;
             const x = centerX + radius * Math.cos(radians);
-            const y = centerY + radius * Math.sin(radians);
-
+            const y = centerY - radius * Math.sin(radians);
             return { x, y };
         }
+
 
         function fetchListData() {
             fetch('http://localhost:3000/lists')
@@ -324,7 +322,7 @@
 
 
                     data.forEach((node, index) => {
-                        
+
                         node.lists.forEach((list, index) => {
 
                             const listNode = document.createElement('div');
@@ -332,7 +330,8 @@
                             listNode.setAttribute('data-name', node.replica);
                             listNode.textContent = list.list_name.split('#')[0];
                             let listNodeAngle = angle * index;
-                            const nodePosition = calculateNodePosition( listNodeAngle, list.md5);
+                            console.log(list.md5)
+                            const nodePosition = calculateNodePosition(listNodeAngle, list.md5);
                             listNode.style.top = nodePosition.y + '%';
                             listNode.style.left = nodePosition.x + '%';
                             listNode.style.transform = 'translate(-50%, -50%)'; // Center the node within the container
@@ -344,7 +343,7 @@
                 .catch(error => console.error(error));
         }
 
-        setInterval(fetchListData,3000);
+        setInterval(fetchListData, 3000);
 
         ringNodes.forEach(node => {
             node.addEventListener('click', () => {
