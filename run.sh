@@ -19,7 +19,7 @@ sh ./run_backend.sh 5 &
 cd ../db/
 sh ./run_replicas.sh 5 &
 cd ../connection/
-sh ./run_proxy.sh 4000 3 &
+sh ./run_connection.sh 4000 3 &
 cd ../admin/
 node ./kill_proccess_backend.js 2>&1 &
 cd ..
