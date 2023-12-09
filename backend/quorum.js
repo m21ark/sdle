@@ -96,7 +96,7 @@ class Quorum {
         data.replicaPorts.push(port);
         // Check if quorum size is reached
         if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses, responsibleReplicaPorts)) {
+          if (this.areResponsesConsistent(responses, data)) {
             return responses;
           } // TODO: return the result of the operation
           console.error("Inconsistent responses");
@@ -159,10 +159,20 @@ class Quorum {
     }
   }
 
-  areResponsesConsistent(responses, ports) {
+  areResponsesConsistent(responses, data) {
     // TODO: implement this with state-based replication (hash comparison?)
     console.log("Quorum Responses:", responses);
-    if (responses[0].success) return true; // TODO: Check why there are times that it receives a success response with no data
+    console.log("Data URL:", data.originalUrl);
+    console.log("Data Method:", data.method);
+    const listName = data.originalUrl.split("/")[2];
+    console.log("List name:", listName);
+
+    // If there are at least responses.consensusSize successful responses, means that there is consensus
+    const numberOfSuccessfulResponses = responses.filter((response) => response.success).length;
+    if (numberOfSuccessfulResponses >= this.consensusSize) {
+      console.log("Consensus reached");
+      return true;
+    } 
     
     // Create a set to keep track of unique commit hashes
     const uniqueCommits = {};
@@ -170,7 +180,7 @@ class Quorum {
     // Iterate through each response and add unique commit hashes to the set
     responses.forEach((response) => {
       response.forEach((commit) => {
-        uniqueCommits[commit.commit_hash] = commit.commit_data;
+        uniqueCommits[commit.commit_hash] = [commit.user_name, commit.commit_data];
       });
     });
 
@@ -181,14 +191,17 @@ class Quorum {
       );
     
       return newCommits.map((commitHash) => ({
+        user_name: uniqueCommits[commitHash][0] || '',
         commit_hash: commitHash,
-        commit_data: uniqueCommits[commitHash] || '',
+        commit_data: uniqueCommits[commitHash][1] || '',
       }));
     });
 
     // Output the results
     console.log("Unique Commits Set:", Array.from(uniqueCommits));
     console.log("List of Lists with Unique Commits:", missingCommits);
+    console.log("Data URL:", data.originalUrl)
+    console.log("Data Method:", data.method)
 
     // If there are at least this.consensusSize lists that are empty, means that they are updated and there is consensus
     const numberOfEmptyLists = missingCommits.filter((list) => list.length === 0).length;
@@ -199,19 +212,47 @@ class Quorum {
 
     // Else, we need to update the replicas with the missing commits
     console.log("Consensus not reached, updating replicas");
+
+    const updatePromises = [];
     
     // Iterate through each list of missing commits
     for (let i = 0; i < missingCommits.length; i++) {
-      const missingCommitsList = missingCommits[i];
-      const port = ports[i];
+      const missingCommitsReplica = missingCommits[i];
+      const port = data.replicaPorts[i];
 
       // If the list is empty, means that there is consensus for this list
-      if (missingCommitsList.length === 0) continue;
+      if (missingCommitsReplica.length === 0) continue;
 
       // Else, we need to update the replica with the missing commits
-      console.log(`Updating replica ${port} with missing commits:`, missingCommitsList);
-      //await this.sendHandoffUpdateRequest(port, missingCommitsList);
+      console.log(`Updating replica ${port} with missing commits:`, missingCommitsReplica);
+      
+      missingCommitsReplica.forEach((commit) => {
+        const updatePromise = this.sendRequestToReplica(port, {
+          method: "POST",
+          originalUrl: `/list/${listName}/${commit.commit_hash}`,
+          body: {
+            username: commit.user_name,
+            data: commit.commit_data,
+          },
+        });
+        updatePromises.push(updatePromise);
+      });
     }
+
+    // Use Promise.all to wait for all replica responses
+    return Promise.all(updatePromises).then(() => {
+      console.log("All replicas updated successfully");
+      // Iterate through uniqueCommits and make the first response with all unique commits
+      responses[0] = Object.keys(uniqueCommits).map((commitHash) => ({
+        user_name: uniqueCommits[commitHash][0] || '',
+        commit_hash: commitHash,
+        commit_data: uniqueCommits[commitHash][1] || '',
+      }));
+      return true;
+    }).catch((error) => {
+      console.error("Error updating replicas:", error.message);
+      return false;
+    });
   }
 
   async consensus(data) {
