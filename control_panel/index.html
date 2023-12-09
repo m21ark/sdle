@@ -156,12 +156,17 @@
         <div class="toast-body">Link copied to clipboard!</div>
     </div>
 
-    <div class="node-list">
-        <!-- List of nodes to the left -->
-        <div class="list-node" data-name="4000">Proxy 4000</div>
-        <div class="list-node" data-name="4001">Proxy 4001</div>
-        <div class="list-node" data-name="4002">Proxy 4002</div>
-        <!-- Add more nodes as needed -->
+    <div style="display: flex; position: absolute; top: 0; left: 0;">
+        <div class="node-list">
+            <!-- List of nodes to the left -->
+            <div class="list-node" data-name="4000">Proxy 4000</div>
+            <div class="list-node" data-name="4001">Proxy 4001</div>
+            <div class="list-node" data-name="4002">Proxy 4002</div>
+            <!-- Add more nodes as needed -->
+        </div>
+        <div id="replicas-container"
+            style="position: relative; top: 10em; left: 2em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;"></div>
+        </div>
     </div>
 
     <div id="ring-container">
@@ -183,9 +188,7 @@
     </div>
     <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
-    <div id="replicas-container"
-        style="position: fixed; top: 20em; left: 1em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;">
-    </div>
+
 
     <script>
 
@@ -291,7 +294,7 @@
             const radius = 50; // Adjust the radius as needed
             const centerX = 50; // Adjust the center X coordinate as needed
             const centerY = 50; // Adjust the center Y coordinate as needed
-            
+
 
             // Calculate the hash value
             let hashValue = parseInt(nodeId, 16);
@@ -330,7 +333,6 @@
                             listNode.setAttribute('data-name', node.replica);
                             listNode.textContent = list.list_name.split('#')[0];
                             let listNodeAngle = angle * index;
-                            console.log(list.md5)
                             const nodePosition = calculateNodePosition(listNodeAngle, list.md5);
                             listNode.style.top = nodePosition.y + '%';
                             listNode.style.left = nodePosition.x + '%';
