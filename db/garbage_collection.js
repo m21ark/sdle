@@ -49,7 +49,9 @@ class GarbageCollector {
     const replicasCommits = new Map();
 
     for (const port of this.replicaPorts) {
-      const response = await fetch(`http://127.0.0.1:${port}/list/${listName}`);
+      const response = await fetch(
+        `http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`
+      );
 
       if (response.status === 200) {
         const data = await response.json();
@@ -205,7 +207,7 @@ class GarbageCollector {
     const sendRequests = this.replicaPorts.map(async (port) => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:${port}/list/${listName}`,
+          `http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
