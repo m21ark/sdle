@@ -17,8 +17,10 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-const consensusSize = 2; // TODO: make this variable
-const quorumSize = 3; // TODO: make this variable
+// TODO: make these argument
+const consensusSize = 2;
+const quorumSize = 3;
+
 let consistentHashing = null;
 const quorum = new Quorum(quorumSize, consensusSize);
 
@@ -55,7 +57,7 @@ app.all("/*", (req, res) => {
   }
 });
 
-// Check for active replicas every 10 seconds 
+// Check for active replicas every 10 seconds
 function updateActiveReplicas() {
   try {
     quorum.discoverActiveReplicas(5000, 5100); // TODO Make these configs

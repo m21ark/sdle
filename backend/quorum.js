@@ -6,32 +6,37 @@ class Quorum {
     this.downReplicas = [];
   }
 
+  // set consistent hashing
   setConsistentHashing(consistentHashing) {
     this.consistentHashing = consistentHashing;
   }
 
+  // get consistent hashing
   getQuorumSize() {
     return this.quorumSize;
   }
 
+  // get replica ports
   getReplicaPorts() {
     return this.replicaPorts;
   }
 
+  // get quorum size
   setQuorumSize(quorumSize) {
     this.quorumSize = quorumSize;
   }
 
+  // set replica ports
   setReplicaPorts(replicaPorts) {
     this.replicaPorts = replicaPorts;
   }
 
+  // get active replica count
   getReplicaActiveCount() {
     return this.replicaPorts.length;
   }
 
-  //middleware
-
+  // send async request to replica
   async sendRequestToReplica(port, data) {
     console.log("Data:", data.body);
     const path = data.originalUrl.replace(/^\/api/, "");
@@ -64,6 +69,7 @@ class Quorum {
     });
   }
 
+  // perform quorum by sending requests to replicas
   async performQuorum(data) {
     const responses = [];
     data.replicaPorts = [];
@@ -79,7 +85,7 @@ class Quorum {
     const preferenceList = this.consistentHashing.getNextNNodes(
       toHash,
       this.quorumSize
-    ); // TODO: change for sloppy quorum
+    );
 
     const responsibleReplicaPorts =
       this.consistentHashing.getNodesFromHashes(preferenceList);
@@ -99,10 +105,10 @@ class Quorum {
         if (data.method === "GET") {
           duplicateVote = true;
         } else {
-          // TODO: port that is falling should be informed of the changes occured while it was down,
+          // TODO: port that is falling should be informed of the changes occured while it was down
           const response = await this.sendHandoffUpdateRequest(port, data);
-          responses.push([response]);
-          data.replicaPorts.push(5600);
+          responses.push([response]); // TODO: handoff doesnt provide a response for quorum
+          data.replicaPorts.push(5600); // TODO: hardcoded and wrong (?)
         }
       }
     });
@@ -122,6 +128,7 @@ class Quorum {
     }
   }
 
+  // if replica is down, send handoff request with the data and metadata
   async sendHandoffUpdateRequest(recipientNode, data) {
     const postData = {
       commit_data: JSON.parse(data.body.data),
@@ -150,6 +157,7 @@ class Quorum {
       });
   }
 
+  // if replica is back up, send handoff request to deliver hints to it
   async sendHandoffDeliverHintsRequest(recipientNode) {
     const handoffPort = 5600;
     try {
@@ -171,11 +179,12 @@ class Quorum {
     }
   }
 
+  // check if responses are consistent to reach consensus
   areResponsesConsistent(responses, data) {
-    // TODO: implement this with state-based replication (hash comparison?)
     const listName = data.originalUrl.split("/")[2];
 
-    // If there are at least responses.consensusSize successful responses, means that there is consensus
+    // If there are at least responses.consensusSize
+    // successful responses, means that there is consensus
     const numberOfSuccessfulResponses = responses.filter(
       (response) => response.success
     ).length;
@@ -197,7 +206,8 @@ class Quorum {
       });
     });
 
-    // Create a new list for each response with the commits that are not in the original response
+    // Create a new list for each response with the
+    // commits that are not in the original response
     const missingCommits = responses.map((response) => {
       const newCommits = Object.keys(uniqueCommits).filter(
         (commitHash) =>
@@ -211,7 +221,8 @@ class Quorum {
       }));
     });
 
-    // If there are at least this.consensusSize lists that are empty, means that they are updated and there is consensus
+    // If there are at least this.consensusSize lists that are empty,
+    // means that they are updated and there is consensus
     const numberOfEmptyLists = missingCommits.filter(
       (list) => list.length === 0
     ).length;
@@ -252,7 +263,6 @@ class Quorum {
       });
     }
 
-    // Use Promise.all to wait for all replica responses
     return Promise.all(updatePromises)
       .then(() => {
         console.log("All replicas updated successfully");
@@ -270,10 +280,10 @@ class Quorum {
       });
   }
 
+  // perform quorum and reach consensus
   async consensus(data) {
     return this.performQuorum(data)
       .then((result) => {
-        // console.log("Operation successful:", result);
         return result[0];
       })
       .catch((error) => {
@@ -282,6 +292,7 @@ class Quorum {
       });
   }
 
+  // discover active replicas by sending ping requests to them in the given port range
   discoverActiveReplicas(minPort, maxPort) {
     async function _replicaDiscoverability(basePort, maxPort) {
       const activePorts = [];
@@ -309,6 +320,7 @@ class Quorum {
       return activePorts;
     }
 
+    // Discover active replicas in the given port range
     _replicaDiscoverability(minPort, maxPort)
       .then((activePorts) => {
         // Get the ones that came up

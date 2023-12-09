@@ -30,9 +30,7 @@ app.get("/lists", (_, res) => {
   res.status(200).json(response);
 });
 
-// endpoint to remove given hashes from the database and
-// add a new commit with the merged data
-// this endpoint will be called by the garbage collector
+// endpoint called by the garbage collector to condense commits into one
 app.post("/list/:list_name", (req, res) => {
   const listName = req.params.list_name;
   const data = req.body;
@@ -43,7 +41,7 @@ app.post("/list/:list_name", (req, res) => {
   for (const hash of common_hashes)
     queryRun("DELETE FROM commitChanges WHERE commit_hash = ?", [hash]);
 
-  // Parse and stringify the commit_data without quotes around property names
+  // parse the data and merge it
   const parsedData = JSON.parse(mergedCommit.commit_data);
   let obj = {};
   for (const key in parsedData.delta)
@@ -60,6 +58,7 @@ app.post("/list/:list_name", (req, res) => {
   res.status(200).json({ success: true });
 });
 
+// endpoint to get all lists of a given user
 app.get("/user_data/:username", (req, res) => {
   const username = req.params.username;
 
@@ -71,6 +70,7 @@ app.get("/user_data/:username", (req, res) => {
   res.status(200).json(response);
 });
 
+// endpoint to receive hinted handoff data
 app.post("/handoff", (req, res) => {
   const data = req.body.data;
 
@@ -86,14 +86,12 @@ app.post("/handoff", (req, res) => {
   res.status(200).json({ success: true });
 });
 
+// endpoint to add a new commit to the database
 app.post("/list/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
   const data = req.body;
 
-  console.log("POST", data.username, listName, commitHash, data.data);
-
-  // insert into userLists if pair (username, listName) does not exist
   queryRun(
     "INSERT INTO userLists (user_name, list_name) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM userLists WHERE user_name = ? AND list_name = ?)",
     [data.username, listName, data.username, listName]
@@ -107,6 +105,7 @@ app.post("/list/:list_name/:commit_hash", (req, res) => {
   res.status(200).json({ success: true });
 });
 
+// end point to get all commits for a list
 app.get("/commits/:list_name/:commit_hash", (req, res) => {
   const listName = req.params.list_name;
   const commitHash = req.params.commit_hash;
@@ -116,30 +115,24 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
       "SELECT user_name, commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
       [listName]
     );
-    console.log("FIRST", response);
     res.status(200).json(response);
   } else {
-    // TODO: its possible to have a better query/logic ... use last read commit hash
-    // this logic has a problem ... the last commit from the client can be outdated with the last read commit
-    // in other words ... after fetching some other user can have committed and the client will not know about it
-
     let response = queryAll(
       "SELECT user_name, commit_hash, commit_data FROM commitChanges WHERE list_name = ? " +
         "AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?",
       [listName, commitHash, commitHash]
     );
-    console.log("OTHER", response);
     res.status(200).json(response);
   }
 });
 
+// endpoint to get all commits from a list for a given user
 app.get("/list/:list_name/:username", (req, res) => {
   const listName = req.params.list_name;
   const username = req.params.username;
 
   console.log("GET", listName, username);
   if (username) {
-    // insert into userLists if pair (username, listName) does not exist
     queryRun(
       "INSERT INTO userLists (user_name, list_name) SELECT ?, ? WHERE NOT EXISTS (SELECT 1 FROM userLists WHERE user_name = ? AND list_name = ?)",
       [username, listName, username, listName]
@@ -154,6 +147,7 @@ app.get("/list/:list_name/:username", (req, res) => {
   res.status(200).json(response);
 });
 
+// endpoint to get all commits from a list
 app.get("/list/:list_name", (req, res) => {
   const listName = req.params.list_name;
 
@@ -165,6 +159,7 @@ app.get("/list/:list_name", (req, res) => {
   res.status(200).json(response);
 });
 
+// endpoint to check if the server is running
 app.get("/ping", (req, res) => {
   const json = { message: "pong" };
   res.send(json);

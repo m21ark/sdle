@@ -6,6 +6,7 @@ class GarbageCollector {
     this.replicaPorts = [];
   }
 
+  // look for active replicas in the given port range by sending a ping request
   async discoverActiveReplicas(minPort, maxPort) {
     try {
       const activePorts = await this.replicaDiscoverability(minPort, maxPort);
@@ -18,6 +19,7 @@ class GarbageCollector {
     }
   }
 
+  // ping the replicas to check if they are active
   async replicaDiscoverability(basePort, maxPort) {
     const activePorts = [];
 
@@ -45,8 +47,8 @@ class GarbageCollector {
     return activePorts;
   }
 
+  // get all commits for a given list from all replicas
   async getReplicasCommits(listName) {
-    // replicasCommits is a Map of the form: PORT => [ {commitHash: ..., commitData: ...} ]
     const replicasCommits = new Map();
 
     for (const port of this.replicaPorts) {
@@ -63,10 +65,11 @@ class GarbageCollector {
     return replicasCommits;
   }
 
+  // perform garbage collection on all lists on all replicas
   async performGarbageCollection() {
     console.log("Discovering active replicas ...");
 
-    this.replicaPorts = await this.discoverActiveReplicas(5000, 5005);
+    this.replicaPorts = await this.discoverActiveReplicas(5000, 5005); // TODO: HARDOCDED
 
     if (!this.replicaPorts || this.replicaPorts.length === 0) {
       console.log("No active replicas found");
@@ -103,13 +106,12 @@ class GarbageCollector {
 
     console.log("Found lists:", [...lists]);
 
-    // Perform garbage collection in batches of 3
+    // Perform garbage collection in batches of 3 replicas
+    const batchSize = 3;
+
     const listNames = [...lists];
     listNames.push(listNames[0]);
     listNames.push(listNames[1]);
-
-    const batchSize = 3;
-    const totalLists = listNames.length;
 
     let copy_of_port = [...this.replicaPorts];
     copy_of_port.push(copy_of_port[0]);
@@ -120,9 +122,8 @@ class GarbageCollector {
 
       console.log("Performing garbage collection on batch:", this.replicaPorts);
 
-      for (const listName of listNames) {
+      for (const listName of listNames)
         await this.performGarbageCollectionOnList(listName);
-      }
     }
 
     console.log("Finished garbage collection");
@@ -131,7 +132,6 @@ class GarbageCollector {
   async performGarbageCollectionOnList(listName) {
     console.log("Performing garbage collection on list:", listName);
 
-    // replicasCommits is a Map of the form: PORT => [ {commitHash: ..., commitData: ...} ]
     const replicasCommits = await this.getReplicasCommits(listName);
 
     console.log("Found commits on replicas:", replicasCommits);
@@ -141,8 +141,8 @@ class GarbageCollector {
       [...replicasCommits.entries()].map(([port, commits]) => {
         return [
           port,
-          commits
-            .filter((commit) => commit.commit_hash) // Filter out commits without commitHash
+          commits // Filter out commits without commitHash
+            .filter((commit) => commit.commit_hash)
             .sort((a, b) => a.commit_hash.localeCompare(b.commit_hash)),
         ];
       })
@@ -220,6 +220,7 @@ class GarbageCollector {
     console.log("Finished garbage collection on list:", listName);
   }
 
+  // Send the merged commit to all replicas
   async sendMergedCommitToReplicas(listName, common_hashes, mergedCommit) {
     console.log("Sending merged commit to replicas: ", mergedCommit);
 
@@ -229,7 +230,7 @@ class GarbageCollector {
     );
     const sendRequests = this.replicaPorts.map(async (port) => {
       try {
-        const response = await fetch(
+        await fetch(
           `http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`,
           {
             method: "POST",
@@ -240,12 +241,6 @@ class GarbageCollector {
             }),
           }
         );
-
-        // const data = await response.json();
-
-        // if (response.status !== 200) {
-        // console.log("Error sending merged commit to replica:", data);
-        // }
       } catch (error) {
         console.error(error);
       }
@@ -255,5 +250,6 @@ class GarbageCollector {
   }
 }
 
+// In practice we would run the garbage collector as a cron job
 const garbageCollector = new GarbageCollector();
-garbageCollector.performGarbageCollection(); // TODO Make this a cron job
+garbageCollector.performGarbageCollection();
