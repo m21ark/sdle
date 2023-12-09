@@ -100,9 +100,27 @@ class GarbageCollector {
 
     console.log("Found lists:", [...lists]);
 
-    // for each list, perform garbage collection
-    for (const listName of lists)
-      await this.performGarbageCollectionOnList(listName);
+    // Perform garbage collection in batches of 3
+    const listNames = [...lists];
+    listNames.push(listNames[0])
+    listNames.push(listNames[1])
+
+
+    const batchSize = 3;
+    const totalLists = listNames.length;
+
+    let copy_of_port = [... this.replicaPorts];
+    for (let i = 0; i < copy_of_port.length - 2; i += 1) {
+      
+      this.replicaPorts = copy_of_port.slice(i, i + batchSize);
+
+      console.log("Performing garbage collection on batch:", this.replicaPorts);
+
+      for (const listName of listNames) {
+        await this.performGarbageCollectionOnList(listName);
+      }
+
+    }
 
     console.log("Finished garbage collection");
   }
