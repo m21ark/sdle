@@ -26,7 +26,8 @@ cd ../control_panel/
 node ./kill_proccess_backend.js 2>&1 &
 cd ..
 npx live-server frontend/ --port=9000 2>&1 &
-npx live-server control_panel/ --port=9001 2>&1 &
+npx live-server frontend/ --port=9001 2>&1 &
+npx live-server control_panel/ --port=9002 2>&1 &
 npx pm2 logs 2>&1 &
 
 wait
