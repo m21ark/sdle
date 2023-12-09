@@ -34,7 +34,7 @@ async function updateHintsData() {
 
 function simplifyHintsData(hintsData) {
   let simplifiedData =
-    "<table><tr><th>Replica</th><th>Hint</th><th>Username</th><th>List Name</th><th>Changes</th><th>Commit Hash</th></tr>";
+    "<table><tr><th>Replica</th><th>Hints</th><th>Username</th><th>List Name</th><th>Changes</th><th>Commit Hash</th></tr>";
 
   for (let key in hintsData) {
     hintsData[key].forEach((hint, index) => {
