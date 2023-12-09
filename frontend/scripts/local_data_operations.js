@@ -116,22 +116,16 @@ function render_list_again() {
   let items = null;
   let itemsHtml = "";
 
-  if (_shoppingLists.has(currList)) {
-    items = _shoppingLists.get(currList);
-  } else {
+  if (_shoppingLists.has(currList)) items = _shoppingLists.get(currList);
+  else {
     console.error("List does not exist: ", currList);
     return;
   }
 
-  for (const [id, item] of items.products) {
-    // if (item.value() === 0) continue;
+  for (const [id, item] of items.products)
     itemsHtml += list_item_rendering(id, item);
-  }
 
   if (items) itemsContainer.innerHTML = itemsHtml;
-  else if (document.getElementById("todo-list").children.length < 2) {
-    addNoItemMessage();
-  }
 
   const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
 

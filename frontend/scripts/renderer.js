@@ -1,13 +1,5 @@
 import * as LocalData from "./local_data_operations.js";
 
-function addNoItemMessage() {
-  const error = document.getElementById("todo-list");
-  const errorP = document.createElement("p");
-  errorP.textContent = "No items found";
-  errorP.className = "no_list_found";
-  error.appendChild(errorP);
-}
-
 function addNoListMessage() {
   const error = document.getElementById("lists-list");
   const errorP = document.createElement("p");
@@ -119,7 +111,6 @@ export function list_item_rendering(id, item) {
 }
 
 export function render_list_items() {
-  // TODO: este codigo esta duplciado em local_data_operations.js
   const itemsContainer = document.getElementById("items");
   const currList = document.getElementById("current-list-name").textContent;
 
@@ -136,19 +127,12 @@ export function render_list_items() {
   }
 
   const list_counter = document.getElementById("list-item-count");
-  if (list_counter) {
-    list_counter.textContent = "(" + items.products.size + ")";
-  }
+  if (list_counter) list_counter.textContent = "(" + items.products.size + ")";
 
-  for (const [id, item] of items.products) {
-    // if (item.value() === 0) continue;
+  for (const [id, item] of items.products)
     itemsHtml += list_item_rendering(id, item);
-  }
 
   if (items) itemsContainer.innerHTML = itemsHtml;
-  else if (document.getElementById("todo-list").children.length < 2) {
-    addNoItemMessage();
-  }
 
   const checkboxes = document.querySelectorAll(".item input[type=checkbox]");
 
@@ -215,17 +199,6 @@ export function render_list_items() {
       } else console.warn("List does not exist");
     });
   });
-
-  // const deleteButtons = document.querySelectorAll(".delete-button");
-  // deleteButtons.forEach((button) => {
-  //     button.addEventListener("click", function (event) {
-  //         const res = confirm("Are you sure you want to delete this item?");
-  //         if (!res) return;
-  //         const itemDiv = (event.target).parentElement;
-  //         itemsContainer.removeChild(itemDiv);
-  //         cache_item_changes();
-  //     });
-  // });
 
   // if name is crossed out, check the checkbox
   const itemNames = document.querySelectorAll(".item span");

@@ -225,8 +225,7 @@ function cache_item_changes(deletedListParent = false) {
   const cacheLocation = "myitems_" + currList;
   localStorage.setItem(cacheLocation, itemsContainer.innerHTML);
 
-  if (itemsContainer.children.length === 0) addNoItemMessage();
-  else {
+  if (itemsContainer.children.length !== 0) {
     const noItemMessage = document.querySelector(".no_list_found");
     if (noItemMessage) noItemMessage.remove();
   }
