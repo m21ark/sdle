@@ -50,7 +50,9 @@ class GarbageCollector {
     const replicasCommits = new Map();
 
     for (const port of this.replicaPorts) {
-      const response = await fetch(`http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`);
+      const response = await fetch(
+        `http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`
+      );
 
       if (response.status === 200) {
         const data = await response.json();
@@ -115,7 +117,7 @@ class GarbageCollector {
     copy_of_port.push(copy_of_port[1])
 
     for (let i = 0; i < copy_of_port.length - 2; i += 1) {
-      
+
       this.replicaPorts = copy_of_port.slice(i, i + batchSize);
 
       console.log("Performing garbage collection on batch:", this.replicaPorts);
@@ -230,7 +232,7 @@ class GarbageCollector {
     const sendRequests = this.replicaPorts.map(async (port) => {
       try {
         const response = await fetch(
-          `http://127.0.0.1:${port}/list/${listName}`,
+          `http://127.0.0.1:${port}/list/${encodeURIComponent(listName)}`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -244,7 +246,7 @@ class GarbageCollector {
         // const data = await response.json();
 
         // if (response.status !== 200) {
-          // console.log("Error sending merged commit to replica:", data);
+        // console.log("Error sending merged commit to replica:", data);
         // }
       } catch (error) {
         console.error(error);
