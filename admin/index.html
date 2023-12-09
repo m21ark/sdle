@@ -8,40 +8,42 @@
       href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
     />
 
-    <title>Ring-Based Data Replication</title>
+    <link rel="icon" href="favicon.png" />
+
+    <title>Admin Console</title>
 
     <script src="script.js" defer></script>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="style.css" />
   </head>
 
   <body>
     <div id="notification-toast" class="toast">
-        <div class="toast-header">
-            <strong class="mr-auto text-white">Notification</strong>
-        </div>
-        <div class="toast-body">Link copied to clipboard!</div>
+      <div class="toast-header">
+        <strong class="mr-auto text-white">Notification</strong>
+      </div>
+      <div class="toast-body">Link copied to clipboard!</div>
     </div>
 
     <div style="display: flex; position: absolute; top: 0; left: 0;">
-        <div class="node-list">
-            <div class="list-node" data-name="4000">Proxy 4000</div>
-            <div class="list-node" data-name="4001">Proxy 4001</div>
-            <div class="list-node" data-name="4002">Proxy 4002</div>
-        </div>
-        <div id="replicas-container"
-            style="position: relative; top: 10em; left: 2em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;"></div>
-        </div>
-    </div>
+      <div class="node-list">
+          <div class="list-node" data-name="4000">Proxy 4000</div>
+          <div class="list-node" data-name="4001">Proxy 4001</div>
+          <div class="list-node" data-name="4002">Proxy 4002</div>
+      </div>
+      <div id="replicas-container"
+          style="position: relative; top: 10em; left: 2em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;"></div>
+      </div>
+  </div>
 
-    <div id="ring-container">
-        <!-- Ring Circle -->
-        <div class="ring-node" id="0adb85d0fb01cbe004c37ceba8486769" data-name="5000"></div>
-        <div class="ring-node" id="28e6bc5024141665acfc0c376bbf8bf3" data-name="5001"></div>
-        <div class="ring-node" id="ce31f1487b4f3a8856cdd3b585fc3880" data-name="5002"></div>
-        <div class="ring-node" id="ba2f7128c0579980c4a29099810258eb" data-name="5003"></div>
-        <div class="ring-node" id="e897d47648220a1f6d6fbd56e21a9297" data-name="5004"></div>
-    </div>
-    <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
+  <div id="ring-container">
+    <!-- Ring Circle -->
+    <div class="ring-node" id="0adb85d0fb01cbe004c37ceba8486769" data-name="5000"></div>
+    <div class="ring-node" id="28e6bc5024141665acfc0c376bbf8bf3" data-name="5001"></div>
+    <div class="ring-node" id="ce31f1487b4f3a8856cdd3b585fc3880" data-name="5002"></div>
+    <div class="ring-node" id="ba2f7128c0579980c4a29099810258eb" data-name="5003"></div>
+    <div class="ring-node" id="e897d47648220a1f6d6fbd56e21a9297" data-name="5004"></div>
+</div>
+<div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
   </body>
 </html>

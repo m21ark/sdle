@@ -9,8 +9,8 @@ class HintedHandoff {
     this.hints = new Map();
   }
 
+  // create a JSON object from the map
   getHints() {
-    // create a JSON object from the map
     const json = {};
     for (const [key, value] of this.hints.entries()) json[key] = value;
     return json;
@@ -36,6 +36,7 @@ class HintedHandoff {
     } else console.log(`No hints for node ${recipientNode}`);
   }
 
+  // Make a POST request to the recipient node to deliver hints
   makeNodeDelivery(recipientNode, hints) {
     console.log(`Delivering hints to node ${recipientNode}:`, hints);
 
@@ -65,12 +66,13 @@ class HintedHandoff {
   }
 }
 
+// Creating the express app
 const app = express();
 app.use(bodyParser.json());
 app.use(cors());
-
 const hintedHandoff = new HintedHandoff();
 
+// endpoint to check if the server is running
 app.get("/ping", (_, res) => {
   const json = { message: "pong" };
   res.send(json);
@@ -99,6 +101,7 @@ app.post("/deliver_hints/:nodePort", (req, res) => {
   res.status(200).json({ success: true });
 });
 
+// Start the server and listen on the port
 app.listen(port, () => {
   console.log(`Server is listening on port ${port}`);
 });

@@ -15,14 +15,12 @@ class ConsistentHashing {
     this.nodes = nodes.map(([node, _]) => node);
     this.virtualNodes = nodes.map(([_, weight]) => weight);
     this.replicas = replicas;
-    this.hashRing = new RBTree((a, b) => Comparator.defaultCompare(a, b)); // Use RBTree for sorted order
+    this.hashRing = new RBTree((a, b) => Comparator.defaultCompare(a, b));
     this.mappedNodes = new Map();
-
     this.buildHashRing();
   }
 
   hashString(str) {
-    // Use a hash function (e.g., md5) to convert a string into a hash value
     return md5(str);
   }
 
@@ -48,29 +46,20 @@ class ConsistentHashing {
   }
 
   getNodeIt(key) {
-    // get the node iterator
     const hash = this.hashString(key);
-
-    console.log(`Key : ${key} - Hash : ${hash}`);
-
     let nodeHash = this.findClosestNode(hash);
     if (nodeHash === null) {
       let it = this.hashRing.iterator();
       it.next();
       nodeHash = it.data();
     }
-
     return this.hashRing.findIter(nodeHash);
   }
 
   findClosestNode(hash) {
     let nodeHash = this.hashRing.upperBound(hash);
-
-    if (!nodeHash) {
-      // If the hash is greater than all nodes, loop back to the first node
-      nodeHash = this.hashRing.iterator().next();
-    }
-
+    // If the hash is greater than all nodes, loop back to the first node
+    if (!nodeHash) nodeHash = this.hashRing.iterator().next();
     return nodeHash.data();
   }
 
@@ -133,7 +122,8 @@ class ConsistentHashing {
     }
   }
 
-  // n is the size of the quorum, it returns the next n nodes in the ring, starting from the node that is responsible for the key
+  // n is the size of the quorum, it returns the next n nodes in the ring
+  // starting from the node that is responsible for the key
   getNextNNodes(key, n) {
     let principleNode = this.getNodeIt(key);
     const nodes = [];
@@ -145,7 +135,6 @@ class ConsistentHashing {
       }
       nodes.push(nextNode);
     }
-
     return nodes;
   }
 

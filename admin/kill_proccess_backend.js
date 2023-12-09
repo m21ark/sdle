@@ -1,16 +1,15 @@
-// server.js
 const express = require("express");
 const { exec } = require("child_process");
 const cors = require("cors");
 const fs = require("fs");
 const path = require("path");
-const sqlite3 = require("better-sqlite3"); // Import the better-sqlite3 module
+const sqlite3 = require("better-sqlite3");
 const md5 = require("md5");
 
 const app = express();
 const port = 3000;
 
-app.use(express.static("public")); // Serve the HTML and other static files
+app.use(express.static("public"));
 app.use(cors());
 
 app.get("/lists", (req, res) => {
@@ -31,7 +30,7 @@ app.get("/lists", (req, res) => {
       }
 
       const dbPath = path.join(replicasDir, replica);
-      const db = new sqlite3(dbPath); // Create a new database instance
+      const db = new sqlite3(dbPath);
 
       db.transaction(() => {
         const stmt = db.prepare("SELECT DISTINCT list_name FROM commitChanges");
@@ -52,7 +51,7 @@ app.get("/lists", (req, res) => {
         }
       })();
 
-      db.close(); // Close the database connection
+      db.close();
     });
   });
 });
@@ -176,7 +175,6 @@ app.get("/start-process/:port", (req, res) => {
   const port = req.params.port;
   console.log(port);
 
-  // Use a command to restart the process on the specified port
   exec(
     `cd ../db/ && node index.js ${port} && cd ../admin/`,
     (error, stdout, stderr) => {
