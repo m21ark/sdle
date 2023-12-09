@@ -39,7 +39,6 @@ app.get('/check-replicas', (req, res) => {
         let results = [];
 
         replicas.forEach(replica => {
-            console.log(path.join(replicasDir, replica))
             if (!replica.endsWith('.db')) {
                 return;
             }
