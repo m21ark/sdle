@@ -112,7 +112,7 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
 
   if (commitHash.includes("FIRST")) {
     let response = queryAll(
-      "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
+      "SELECT user_name, commit_hash, commit_data FROM commitChanges WHERE list_name = ?",
       [listName]
     );
     console.log("FIRST", response);
@@ -123,7 +123,7 @@ app.get("/commits/:list_name/:commit_hash", (req, res) => {
     // in other words ... after fetching some other user can have committed and the client will not know about it
 
     let response = queryAll(
-      "SELECT commit_hash, commit_data FROM commitChanges WHERE list_name = ? " +
+      "SELECT user_name, commit_hash, commit_data FROM commitChanges WHERE list_name = ? " +
         "AND id > (SELECT id FROM commitChanges WHERE commit_hash = ?) and commit_hash <> ?",
       [listName, commitHash, commitHash]
     );
