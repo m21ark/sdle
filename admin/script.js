@@ -3,7 +3,7 @@ let hintsWindow = document.createElement("div");
 hintsWindow.style.position = "fixed";
 hintsWindow.style.right = "0";
 hintsWindow.style.top = "0";
-hintsWindow.style.width = "500px";
+hintsWindow.style.width = "660px";
 hintsWindow.style.height = "500px";
 hintsWindow.style.overflow = "auto";
 hintsWindow.style.backgroundColor = "#f8f8f8";
@@ -182,7 +182,7 @@ ringNodes.forEach((node) => {
         )
         .catch((_) =>
           generate_notification(
-            "Probleam trying to kill replica node " + nodeId,
+            "Problem trying to kill replica node " + nodeId,
             "bg-danger"
           )
         );
@@ -202,7 +202,7 @@ ringNodes.forEach((node) => {
         )
         .catch((_) =>
           generate_notification(
-            "Probleam trying to startup replica node " + nodeId,
+            "Problem trying to startup replica node " + nodeId,
             "bg-danger"
           )
         );
