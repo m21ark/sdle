@@ -31,8 +31,6 @@ app.get('/lists', (req, res) => {
                 return;
             }
 
-            console.log(replica);
-            console.log(results);
             const dbPath = path.join(replicasDir, replica);
             const db = new sqlite3(dbPath); // Create a new database instance
 
@@ -40,7 +38,6 @@ app.get('/lists', (req, res) => {
                 const stmt = db.prepare('SELECT DISTINCT list_name FROM commitChanges');
                 const rows = stmt.all();
 
-                console.log(rows);
                 results.push({ replica, lists: rows.map(row => { return { list_name: row.list_name, md5: md5(row.list_name.split('#')[0]) } }) });
 
                 if (results.length === replicas.length - 1) {
