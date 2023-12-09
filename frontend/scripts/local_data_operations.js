@@ -88,12 +88,13 @@ export function remove_list(listName) {
 }
 
 export function list_item_rendering(id, item) {
-  let plusButtonDisplay = item.value() <= 0 ? 'hidden' : '';
-  let minusButtonDisplay = item.value() <= 1 ? 'hidden' : '';
-  let checkBox = '', completed = '';
+  let plusButtonDisplay = item.value() <= 0 ? "hidden" : "";
+  let minusButtonDisplay = item.value() <= 1 ? "hidden" : "";
+  let checkBox = "",
+    completed = "";
   if (item.value() === 0) {
-    checkBox = 'checked'
-    completed = 'completed'
+    checkBox = "checked";
+    completed = "completed";
   }
 
   return `<div class="item">\ 
@@ -142,13 +143,13 @@ function render_list_again() {
       if (_shoppingLists.has(currList)) {
         const listObj = _shoppingLists.get(currList);
         if (event.target.checked) {
-          itemNameElement.classList.add("completed")
+          itemNameElement.classList.add("completed");
           listObj.removeFromList(itemNameElement.textContent);
         } else {
-          itemNameElement.classList.remove("completed")
+          itemNameElement.classList.remove("completed");
           listObj.addProduct(itemNameElement.textContent, 1);
-        };
-        
+        }
+
         cache_list_changes(listObj);
         render_list_again();
       } else console.warn("List does not exist");
@@ -239,7 +240,7 @@ async function fetch_commits(list) {
         list.mergeDeltaChanges(row["commit_hash"], temp);
         cache_changes();
         render_list_again();
-        
+
         // if active page list is the same as the list that was updated we need to update the page
         // TODO: Add to the list view the new changes
         list.lastCommitRead = row["commit_hash"];

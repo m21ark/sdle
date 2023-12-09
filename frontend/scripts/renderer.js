@@ -98,12 +98,13 @@ function render_lists() {
 }
 
 export function list_item_rendering(id, item) {
-  let plusButtonDisplay = item.value() <= 0 ? 'hidden' : '';
-  let minusButtonDisplay = item.value() <= 1 ? 'hidden' : '';
-  let checkBox = '', completed = '';
+  let plusButtonDisplay = item.value() <= 0 ? "hidden" : "";
+  let minusButtonDisplay = item.value() <= 1 ? "hidden" : "";
+  let checkBox = "",
+    completed = "";
   if (item.value() === 0) {
-    checkBox = 'checked'
-    completed = 'completed'
+    checkBox = "checked";
+    completed = "completed";
   }
 
   return `<div class="item">\ 
@@ -136,9 +137,9 @@ export function render_list_items() {
 
   const list_counter = document.getElementById("list-item-count");
   if (list_counter) {
-    list_counter.textContent = '(' + items.products.size + ')'
-  };
-  
+    list_counter.textContent = "(" + items.products.size + ")";
+  }
+
   for (const [id, item] of items.products) {
     // if (item.value() === 0) continue;
     itemsHtml += list_item_rendering(id, item);
@@ -162,10 +163,10 @@ export function render_list_items() {
           itemNameElement.classList.add("completed");
           listObj.removeFromList(itemNameElement.textContent);
         } else {
-          itemNameElement.classList.remove("completed")
+          itemNameElement.classList.remove("completed");
           listObj.addProduct(itemNameElement.textContent, 1);
-        };
-        
+        }
+
         LocalData.cache_list_changes(listObj);
         render_list_items();
       } else console.warn("List does not exist");
@@ -182,7 +183,7 @@ export function render_list_items() {
         event.target.parentElement.parentElement.children[0];
 
       const currList = document.getElementById("current-list-name").textContent;
-      
+
       if (LocalData._shoppingLists.has(currList)) {
         const listObj = LocalData._shoppingLists.get(currList);
         listObj.addProduct(itemNameElement.textContent, 1);

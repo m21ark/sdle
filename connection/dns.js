@@ -97,8 +97,7 @@ function discoverActiveServer() {
         proxyPorts = [];
         return [];
       });
-  }
-  catch (error) {
+  } catch (error) {
     console.log("Error in serverDiscoverability: ", error.message);
   }
 }

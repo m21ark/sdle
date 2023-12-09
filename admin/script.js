@@ -38,7 +38,8 @@ function simplifyHintsData(hintsData) {
 
   for (let key in hintsData) {
     hintsData[key].forEach((hint, index) => {
-      console.log(hint);console.log(hint.commit_data['delta'])
+      console.log(hint);
+      console.log(hint.commit_data["delta"]);
       let changes = Object.entries(hint.commit_data.delta)
         .map(([item, count]) => `${item}: ${count}`)
         .join(", ");

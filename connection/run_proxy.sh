@@ -8,8 +8,6 @@ fi
 base_port=$1
 num_instances=$2
 
-
-
 echo "Starting $num_instances instances of proxy on ports $base_port to $((base_port + num_instances - 1))"
 
 i=0

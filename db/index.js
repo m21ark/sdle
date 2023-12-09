@@ -46,11 +46,11 @@ app.post("/list/:list_name", (req, res) => {
   // Parse and stringify the commit_data without quotes around property names
   const parsedData = JSON.parse(mergedCommit.commit_data);
   let obj = {};
-  for (const key in parsedData.delta) obj[`${key}`] = parsedData.delta[key].toString();
+  for (const key in parsedData.delta)
+    obj[`${key}`] = parsedData.delta[key].toString();
 
   const stringifiedItems = JSON.stringify(obj);
   const merged = `{"delta": ${stringifiedItems} }`;
-  
 
   queryRun(
     "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",

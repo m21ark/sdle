@@ -105,19 +105,17 @@ class GarbageCollector {
 
     // Perform garbage collection in batches of 3
     const listNames = [...lists];
-    listNames.push(listNames[0])
-    listNames.push(listNames[1])
-
+    listNames.push(listNames[0]);
+    listNames.push(listNames[1]);
 
     const batchSize = 3;
     const totalLists = listNames.length;
 
-    let copy_of_port = [... this.replicaPorts];
-    copy_of_port.push(copy_of_port[0])
-    copy_of_port.push(copy_of_port[1])
+    let copy_of_port = [...this.replicaPorts];
+    copy_of_port.push(copy_of_port[0]);
+    copy_of_port.push(copy_of_port[1]);
 
     for (let i = 0; i < copy_of_port.length - 2; i += 1) {
-
       this.replicaPorts = copy_of_port.slice(i, i + batchSize);
 
       console.log("Performing garbage collection on batch:", this.replicaPorts);
@@ -125,7 +123,6 @@ class GarbageCollector {
       for (const listName of listNames) {
         await this.performGarbageCollectionOnList(listName);
       }
-
     }
 
     console.log("Finished garbage collection");
@@ -191,9 +188,7 @@ class GarbageCollector {
     // Merge all common commit_data into a single object
     const mergedCommitData = Array.from(commonCommitDataMap.values()).reduce(
       (merged, commitData) => {
-        const commitDataObj = JSON.parse(
-          commitData.replace(/delta/g, 'delta')
-        );
+        const commitDataObj = JSON.parse(commitData.replace(/delta/g, "delta"));
 
         for (const key in commitDataObj.delta) {
           if (merged.delta.hasOwnProperty(key))
@@ -203,7 +198,7 @@ class GarbageCollector {
 
         return merged;
       },
-      { "delta": {} }
+      { delta: {} }
     );
 
     const lastCommonCommitHash = sortedReplicasCommits
@@ -228,7 +223,10 @@ class GarbageCollector {
   async sendMergedCommitToReplicas(listName, common_hashes, mergedCommit) {
     console.log("Sending merged commit to replicas: ", mergedCommit);
 
-    console.log("Replicas to send to:", JSON.stringify(mergedCommit).replace(/delta/g, '"delta"'));
+    console.log(
+      "Replicas to send to:",
+      JSON.stringify(mergedCommit).replace(/delta/g, '"delta"')
+    );
     const sendRequests = this.replicaPorts.map(async (port) => {
       try {
         const response = await fetch(
@@ -238,7 +236,7 @@ class GarbageCollector {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
               common_hashes: common_hashes,
-              data: mergedCommit
+              data: mergedCommit,
             }),
           }
         );
@@ -259,5 +257,3 @@ class GarbageCollector {
 
 const garbageCollector = new GarbageCollector();
 garbageCollector.performGarbageCollection(); // TODO Make this a cron job
-
-

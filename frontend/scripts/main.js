@@ -61,7 +61,9 @@ async function reload_list(listId) {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${encodeURIComponent(listId)}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${
+      LocalData.PROXY_PORT
+    }/list/${encodeURIComponent(listId)}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -74,7 +76,6 @@ async function reload_list(listId) {
           let prods = new Map();
           let temp = new ShoppingList();
 
-
           for (let [key, value] of Object.entries(row_data.delta)) {
             let quantity = parseInt(value);
             prods.set(key, new PNCounter());
@@ -85,12 +86,10 @@ async function reload_list(listId) {
           s.mergeDeltaChanges(row["commit_hash"], temp);
         }
 
-
         LocalData._shoppingLists.set(listId, s);
         LocalData.cache_changes();
         // change url and take the get_id
         generate_notification("List is being added!", "bg-success");
-
       })
       .catch((error) =>
         console.error(`Error fetching list ${listId}: ${error}`)
@@ -114,7 +113,11 @@ function add_list_by_url() {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/list/${encodeURIComponent(listId)}/${encodeURIComponent(LocalData._username)}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${
+      LocalData.PROXY_PORT
+    }/list/${encodeURIComponent(listId)}/${encodeURIComponent(
+      LocalData._username
+    )}`;
     console.log(url);
     fetch(url)
       .then((response) => response.json())
@@ -127,7 +130,6 @@ function add_list_by_url() {
           let row_data = JSON.parse(row["commit_data"]);
           let prods = new Map();
           let temp = new ShoppingList();
-
 
           for (let [key, value] of Object.entries(row_data.delta)) {
             let quantity = parseInt(value);
@@ -185,7 +187,10 @@ function add_list_item() {
   const itemQuantity = itemQuantityInput.value.trim();
 
   if (itemName === "" || itemQuantity === "" || itemQuantity <= 0) {
-    generate_notification("Please enter a valid name and quantity!", "bg-danger");
+    generate_notification(
+      "Please enter a valid name and quantity!",
+      "bg-danger"
+    );
     return;
   }
   const currList = document.getElementById("current-list-name").textContent;
@@ -385,7 +390,11 @@ function login_modal() {
       if (username.value) {
         let user = username.value.trim();
 
-        fetch(`http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT}/user_data/${encodeURIComponent(user)}`)
+        fetch(
+          `http://${LocalData.PROXY_DOMAIN}:${
+            LocalData.PROXY_PORT
+          }/user_data/${encodeURIComponent(user)}`
+        )
           .then((response) => response.json())
           .then((data) => {
             console.log(data);

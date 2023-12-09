@@ -14,8 +14,5 @@ CREATE TABLE commitChanges (
     user_name TEXT NOT NULL,
     list_name TEXT NOT NULL,
     commit_hash TEXT NOT NULL,
-    commit_data TEXT NOT NULL--,
-    --FOREIGN KEY (list_name) REFERENCES todo_lists(name) ON DELETE CASCADE
+    commit_data TEXT NOT NULL
 );
-
-
