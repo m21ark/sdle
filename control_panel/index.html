@@ -101,6 +101,19 @@
             justify-content: center;
         }
 
+        .list-hash {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background-color: #db349b;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5px;
+        }
+
         .ring-node.active {
             background-color: #ff0000;
             /* Change the background color to red */
@@ -163,10 +176,16 @@
         <div class="ring-node" id="e897d47648220a1f6d6fbd56e21a9297" data-name="5004"></div>
         <!-- Add more nodes as needed -->
         <!-- Add more nodes as needed -->
+
+        <!-- List of names -->
+
+        <!-- Add more list nodes as needed -->
     </div>
     <div id="garbage-collection" style="padding: 3em;"> Garbage Collection </div>
 
-    <div id="replicas-container" style="position: fixed; top: 20em; left: 1em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;"></div>
+    <div id="replicas-container"
+        style="position: fixed; top: 20em; left: 1em; padding: 1em; background-color: #f8f8f8; border: 1px solid #ccc; border-radius: 5px; width: 300px; height: 300px; overflow: auto;">
+    </div>
 
     <script>
 
@@ -288,6 +307,44 @@
 
             return { x, y };
         }
+
+        function fetchListData() {
+            fetch('http://localhost:3000/lists')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const listContainer = document.getElementById('ring-container');
+
+                    // Remove all the existing list nodes
+                    const listNodes = document.querySelectorAll('.list-hash');
+
+
+                    data.forEach((node, index) => {
+                        
+                        node.lists.forEach((list, index) => {
+
+                            const listNode = document.createElement('div');
+                            listNode.classList.add('list-hash');
+                            listNode.setAttribute('data-name', node.replica);
+                            listNode.textContent = list.list_name.split('#')[0];
+                            let listNodeAngle = angle * index;
+                            const nodePosition = calculateNodePosition( listNodeAngle, list.md5);
+                            listNode.style.top = nodePosition.y + '%';
+                            listNode.style.left = nodePosition.x + '%';
+                            listNode.style.transform = 'translate(-50%, -50%)'; // Center the node within the container
+
+                            listContainer.appendChild(listNode);
+                        });
+                    });
+                })
+                .catch(error => console.error(error));
+        }
+
+        setInterval(fetchListData,3000);
 
         ringNodes.forEach(node => {
             node.addEventListener('click', () => {
