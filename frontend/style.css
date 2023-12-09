@@ -95,6 +95,12 @@ div#appList {
   background-color: #c00;
 }
 
+span.quantity__minus,
+span.quantity__plus,
+span.quantity {
+  user-select: none;
+}
+
 #notification-toast {
   position: fixed;
   top: 1em;
