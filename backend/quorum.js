@@ -89,28 +89,27 @@ class Quorum {
       toHash
     );
 
-    for (const port of responsibleReplicaPorts) {
+    const promises = responsibleReplicaPorts.map(async (port) => {
       try {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
         data.replicaPorts.push(port);
-        // Check if quorum size is reached
-        if (responses.length >= this.quorumSize) {
-          if (this.areResponsesConsistent(responses, data)) {
-            return responses;
-          } // TODO: return the result of the operation
-          console.error("Inconsistent responses");
-          continue;
-        }
-      } catch (error) {
+      } catch (error) {        
         // TODO: port that is falling should be informed of the changes occured while it was down,
         // const response = await this.sendHandoffUpdateRequest(port, data); Inform the handoff like this?
         console.error(error.message);
-        // Continue with the next replica in case of failure
+        responses.push([]); // response
       }
+    });
+    
+    await Promise.all(promises);
+    // Check if quorum size is reached
+    console.log("Responses:", responses);
+    if (this.areResponsesConsistent(responses, data)) {
+      return responses;
+    } else {
+      throw new Error("Quorum not reached");
     }
-
-    throw new Error("Quorum not reached");
   }
 
   async sendHandoffUpdateRequest(recipientNode, updateData) {
