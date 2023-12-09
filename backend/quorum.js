@@ -3,6 +3,7 @@ class Quorum {
     this.replicaPorts = replicaPorts;
     this.consensusSize = consensusSize;
     this.quorumSize = quorumSize;
+    this.downReplicas = [];
   }
 
   setConsistentHashing(consistentHashing) {
@@ -82,29 +83,38 @@ class Quorum {
 
     const responsibleReplicaPorts =
       this.consistentHashing.getNodesFromHashes(preferenceList);
-    console.log(
+      console.log(
       "Responsible replicas:",
       responsibleReplicaPorts,
       "for hash:",
       toHash
     );
-
+    let duplicateVote = false;
     const promises = responsibleReplicaPorts.map(async (port) => {
       try {
         const response = await this.sendRequestToReplica(port, data);
         responses.push(response);
         data.replicaPorts.push(port);
-      } catch (error) {        
-        // TODO: port that is falling should be informed of the changes occured while it was down,
-        // const response = await this.sendHandoffUpdateRequest(port, data); Inform the handoff like this?
-        console.error(error.message);
-        responses.push([]); // response
+      } catch (error) {
+        if (data.method === "GET") {
+          duplicateVote = true;
+        } else {  
+          // TODO: port that is falling should be informed of the changes occured while it was down,
+          const response = await this.sendHandoffUpdateRequest(port, data);
+          responses.push([response]);
+          data.replicaPorts.push(5600);
+        }
       }
     });
     
     await Promise.all(promises);
+
+    if (duplicateVote) {
+      responses.push(responses[0]);
+      data.replicaPorts.push(data.replicaPorts[0]);
+    }
+
     // Check if quorum size is reached
-    console.log("Responses:", responses);
     if (this.areResponsesConsistent(responses, data)) {
       return responses;
     } else {
@@ -112,44 +122,47 @@ class Quorum {
     }
   }
 
-  async sendHandoffUpdateRequest(recipientNode, updateData) {
-    const handoffPort = 5600;
-    try {
-      const response = await fetch(`http://localhost:${handoffPort}/update`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          recipientNode,
-          updateData,
-        }),
-      });
+  async sendHandoffUpdateRequest(recipientNode, data) {
+    const postData = {
+      commit_data: JSON.parse(data.body.data),
+      username: data.body.username,
+      listName : decodeURIComponent(data.originalUrl.split("/")[2]),
+      commitHash : data.originalUrl.split("/")[3],
+    };
 
-      const data = await response.json();
-      if (!data.success)
-        console.error("Handoff update request was not success:", data.error);
-    } catch (error) {
-      console.error("Error sending update request:", error.message);
-    }
+    const apiUrl = `http://localhost:5600/update`;
+    
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({node: recipientNode, data: postData}),
+    })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Response from server:', data);
+        return {success: true}
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        return {success: false}
+      });
   }
 
   async sendHandoffDeliverHintsRequest(recipientNode) {
     const handoffPort = 5600;
     try {
       const response = await fetch(
-        `http://localhost:${handoffPort}/deliver_hints`,
+        `http://localhost:${handoffPort}/deliver_hints/${recipientNode}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            recipientNode,
-          }),
         }
       );
-
+      console.log("Handoff delivery response:", response);
       const data = await response.json();
       if (!data.success)
         console.error("Handoff delivery response was not success:", data.error);
@@ -160,11 +173,7 @@ class Quorum {
 
   areResponsesConsistent(responses, data) {
     // TODO: implement this with state-based replication (hash comparison?)
-    console.log("Quorum Responses:", responses);
-    console.log("Data URL:", data.originalUrl);
-    console.log("Data Method:", data.method);
     const listName = data.originalUrl.split("/")[2];
-    console.log("List name:", listName);
 
     // If there are at least responses.consensusSize successful responses, means that there is consensus
     const numberOfSuccessfulResponses = responses.filter((response) => response.success).length;
@@ -195,12 +204,6 @@ class Quorum {
         commit_data: uniqueCommits[commitHash][1] || '',
       }));
     });
-
-    // Output the results
-    console.log("Unique Commits Set:", Array.from(uniqueCommits));
-    console.log("List of Lists with Unique Commits:", missingCommits);
-    console.log("Data URL:", data.originalUrl)
-    console.log("Data Method:", data.method)
 
     // If there are at least this.consensusSize lists that are empty, means that they are updated and there is consensus
     const numberOfEmptyLists = missingCommits.filter((list) => list.length === 0).length;
@@ -295,6 +298,22 @@ class Quorum {
 
     _replicaDiscoverability(minPort, maxPort)
       .then((activePorts) => {
+        // Get the ones that came up
+        const upReplicas = activePorts.filter(
+          (port) => !this.replicaPorts.includes(port)
+        );
+        // call hinted handoff
+        for (const port of upReplicas) {
+          console.log("Delivering hints to node", port);
+          this.sendHandoffDeliverHintsRequest(port);
+        }
+
+        // Get the ones that went down
+        this.downReplicas = this.replicaPorts.filter(
+          (port) => !activePorts.includes(port)
+        );
+        
+
         this.replicaPorts = activePorts;
         return activePorts ?? [];
       })

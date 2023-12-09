@@ -92,7 +92,7 @@ app.post("/update", (req, res) => {
 });
 
 // Endpoint to deliver hints to a node
-app.get("/deliver_hints/:nodePort", (req, res) => {
+app.post("/deliver_hints/:nodePort", (req, res) => {
   const recipientNode = req.params.nodePort;
   console.log(`Delivering hints to node ${recipientNode}`);
   hintedHandoff.deliverHints(recipientNode);

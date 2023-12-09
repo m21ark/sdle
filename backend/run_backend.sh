@@ -12,6 +12,7 @@ i=0
 while [ "$i" -lt "$num_instances" ]; do
   port=$((base_port + i))
 
+  # npx nodemon ./index.js $port 2>&1 &
   npx pm2 start --name "$port" index.js -- $port &
 
   i=$((i + 1))

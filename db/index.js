@@ -74,7 +74,7 @@ app.post("/handoff", (req, res) => {
   const data = req.body.data;
 
   for (const commit of data) {
-    const toStore = `{delta: ${JSON.stringify(commit.commit_data.delta)} }`;
+    const toStore = `{"delta": ${JSON.stringify(commit.commit_data.delta)} }`;
 
     queryRun(
       "INSERT INTO commitChanges (user_name, list_name, commit_hash, commit_data) VALUES (?, ?, ?, ?)",
