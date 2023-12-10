@@ -1,4 +1,5 @@
 const { response } = require("express");
+const md5 = require("md5");
 const { parse } = require("path");
 
 class GarbageCollector {
@@ -88,37 +89,56 @@ class GarbageCollector {
     console.log("Getting all lists ...");
 
     // get all lists
-    let lists = new Set();
+    // let lists = new Set();
 
-    for (const port of this.replicaPorts) {
-      const response = await fetch(`http://127.0.0.1:${port}/lists`);
+    // for (const port of this.replicaPorts) {
+    //   const response = await fetch(`http://127.0.0.1:${port}/lists`);
 
-      if (response.status === 200) {
-        const data = await response.json();
-        data.forEach((list) => lists.add(list.list_name));
-      }
-    }
+    //   if (response.status === 200) {
+    //     const data = await response.json();
+    //     data.forEach((list) => lists.add(list.list_name));
+    //   }
+    // }
 
-    if (lists.size === 0) {
-      console.log("No lists to perform garbage collection on");
-      return;
-    }
 
-    console.log("Found lists:", [...lists]);
+    // console.log("Found lists:", [...lists]);
 
     // Perform garbage collection in batches of 3 replicas
     const batchSize = 3;
 
-    const listNames = [...lists];
-    listNames.push(listNames[0]);
-    listNames.push(listNames[1]);
+
 
     let copy_of_port = [...this.replicaPorts];
+
+
+    // sort copy_of_port by md5 hash
+    copy_of_port.sort((a, b) => parseInt(md5(a.toString() + `_0`), 16) - parseInt(md5(b.toString() + `_0`), 16));
+
     copy_of_port.push(copy_of_port[0]);
     copy_of_port.push(copy_of_port[1]);
 
     for (let i = 0; i < copy_of_port.length - 2; i += 1) {
       this.replicaPorts = copy_of_port.slice(i, i + batchSize);
+
+      // get all lists
+      let lists = new Set();
+
+      for (const port of this.replicaPorts) {
+        const response = await fetch(`http://127.0.0.1:${port}/lists`);
+
+        if (response.status === 200) {
+          const data = await response.json();
+          data.forEach((list) => lists.add(list.list_name));
+        }
+      }
+
+      if (lists.size === 0) {
+        console.log("No lists to perform garbage collection on");
+        continue;
+      }
+
+      const listNames = [...lists];
+
 
       console.log("Performing garbage collection on batch:", this.replicaPorts);
 
