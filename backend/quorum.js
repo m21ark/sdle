@@ -106,10 +106,9 @@ class Quorum {
         if (data.method === "GET") {
           duplicateVote = true;
         } else {
-          // TODO: port that is falling should be informed of the changes occured while it was down
           const response = await this.sendHandoffUpdateRequest(port, data);
-          responses.push([response]); // TODO: handoff doesnt provide a response for quorum
-          data.replicaPorts.push(5600); // TODO: hardcoded and wrong (?)
+          responses.push([response]); 
+          data.replicaPorts.push(5600);
         }
       }
     });

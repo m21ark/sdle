@@ -17,7 +17,6 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cors());
 
-// TODO: make these argument
 const consensusSize = 2;
 const quorumSize = 3;
 
@@ -64,7 +63,7 @@ app.all("/*", (req, res) => {
 // Check for active replicas every 10 seconds
 function updateActiveReplicas() {
   try {
-    quorum.discoverActiveReplicas(5000, 5100); // TODO Make these configs
+    quorum.discoverActiveReplicas(5000, 5100); 
     if (!consistentHashing && quorum.getReplicaActiveCount() > 0) {
       //const nodes = quorum.getReplicaPorts().map((port) => [port, 1]);
       const nodes = [ // NOTE: hardcoded because of backend crashes

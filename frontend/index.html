@@ -1,117 +1,102 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Checklist</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <link rel="icon" href="favicon.png" />
-    <link
-      rel="stylesheet"
-      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
-    />
-    <link rel="stylesheet" href="style.css" />
+<head>
+  <title>Checklist</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <script defer type="module" src="logic/shopping_list.js"></script>
-    <script defer type="module" src="scripts/local_data_operations.js"></script>
-    <script defer type="module" src="scripts/renderer.js"></script>
-    <script defer type="module" src="scripts/main.js"></script>
-  </head>
+  <link rel="icon" href="favicon.png" />
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" />
+  <link rel="stylesheet" href="style.css" />
 
-  <body>
-    <div class="burger-icon" id="burger-icon" style="display: none">
-      &#9776;
+  <script defer type="module" src="logic/shopping_list.js"></script>
+  <script defer type="module" src="scripts/local_data_operations.js"></script>
+  <script defer type="module" src="scripts/renderer.js"></script>
+  <script defer type="module" src="scripts/main.js"></script>
+</head>
+
+<body>
+  <div class="burger-icon" id="burger-icon" style="display: none">
+    &#9776;
+  </div>
+
+  <header>
+    <span>.</span>
+    <div id="username"></div>
+    <button id="logout-button" class="btn"><span> Logout</span></button>
+  </header>
+
+  <div id="notification-toast" class="toast">
+    <div class="toast-header">
+      <strong class="mr-auto text-white">Notification</strong>
+    </div>
+    <div class="toast-body">Link copied to clipboard!</div>
+  </div>
+
+  <div id="appList" style="display: none">
+    <div id="list-title">
+      <h2>
+        <span id="list-name-title">Grocery List</span>
+        <span id="list-item-count"></span>
+      </h2>
+      <button class="btn btn-outline-dark" id="share-button">Share</button>
     </div>
 
-    <header>
-      <span>.</span>
-      <div id="username"></div>
-      <button id="logout-button" class="btn"><span> Logout</span></button>
-    </header>
-
-    <div id="notification-toast" class="toast">
-      <div class="toast-header">
-        <strong class="mr-auto text-white">Notification</strong>
-      </div>
-      <div class="toast-body">Link copied to clipboard!</div>
+    <div class="overlay" id="overlay-item"></div>
+    <div class="popup" id="popup-item">
+      <span class="close" id="close-popup-item">&times;</span>
+      <h2>Add Item to the List</h2>
+      <form id="add-item-form">
+        <label for="item-name">Item Name:</label>
+        <input type="text" id="item-name" required placeholder="Potato Chips" />
+        <br />
+        <label for="item-quantity">Quantity:</label>
+        <input type="number" id="item-quantity" required placeholder="3" />
+        <br />
+        <input type="submit" />
+      </form>
     </div>
 
-    <div id="appList" style="display: none">
-      <div id="list-title">
-        <h2>
-          <span id="list-name-title">Grocery List</span>
-          <span id="list-item-count"></span>
-        </h2>
-        <button class="btn btn-outline-dark" id="share-button">Share</button>
-      </div>
+    <div id="todo-list" class="container">
+      <div id="items"></div>
+    </div>
+  </div>
 
-      <div class="overlay" id="overlay-item"></div>
-      <div class="popup" id="popup-item">
-        <span class="close" id="close-popup-item">&times;</span>
-        <h2>Add Item to the List</h2>
-        <form id="add-item-form">
-          <label for="item-name">Item Name:</label>
-          <input
-            type="text"
-            id="item-name"
-            required
-            placeholder="Potato Chips"
-          />
-          <br />
-          <label for="item-quantity">Quantity:</label>
-          <input type="number" id="item-quantity" required placeholder="3" />
-          <br />
-          <input type="submit" />
-        </form>
-      </div>
-
-      <div id="todo-list" class="container">
-        <div id="items"></div>
-      </div>
+  <div id="appListing">
+    <div id="list-title">
+      <h2>Lists <span id="list-list-count"></span></h2>
     </div>
 
-    <div id="appListing">
-      <div id="list-title">
-        <h2>Lists <span id="list-list-count"></span></h2>
-      </div>
-
-      <div class="overlay" id="overlay-list"></div>
-      <div class="popup" id="popup-list">
-        <span class="close" id="close-popup-list">&times;</span>
-        <h2>Create a new list</h2>
-        <form id="add-list-form">
-          <label for="list-name">List Name:</label>
-          <input
-            type="text"
-            id="list-name"
-            required
-            placeholder="My Shipping List"
-          />
-          <br />
-          <input type="submit" />
-        </form>
-      </div>
-
-      <div id="lists-list" class="container">
-        <div id="lists"></div>
-      </div>
+    <div class="overlay" id="overlay-list"></div>
+    <div class="popup" id="popup-list">
+      <span class="close" id="close-popup-list">&times;</span>
+      <h2>Create a new list</h2>
+      <form id="add-list-form">
+        <label for="list-name">List Name:</label>
+        <input type="text" id="list-name" required placeholder="My Shipping List" />
+        <br />
+        <input type="submit" />
+      </form>
     </div>
 
-    <button id="floating-add-button" class="floating-add-button">
-      <span>+</span>
-    </button>
-    <button
-      id="online-status"
-      class="floating-add-button-left"
-      style="display: inline; margin-left: 10+4px"
-    >
-      <span id="online-indicator"></span>
-      <span id="online-text">Sync</span>
-    </button>
-    <button id="floating-add-button-list" class="floating-add-button">
-      <span>+</span>
-    </button>
+    <div id="lists-list" class="container">
+      <div id="lists"></div>
+    </div>
+  </div>
 
-    <p id="current-list-name" style="display: none">HERE</p>
-  </body>
+  <button id="floating-add-button" class="floating-add-button">
+    <span>+</span>
+  </button>
+  <button id="online-status" class="floating-add-button-left" style="display: inline; margin-left: 10+4px">
+    <span id="online-indicator"></span>
+    <span id="online-text">Sync</span>
+  </button>
+  <button id="floating-add-button-list" class="floating-add-button">
+    <span>+</span>
+  </button>
+
+  <p id="current-list-name" style="display: none">HERE</p>
+</body>
+
 </html>

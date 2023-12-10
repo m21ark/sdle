@@ -12,6 +12,8 @@ const port = 3000;
 app.use(express.static("public"));
 app.use(cors());
 
+
+// get list on the replicas
 app.get("/lists", (req, res) => {
   const replicasDir = path.join(__dirname, "../db/replicas");
 
@@ -56,6 +58,7 @@ app.get("/lists", (req, res) => {
   });
 });
 
+// kills the proxy running on port
 app.get("/kill-proxy/:port", (req, res) => {
   const port = req.params.port;
   console.log(port);
@@ -76,46 +79,49 @@ app.get("/kill-proxy/:port", (req, res) => {
   );
 });
 
+// check replica info, disk space and number of entries
 app.get("/check-replicas", (req, res) => {
   const replicasDir = path.join(__dirname, "../db/replicas");
-  fs.readdir(replicasDir, (err, replicas) => {
-    if (err) {
-      console.error(`Error: ${err}`);
-      res.status(500).send("Internal Server Error");
-      return;
-    }
-
-    let results = [];
-
-    replicas.forEach((replica) => {
-      if (!replica.endsWith(".db")) {
+  fs.readdir(replicasDir,
+    (err, replicas) => {
+      if (err) {
+        console.error(`Error: ${err}`);
+        res.status(500).send("Internal Server Error");
         return;
       }
-      exec(
-        `du -sh ${path.join(replicasDir, replica)} && sqlite3 ${path.join(
-          replicasDir,
-          replica
-        )} "SELECT COUNT(*) FROM commitChanges"`,
-        (error, stdout, stderr) => {
-          if (error) {
-            console.error(`Error: ${stderr}`);
-            res.status(500).send("Internal Server Error");
-            return;
-          }
 
-          let [diskSpace, entries] = stdout.split("\n");
-          diskSpace = diskSpace.split("\t")[0];
-          results.push({ replica, diskSpace, entries });
+      let results = [];
 
-          if (results.length === replicas.length - 1) {
-            res.send(results);
-          }
+      replicas.forEach((replica) => {
+        if (!replica.endsWith(".db")) {
+          return;
         }
-      );
+        exec(
+          `du -sh ${path.join(replicasDir, replica)} && sqlite3 ${path.join(
+            replicasDir,
+            replica
+          )} "SELECT COUNT(*) FROM commitChanges"`,
+          (error, stdout, stderr) => {
+            if (error) {
+              console.error(`Error: ${stderr}`);
+              res.status(500).send("Internal Server Error");
+              return;
+            }
+
+            let [diskSpace, entries] = stdout.split("\n");
+            diskSpace = diskSpace.split("\t")[0];
+            results.push({ replica, diskSpace, entries });
+
+            if (results.length === replicas.length - 1) {
+              res.send(results);
+            }
+          }
+        );
+      });
     });
-  });
 });
 
+// start proxy on port
 app.get("/start-proxy/:port", (req, res) => {
   const port = req.params.port;
   console.log(port);
@@ -136,6 +142,7 @@ app.get("/start-proxy/:port", (req, res) => {
   );
 });
 
+// kill replica node on port
 app.get("/kill-process/:port", (req, res) => {
   const port = req.params.port;
   console.log(port);
@@ -156,6 +163,7 @@ app.get("/kill-process/:port", (req, res) => {
   );
 });
 
+// perform garbage collection
 app.get('/garbage-collection', (req, res) => {
   console.log('Garbage collection started');
   exec(
@@ -172,6 +180,7 @@ app.get('/garbage-collection', (req, res) => {
   );
 });
 
+// start replica node on port
 app.get("/start-process/:port", (req, res) => {
   const port = req.params.port;
   console.log(port);

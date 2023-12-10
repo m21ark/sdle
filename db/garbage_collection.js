@@ -70,7 +70,7 @@ class GarbageCollector {
   async performGarbageCollection() {
     console.log("Discovering active replicas ...");
 
-    this.replicaPorts = await this.discoverActiveReplicas(5000, 5005); // TODO: HARDOCDED
+    this.replicaPorts = await this.discoverActiveReplicas(5000, 5005); 
 
     if (!this.replicaPorts || this.replicaPorts.length === 0) {
       console.log("No active replicas found");
@@ -149,6 +149,7 @@ class GarbageCollector {
     console.log("Finished garbage collection");
   }
 
+  // perform garbage collection on a single list
   async performGarbageCollectionOnList(listName) {
     console.log("Performing garbage collection on list:", listName);
 

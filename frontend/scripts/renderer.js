@@ -42,9 +42,8 @@ export function toggle_view() {
 function list_rendering(list) {
   return `<div class="list">\
     <button class="btn btn-danger delete-button-list">X</button> \
-    <a class="a-list-name" data-name="${list.name}">${
-    list.name.split("#")[0]
-  }</a></div>`;
+    <a class="a-list-name" data-name="${list.name}">${list.name.split("#")[0]
+    }</a></div>`;
 }
 
 function render_lists() {

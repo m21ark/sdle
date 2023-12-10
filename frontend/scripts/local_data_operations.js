@@ -4,11 +4,9 @@ import { PNCounter } from "../logic/crdt.js";
 export let _shoppingLists = new Map(); // <list_name, ShoppingList>
 export let _username = "";
 
-// TODO: this must be made dynamic via configuration file
 export const PROXY_DOMAIN = "localhost";
 export let PROXY_PORT = "4000";
 
-// TODO: THIS CANT BE HERE... FIRST OF ALL WHAT IF THE PROXY IS NOT UP? OR THE WIFI IS OFF? THIS WILL GIVE ERROR --> i think we can assume DNS is always up
 fetch(`http://${PROXY_DOMAIN}:5900/endpoint`)
   .then((response) => response.json())
   .then((data) => {
@@ -240,7 +238,6 @@ async function fetch_commits(list) {
         render_list_again();
 
         // if active page list is the same as the list that was updated we need to update the page
-        // TODO: Add to the list view the new changes
         list.lastCommitRead = row["commit_hash"];
       }
     } else console.log("No new commits found in fetch for list: " + list.name);
@@ -257,11 +254,6 @@ async function push_changes(list) {
     console.log("No changes to push for list: " + list.name);
     return;
   }
-
-  // TODO: shouldnt we check for availability of the server here?
-  // because we are making a commit but if the server is not up
-  // the commit will still be made and the future iteration
-  // will not find any changes to push
 
   // If there are changes we need to push them to the server
 

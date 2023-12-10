@@ -119,7 +119,7 @@ function calculateNodePosition(angle, nodeId) {
   const centerX = 50;
   const centerY = 50;
   let hashValue = parseInt(nodeId, 16);
-  const adjustedAngle = hashValue % Math.pow(2, 128);
+  const adjustedAngle = hashValue % Math.pow(2, 128); // a good approximation of the angle
   const radians = (adjustedAngle * Math.PI) / 180;
   const x = centerX + radius * Math.cos(radians);
   const y = centerY - radius * Math.sin(radians);

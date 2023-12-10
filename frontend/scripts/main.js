@@ -67,9 +67,8 @@ async function reload_list(listId) {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${
-      LocalData.PROXY_PORT
-    }/list/${encodeURIComponent(listId)}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
+      }/list/${encodeURIComponent(listId)}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -119,11 +118,10 @@ function add_list_by_url() {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${
-      LocalData.PROXY_PORT
-    }/list/${encodeURIComponent(listId)}/${encodeURIComponent(
-      LocalData._username
-    )}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
+      }/list/${encodeURIComponent(listId)}/${encodeURIComponent(
+        LocalData._username
+      )}`;
     console.log(url);
     fetch(url)
       .then((response) => response.json())
@@ -396,8 +394,7 @@ function login_modal() {
         let user = username.value.trim();
 
         fetch(
-          `http://${LocalData.PROXY_DOMAIN}:${
-            LocalData.PROXY_PORT
+          `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
           }/user_data/${encodeURIComponent(user)}`
         )
           .then((response) => response.json())
@@ -415,7 +412,6 @@ function login_modal() {
             console.error(`Error fetching user ${user}: ${error}`);
           });
 
-        // TODO: if the user doesnt exist, we cant cache the name here:
         LocalData.cache_name(user);
       }
     } else {

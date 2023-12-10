@@ -20,10 +20,12 @@ class ConsistentHashing {
     this.buildHashRing();
   }
 
+  // Hashes a string using md5
   hashString(str) {
     return md5(str);
   }
 
+  // builds the hash ring
   buildHashRing() {
     let count = 0;
     for (const node of this.nodes) {
@@ -38,6 +40,7 @@ class ConsistentHashing {
     }
   }
 
+  // returns the node responsible for the key
   getNode(key) {
     const hash = this.hashString(key);
     const nodeHash = this.findClosestNode(hash);
@@ -45,6 +48,7 @@ class ConsistentHashing {
     return this.hashRing.find(nodeHash);
   }
 
+  // return the node iterator responsible for the key
   getNodeIt(key) {
     const hash = this.hashString(key);
     let nodeHash = this.findClosestNode(hash);
@@ -56,6 +60,7 @@ class ConsistentHashing {
     return this.hashRing.findIter(nodeHash);
   }
 
+  // returns the node responsible for the hash
   findClosestNode(hash) {
     let nodeHash = this.hashRing.upperBound(hash);
     // If the hash is greater than all nodes, loop back to the first node
@@ -63,6 +68,7 @@ class ConsistentHashing {
     return nodeHash.data();
   }
 
+  // adds a node to the ring
   addNode(node, weight = 1) {
     for (let i = 0; i < weight; i++) {
       const virtualNode = `${node}_${i}`;
@@ -72,6 +78,7 @@ class ConsistentHashing {
     }
   }
 
+  // removes a node from the ring
   removeNode(node) {
     const node0 = `${node}_0`;
     for (let i = 0; i < this.mappedNodes.get(this.hashString(node0)); i++) {
@@ -82,6 +89,7 @@ class ConsistentHashing {
     }
   }
 
+  // prints the node ranges
   showNodeRanges() {
     console.log("Node Ranges:");
     var it = this.hashRing.iterator(),
@@ -138,14 +146,17 @@ class ConsistentHashing {
     return nodes;
   }
 
+  // returns the node associated with the hash
   getNodeFromHash(hash) {
     return this.mappedNodes.get(hash);
   }
 
+  // returns the nodes responsible for the hashes
   getNodesFromHashes(hashes) {
     return hashes.map((hash) => this.mappedNodes.get(hash));
   }
 
+  // prints the nodes and their respective hashes on the ring
   printRingNodes() {
     console.log("Nodes and Respective Hashes on the Ring:");
     var it = this.hashRing.iterator(),

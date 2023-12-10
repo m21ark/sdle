@@ -15,17 +15,21 @@ body {
   line-height: 23px;
   cursor: pointer;
 }
+
 .quantity__minus:hover,
 .quantity__plus:hover {
   background: #575b71;
   color: #fff;
 }
+
 .quantity__minus {
   border-radius: 3px 0 0 3px;
 }
+
 .quantity__plus {
   border-radius: 0 3px 3px 0;
 }
+
 .quantity__input {
   width: 32px;
   height: 19px;
@@ -39,10 +43,12 @@ body {
   background: #fff;
   color: #8184a1;
 }
+
 .quantity__minus:link,
 .quantity__plus:link {
   color: #8184a1;
 }
+
 .quantity__minus:visited,
 .quantity__plus:visited {
   color: #fff;
@@ -158,7 +164,7 @@ span.quantity {
   /* Add any other styles you want for the "clicked" state */
 }
 
-.floating-add-button > span {
+.floating-add-button>span {
   font-weight: bold;
   font-size: 2em;
 }

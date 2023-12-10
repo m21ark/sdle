@@ -25,8 +25,6 @@ class ShoppingList {
       this.commits = new Map();
       this.commitTimeline = [];
 
-      // TODO: n é preciso manter todas as versoes do shopping list ...
-      // so a ultima com cada um dos nos (server e clients se quisermos fazer peer to peer )
 
       // Create the first setup commit
       this.commits.set(
@@ -82,7 +80,6 @@ class ShoppingList {
   }
 
   removeFromList(productName) {
-    // TODO: What is the difference between this and removeProduct?
     let decrement = this.products.get(productName).value();
     this.products.get(productName).decrement(decrement);
 
@@ -98,7 +95,6 @@ class ShoppingList {
     // Return the quantity of a product to buy
     if (this.products.has(productName))
       return this.products.get(productName).value();
-    // TODO: Is ignoring the dChanges here intentional?
     return 0;
   }
 
@@ -189,11 +185,7 @@ class ShoppingList {
     this.commitTimeline.push(commitHash);
     this.dChanges = new Map();
 
-    return commitHash; // TODO: commit changes should be in cache and be serialized back .... still need to do the serialization part
-  }
-
-  requestLastCommitHash() {
-    // TODO: Request the last commit hash from the server
+    return commitHash;
   }
 
   mergeListOfCommits(commitHashList) {
@@ -229,7 +221,6 @@ class ShoppingList {
     }
     this.commitTimeline.push(commitHash);
     this.commits.set(commitHash, dChangeList);
-    // TODO: Should we reset dChanges here?
   }
 
   fromJSON(json) {
@@ -277,25 +268,25 @@ class ShoppingList {
     try {
       for (const [productName, counter] of this.products)
         serializedProducts[productName] = counter.value();
-    } catch (error) {}
+    } catch (error) { }
 
     // Serialize commits
     try {
       for (const [commitHash, commit] of this.commits)
         serializedCommits[commitHash] = commit.toJSON();
-    } catch (error) {}
+    } catch (error) { }
 
     // Serialize dChanges
     try {
       for (const [productName, counter] of this.dChanges)
         dChanges[productName] = counter.value();
-    } catch (error) {}
+    } catch (error) { }
 
     return {
       name: this.name,
       products: serializedProducts,
       commits: serializedCommits,
-      dChanges: dChanges, // TODO: see if we can remove dchanges
+      dChanges: dChanges,
       commitTimeline: this.commitTimeline,
     };
   }
