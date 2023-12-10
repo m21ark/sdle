@@ -4,6 +4,7 @@ class Quorum {
     this.consensusSize = consensusSize;
     this.quorumSize = quorumSize;
     this.downReplicas = [];
+    this.startUp = true;
   }
 
   // set consistent hashing
@@ -328,6 +329,10 @@ class Quorum {
         );
         // call hinted handoff
         for (const port of upReplicas) {
+          if (this.startUp) {
+            this.startUp = false;
+            break;
+          }
           console.log("Delivering hints to node", port);
           this.sendHandoffDeliverHintsRequest(port);
         }
