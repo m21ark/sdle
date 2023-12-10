@@ -156,16 +156,17 @@ app.get("/kill-process/:port", (req, res) => {
   );
 });
 
-app.get("/garbage-collection", (req, res) => {
+app.get('/garbage-collection', (req, res) => {
+  console.log('Garbage collection started');
   exec(
-    `cd ../db/ && node garbage_collection.js && cd ../admin/`,
+    'cd ../db/ && node garbage_collection.js && cd ../admin/',
     (error, stdout, stderr) => {
       if (error) {
         console.error(`Error: ${stderr}`);
-        res.status(500).send("Internal Server Error");
+        res.status(500).send('Internal Server Error');
       } else {
-        console.log(`Garbage collection done and admin directory changed`);
-        res.send("Garbage collection done successfully");
+        console.log('Garbage collection done and admin directory changed');
+        res.send(`Garbage collection done successfully\n${stdout}`);
       }
     }
   );
