@@ -32,28 +32,32 @@ app.get("/ping", (_, res) => {
 
 // Endpoint to handle incoming requests
 app.all("/*", (req, res) => {
-  if (quorum.getReplicaActiveCount() === 0) {
-    res.status(500).json({ success: false, error: "No active replicas" });
-    return;
-  } else if (quorum.getReplicaActiveCount() < consensusSize) {
-    res.status(500).json({
-      success: false,
-      error: "Quorum can't be reached with so few active replicas",
-    });
-    return;
-  }
-
-  if (req) {
-    quorum
-      .consensus(req)
-      .then((result) => {
-        res.json(result);
-      })
-      .catch((error) => {
-        res.status(500).json({ success: false, error: error.message });
+  try {
+    if (quorum.getReplicaActiveCount() === 0) {
+      res.status(500).json({ success: false, error: "No active replicas" });
+      return;
+    } else if (quorum.getReplicaActiveCount() < consensusSize) {
+      res.status(500).json({
+        success: false,
+        error: "Quorum can't be reached with so few active replicas",
       });
-  } else {
-    res.status(400).json({ success: false, error: "Invalid request type" });
+      return;
+    }
+
+    if (req) {
+      quorum
+        .consensus(req)
+        .then((result) => {
+          res.json(result);
+        })
+        .catch((error) => {
+          res.status(500).json({ success: false, error: error.message });
+        });
+    } else {
+      res.status(400).json({ success: false, error: "Invalid request type" });
+    }
+  } catch (error) {
+    console.error(error);
   }
 });
 
@@ -62,7 +66,14 @@ function updateActiveReplicas() {
   try {
     quorum.discoverActiveReplicas(5000, 5100); // TODO Make these configs
     if (!consistentHashing && quorum.getReplicaActiveCount() > 0) {
-      const nodes = quorum.getReplicaPorts().map((port) => [port, 1]);
+      //const nodes = quorum.getReplicaPorts().map((port) => [port, 1]);
+      const nodes = [ // NOTE: hardcoded because of backend crashes
+        ["5000", 1],
+        ["5001", 1],
+        ["5002", 1],
+        ["5003", 1],
+        ["5004", 1]
+      ];
       consistentHashing = new ConsistentHashing(nodes);
       quorum.setConsistentHashing(consistentHashing);
     }

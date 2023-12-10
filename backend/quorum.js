@@ -170,7 +170,6 @@ class Quorum {
           },
         }
       );
-      console.log("Handoff delivery response:", response);
       const data = await response.json();
       if (!data.success)
         console.error("Handoff delivery response was not success:", data.error);

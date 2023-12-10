@@ -8,6 +8,7 @@ class HintedHandoff {
   constructor() {
     this.hints = new Map();
   }
+  
 
   // create a JSON object from the map
   getHints() {
