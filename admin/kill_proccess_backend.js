@@ -185,7 +185,7 @@ app.get("/start-process/:port", (req, res) => {
         console.log(
           `Process on port ${port} restarted and admin directory changed`
         );
-        res.send("Process restarted successfully");
+        res.status(200).send("Process restarted successfully");
       }
     }
   );

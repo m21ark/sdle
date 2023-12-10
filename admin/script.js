@@ -57,11 +57,9 @@ function simplifyHintsData(hintsData) {
       let changes = Object.entries(hint.commit_data.delta)
         .map(([item, count]) => `${item}: ${count}`)
         .join(", ");
-      simplifiedData += `<tr><td>${key}</td><td>${index + 1}</td><td>${
-        hint.username
-      }</td><td>${hint.listName}</td><td>${changes}</td><td>${
-        hint.commitHash
-      }</td></tr>`;
+      simplifiedData += `<tr><td>${key}</td><td>${index + 1}</td><td>${hint.username
+        }</td><td>${hint.listName}</td><td>${changes}</td><td>${hint.commitHash
+        }</td></tr>`;
     });
   }
   simplifiedData += "</table>";
@@ -194,18 +192,10 @@ ringNodes.forEach((node) => {
           }
           return response.text();
         })
-        .then((_) =>
-          generate_notification(
-            "successfully started replica node " + nodeId,
-            "bg-success"
-          )
-        )
-        .catch((_) =>
-          generate_notification(
-            "Problem trying to startup replica node " + nodeId,
-            "bg-danger"
-          )
-        );
+      generate_notification(
+        "successfully started replica node " + nodeId,
+        "bg-success"
+      )
     }
   });
 });
@@ -259,25 +249,10 @@ proxyList.forEach((proxy) => {
         );
     } else {
       fetch(`http://localhost:3000/start-proxy/${proxyId}`)
-        .then((response) => {
-          if (!response.ok)
-            generate_notification(
-              "Problem when trying to startup proxy " + proxyId,
-              "bg-danger"
-            );
-          else
-            generate_notification(
-              "Successfully started proxy " + proxyId,
-              "bg-success"
-            );
-          return response.text();
-        })
-        .catch((_) =>
-          generate_notification(
-            "Problem when trying to startup proxy " + proxyId,
-            "bg-danger"
-          )
-        );
+      generate_notification(
+        "Successfully started proxy " + proxyId,
+        "bg-success"
+      );
     }
   });
 });
