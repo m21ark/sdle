@@ -67,8 +67,9 @@ async function reload_list(listId) {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
-      }/list/${encodeURIComponent(listId)}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${
+      LocalData.PROXY_PORT
+    }/list/${encodeURIComponent(listId)}`;
     fetch(url)
       .then((response) => response.json())
       .then((data) => {
@@ -118,10 +119,11 @@ function add_list_by_url() {
   }
 
   if (listId) {
-    const url = `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
-      }/list/${encodeURIComponent(listId)}/${encodeURIComponent(
-        LocalData._username
-      )}`;
+    const url = `http://${LocalData.PROXY_DOMAIN}:${
+      LocalData.PROXY_PORT
+    }/list/${encodeURIComponent(listId)}/${encodeURIComponent(
+      LocalData._username
+    )}`;
     console.log(url);
     fetch(url)
       .then((response) => response.json())
@@ -162,28 +164,6 @@ function add_list_by_url() {
 }
 
 function add_list_item() {
-  const itemsContainer = document.getElementById("items");
-
-  function toggleCompleted(event) {
-    const itemNameElement = event.target.previousElementSibling;
-    if (event.target.checked) itemNameElement.classList.add("completed");
-    else itemNameElement.classList.remove("completed");
-
-    const currList = document.getElementById("current-list-name").textContent;
-
-    if (LocalData._shoppingLists.has(currList)) {
-      cache_list_changes(LocalData._shoppingLists.get(currList));
-    } else console.error("List does not exist");
-  }
-
-  function removeItem(event) {
-    const res = confirm("Are you sure you want to delete this item?");
-    if (!res) return;
-    const itemDiv = event.target.parentElement;
-    itemsContainer.removeChild(itemDiv);
-    cache_item_changes();
-  }
-
   const itemNameInput = document.getElementById("item-name");
   const itemQuantityInput = document.getElementById("item-quantity");
 
@@ -277,6 +257,13 @@ function add_item_popup() {
     add_list_item();
     popup.style.display = "none";
     overlay.style.display = "none";
+
+    // clear the inputs
+    const itemNameInput = document.getElementById("item-name");
+    const itemQuantityInput = document.getElementById("item-quantity");
+
+    itemNameInput.value = "";
+    itemQuantityInput.value = "";
   });
 }
 
@@ -394,7 +381,8 @@ function login_modal() {
         let user = username.value.trim();
 
         fetch(
-          `http://${LocalData.PROXY_DOMAIN}:${LocalData.PROXY_PORT
+          `http://${LocalData.PROXY_DOMAIN}:${
+            LocalData.PROXY_PORT
           }/user_data/${encodeURIComponent(user)}`
         )
           .then((response) => response.json())
