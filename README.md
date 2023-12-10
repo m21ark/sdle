@@ -4,6 +4,10 @@
 
 This project aims the creation of a **Local-First Shopping List Application**.
 
+Video of the project: [https://www.youtube.com/watch?v=LzP8wQ8Kcpg](https://www.youtube.com/watch?v=LzP8wQ8Kcpg)
+
+Presentation slides [here](presentation.pdf)
+
 ### Performed Work
 
 - **Local Data Persistence** - with no need to have internet connection
