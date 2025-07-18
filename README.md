@@ -1,45 +1,55 @@
-# SDLE
+# Local-First Shopping List Application 🛒
 
 ## Description
 
-This project aims the creation of a **Local-First Shopping List Application**.
+A local-first, distributed shopping list application designed with high availability, fault tolerance, and collaborative features inspired by Amazon’s Dynamo architecture.
 
-Video of the project: [https://www.youtube.com/watch?v=LzP8wQ8Kcpg](https://www.youtube.com/watch?v=LzP8wQ8Kcpg)
+Video of the project:
 
-Presentation slides [here](presentation.pdf)
+[![Youtube](https://img.shields.io/badge/YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=LzP8wQ8Kcpg)
 
-### Performed Work
+See also our presentation slides [here](presentation.pdf).
 
-- **Local Data Persistence** - with no need to have internet connection
-- **Cloud Component** - provides backup storage for user data and sharing.
-- **Shopping List Creation and Management** - adding/removing lists and sharing using url
-- **Collaborative Editing** - allowing multiple users to edit a list
-- **CRDTs** - custom delta based CRDT to merge different/conflicting data and ensure consistency
-- **Item Management** - adding/removing items quantities needed and checking when all are acquired
-- **High Availability** - designed to support millions of users and to avoid data access bottlenecks
-- **Data Independence** - independence between list, which are partitioned into different databases.
-- **Load Balancing** - to ensure good use of resources and avoid bottlenecks
+## 📌 Features
+- ✅ Create and manage multiple shopping lists
+- 📝 Add, update quantities, and check off items
+- 🔗 Share lists via unique URLs for collaboration
+- 📶 Works fully offline with a local-first approach
+- 🔄 Seamless sync and conflict-free collaboration via CRDTs
+- 👥 Real-time collaborative editing
+- ⚙️ Dynamic load balancing and high availability
+- 💥 Fault-tolerant and scalable infrastructure
 
-#### Other features
+## 🏗️ Architecture
+- **Local-First Design:** Full offline functionality with local data persistence
+- **Cloud Sync:** Automatic backup and sync using a custom delta-based CRDT
+- **High Availability:** Scales horizontally with quorum-based consistency, hinted handoff, and replication
+- **Data Partitioning:** Each list is stored independently using consistent hashing and replica rings
+- **Dynamic Load Balancing:** Based on DNS routing and response time
+- **Fault Tolerance:** Proxy servers, DNS, and garbage collection support availability and recovery
 
-- **Hinted Handoff** - to ensure data availability
-- **Proxy** - to ensure data availability and load balancing
-- **DNS Server** - to ensure data availability and load balancing
-- **Admin Panel** - to monitor the system
-- **Garbage Collection** - to ensure data availability and load balancing
+## ⚙️ System Components
+- **Shopping List Management:** Create, edit, and share lists via unique URLs
+- **Item Management:** Add/remove items, update quantities, and check them off
+- **Collaboration Engine:** Real-time updates with CRDT-based conflict resolution
+- **Admin Panel:** Monitor system health and performance
+- **Support Utilities:** Includes proxy servers, DNS, hinted handoff, and garbage collection to ensure availability and efficiency
+
+## Visualization
+
+![Architecture Diagram](docs/arch.png)
+*Figure 1: System architecture showing local-first design, cloud sync, proxies, DNS, replica rings, and load balancing.*
+
+![Main Page](docs/demo.png)
+*Figure 2: Main shopping list interface with item management and collaborative features.*
+
+![Admin Panel](docs/admin.png)
+*Figure 3: Admin panel displaying system health, performance metrics, and network status.*
 
 ## Technologies
 
 For the frontend, the team used `JavaScript`, `HTML` and `CSS`.
 For the network and backend, the team used `Node.js` with `express` and `SQLite3`.
-
-## Dependencies
-
-On the first run, or after making changes to the `package.json` file, run the command below to install the dependencies:
-
-```bash
-npm install
-```
 
 ## How to run
 
@@ -55,7 +65,15 @@ The application will be served on live server at:
 - `http://localhost:9001` - for the client 2
 - `http://localhost:9002` - for admin panel
 
-## Troubleshooting
+### Dependencies
+
+On the first run, or after making changes to the `package.json` file, run the command below to install the dependencies:
+
+```bash
+npm install
+```
+
+### Troubleshooting
 
 Sometimes the application is not stopped properly and the ports are still in use. To solve this problem, run the command below:
 
